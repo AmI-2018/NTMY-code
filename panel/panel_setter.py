@@ -1,6 +1,5 @@
 from gpiozero import LED, PWMLED
-from time import pause
-from app_functions import generate_arrow , reset_arrow
+from time import sleep
 
 """
     RGB positions              LED SCANNING CONFIG
@@ -32,20 +31,20 @@ color_B={
     "blue": PWMLED(26)  #A2 BLUE
 }
 
-color[0, 1, 1];
+color = [0, 0.3, 1]
 
 #if(direction==0)#EST
-        couple_led[0].on()
-        couple_led[1].on()
-        couple_led[2].on()
-        couple_led[3].on()
-        couple_led[4].on()
-        color_B["red"].value(color[0])
-        color_B["green"].value(color[1])
-        color_B["blue"].value(color[2])
+couple_led[0].on()
+couple_led[1].on()
+couple_led[2].on()
+couple_led[3].on()
+
+color_B["red"].value = color[0]
+color_B["green"].value = color[1]
+color_B["blue"].value = color[2]
 
 
-
+sleep(30)
 
 
 
