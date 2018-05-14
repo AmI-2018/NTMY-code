@@ -35,8 +35,12 @@ def add(add_object: Base) -> Base:
     :rtype: Base
     """
 
-    session.add(add_object)
-    session.commit()
+    try:
+        session.add(add_object)
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise DatabaseError("The provided object can not be inserted.")
     return add_object
 
 def rem(del_object: Base):
@@ -46,8 +50,12 @@ def rem(del_object: Base):
     :type del_object: Base
     """
 
-    session.delete(del_object)
-    session.commit()
+    try:
+        session.delete(del_object)
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise DatabaseError("The provided object can not be removed.")
 
 def upd(upd_object: Base, upd_dict: Dict[str, Any]) -> Base:
     """Updates the given object on the database.
@@ -62,16 +70,3 @@ def upd(upd_object: Base, upd_dict: Dict[str, Any]) -> Base:
         if hasattr(upd_object, key):
             setattr(upd_object, key, value)
     return upd_object
-
-def get_as_dict(get_type: Type(Base), get_id: int=None) -> List[Dict[str, Any]]:
-    """Retrieves the elements of the given type from the database and returns them as dictionaries to be jsonified.
-    
-    :param get_type: The type of the elements to be found (subclass of Base)
-    :type get_type: Type(Base)
-    :param get_id: The ID of the element to retrieve, defaults to None
-    :param get_id: int, optional
-    :raises DatabaseError: If the requested element can not be found
-    :return: The entire collection if get_id is not given, or a list composed of the element with the given ID
-    :rtype: List[Dict[str, Any]]
-    """
-    return [obj.to_dict() for obj in get(get_type, get_id)]
