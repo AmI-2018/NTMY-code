@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">NTMY</string>
+    <string name="alt_logo">Logo Image</string>
+    <string name="app_name_long">Nice To Meet You</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="sign_in">Sign In</string>
 </resources>
