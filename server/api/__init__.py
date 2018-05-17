@@ -5,7 +5,7 @@ import database
 
 # Server initialization
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder=None)
 """The Flask application"""
 app.secret_key = "ntmysupersecretkey"
 

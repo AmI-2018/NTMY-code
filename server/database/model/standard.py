@@ -239,7 +239,6 @@ class Event(Base):
     description = Column(String, nullable=False)
     start = Column(DateTime, nullable=False)
     end = Column(DateTime, nullable=False)
-    color = Column(String, nullable=False)
 
     # Relationships
     categories = []
@@ -262,8 +261,7 @@ class Event(Base):
             "name": str(self.name),
             "description": str(self.description),
             "start": datetime.strftime(self.start, "%x %X"),
-            "end": datetime.strftime(self.end, "%x %X"),
-            "color": str(self.color)
+            "end": datetime.strftime(self.end, "%x %X")
         }
     
     @staticmethod
@@ -283,8 +281,7 @@ class Event(Base):
                 name=event_dict["name"],
                 description=event_dict["description"],
                 start=datetime.strptime(event_dict["start"], "%x %X"),
-                end=datetime.strptime(event_dict["end"], "%x %X"),
-                color=event_dict["color"]
+                end=datetime.strptime(event_dict["end"], "%x %X")
             )
         except KeyError as e:
             raise InvalidDictError("The provided dictionary is missing the key {}".format(str(e)))
