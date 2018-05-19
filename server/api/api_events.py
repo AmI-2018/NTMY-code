@@ -1,21 +1,25 @@
 """Events API"""
 
-from . import app, jsonify, database, request
+from flask import jsonify, request, Blueprint
+import database
+
+events_bp = Blueprint("events_bp", __name__)
 
 # Basic usage
 
-@app.route("/events", methods=["GET"])
+@events_bp.route("/events", methods=["GET"])
 def handler_get_events():
     """Get the list of the events.
 
     .. :quickref: Events; Get the list of the events.
     
     :status 200: The list was correctly retrieved
+    :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
     return jsonify([e.to_dict() for e in database.functions.get(database.model.standard.Event)])
 
-@app.route("/events", methods=["POST"])
+@events_bp.route("/events", methods=["POST"])
 def handler_add_event():
     """Add an event.
 
@@ -27,6 +31,7 @@ def handler_add_event():
     :json string end: The date and time of the new event end
     :status 200: The event was correctly inserted
     :status 400: The provided JSON is invalid or there is a database error
+    :status 401: The user has not logged in
     :return: The JSON-encoded newly created event
     """
     try:
@@ -39,7 +44,7 @@ def handler_add_event():
 
 # ID indexed
 
-@app.route("/events/<int:eventID>", methods=["GET"])
+@events_bp.route("/events/<int:eventID>", methods=["GET"])
 def handler_get_event_from_id(eventID):
     """Get the event with the given ID.
 
@@ -48,6 +53,7 @@ def handler_get_event_from_id(eventID):
     :param int eventID: The ID of the event to retrieve
     :status 200: The event was correctly retrieved
     :status 400: The event could not be found
+    :status 401: The user has not logged in
     :return: The JSON-encoded event
     """
     try:
@@ -57,7 +63,7 @@ def handler_get_event_from_id(eventID):
             "msg": str(e)
         }), 400
 
-@app.route("/events/<int:eventID>", methods=["PUT"])
+@events_bp.route("/events/<int:eventID>", methods=["PUT"])
 def handler_patch_event_from_id(eventID):
     """Update the event with the given ID.
 
@@ -70,6 +76,7 @@ def handler_patch_event_from_id(eventID):
     :param int eventID: The ID of the event to update
     :status 200: The event was correctly updated
     :status 400: The event could not be found
+    :status 401: The user has not logged in
     :return: The JSON-encoded event
     """
     try:
@@ -80,7 +87,7 @@ def handler_patch_event_from_id(eventID):
             "msg": str(e)
         }), 400
 
-@app.route("/events/<int:eventID>", methods=["DELETE"])
+@events_bp.route("/events/<int:eventID>", methods=["DELETE"])
 def handler_delete_event_from_id(eventID):
     """Delete the event with the given ID.
 
@@ -89,6 +96,7 @@ def handler_delete_event_from_id(eventID):
     :param int eventID: The ID of the event to delete
     :status 200: The event was correctly deleted
     :status 400: The event could not be found
+    :status 401: The user has not logged in
     :return: Empty response
     """
     try:
@@ -102,7 +110,7 @@ def handler_delete_event_from_id(eventID):
 
 # Categories subcollection
 
-@app.route("/events/<int:eventID>/categories", methods=["GET"])
+@events_bp.route("/events/<int:eventID>/categories", methods=["GET"])
 def handler_get_event_categories_from_id(eventID):
     """Get the categories of the event with the given ID.
 
@@ -111,6 +119,7 @@ def handler_get_event_categories_from_id(eventID):
     :param int eventID: The ID of the event to retrieve the collection from
     :status 200: The list was correctly retrieved
     :status 400: The event could not be found
+    :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
     try:
@@ -122,7 +131,7 @@ def handler_get_event_categories_from_id(eventID):
             "msg": str(e)
         }), 400
 
-@app.route("/events/<int:eventID>/categories", methods=["POST"])
+@events_bp.route("/events/<int:eventID>/categories", methods=["POST"])
 def handler_add_event_category_from_id(eventID):
     """Add a category to the event with the given ID.
 
@@ -132,6 +141,7 @@ def handler_add_event_category_from_id(eventID):
     :json int categoryID: The ID of the category to add to the categories
     :status 200: The category was correctly inserted
     :status 400: The event could not be found
+    :status 401: The user has not logged in
     :return: The JSON-encoded newly created category
     """
     try:
@@ -142,7 +152,7 @@ def handler_add_event_category_from_id(eventID):
             "msg": str(e)
         }), 400
 
-@app.route("/events/<int:eventID>/categories/<int:categoryID>", methods=["GET"])
+@events_bp.route("/events/<int:eventID>/categories/<int:categoryID>", methods=["GET"])
 def handler_get_event_category_from_id_from_id(eventID, categoryID):
     """Get the category of the event with the given IDs.
 
@@ -152,6 +162,7 @@ def handler_get_event_category_from_id_from_id(eventID, categoryID):
     :param int categoryID: The ID of the category to retrieve
     :status 200: The category was correctly retrieved
     :status 400: The event or category could not be found
+    :status 401: The user has not logged in
     :return: The JSON-encoded category
     """
     try:
@@ -162,7 +173,7 @@ def handler_get_event_category_from_id_from_id(eventID, categoryID):
             "msg": str(e)
         }), 400
 
-@app.route("/events/<int:eventID>/categories/<int:categoryID>", methods=["DELETE"])
+@events_bp.route("/events/<int:eventID>/categories/<int:categoryID>", methods=["DELETE"])
 def handler_delete_event_category_from_id_from_id(eventID, categoryID):
     """Delete the category of the event with the given IDs.
     
@@ -172,6 +183,7 @@ def handler_delete_event_category_from_id_from_id(eventID, categoryID):
     :param int categoryID: The ID of the category to delete
     :status 200: The category was correctly deleted
     :status 400: The event or the category could not be found
+    :status 401: The user has not logged in
     :return: Empty response
     """
     try:
@@ -185,7 +197,7 @@ def handler_delete_event_category_from_id_from_id(eventID, categoryID):
 
 # Facilities subcollection
 
-@app.route("/events/<int:eventID>/facilities", methods=["GET"])
+@events_bp.route("/events/<int:eventID>/facilities", methods=["GET"])
 def handler_get_event_facilities(eventID):
     """Get the facilities of the event with the given ID.
 
@@ -194,6 +206,7 @@ def handler_get_event_facilities(eventID):
     :param int eventID: The ID of the event to retrieve the collection from
     :status 200: The list was correctly retrieved
     :status 400: The event could not be found
+    :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
     try:
@@ -205,7 +218,7 @@ def handler_get_event_facilities(eventID):
             "msg": str(e)
         }), 400
 
-@app.route("/events/<int:eventID>/facilities", methods=["POST"])
+@events_bp.route("/events/<int:eventID>/facilities", methods=["POST"])
 def handler_add_event_facility(eventID):
     """Add a facility to the event with the given ID.
 
@@ -215,6 +228,7 @@ def handler_add_event_facility(eventID):
     :json int facilityID: The ID of the facility to add to the facilities
     :status 200: The facility was correctly inserted
     :status 400: The event could not be found
+    :status 401: The user has not logged in
     :return: The JSON-encoded newly created facility
     """
     try:
@@ -225,7 +239,7 @@ def handler_add_event_facility(eventID):
             "msg": str(e)
         }), 400
 
-@app.route("/events/<int:eventID>/facilities/<int:facilityID>", methods=["GET"])
+@events_bp.route("/events/<int:eventID>/facilities/<int:facilityID>", methods=["GET"])
 def handler_get_event_facility_from_id_from_id(eventID, facilityID):
     """Get the facility of the event with the given IDs.
 
@@ -235,6 +249,7 @@ def handler_get_event_facility_from_id_from_id(eventID, facilityID):
     :param int facilityID: The ID of the facility to retrieve
     :status 200: The facility was correctly retrieved
     :status 400: The event or facility could not be found
+    :status 401: The user has not logged in
     :return: The JSON-encoded facility
     """
     try:
@@ -245,7 +260,7 @@ def handler_get_event_facility_from_id_from_id(eventID, facilityID):
             "msg": str(e)
         }), 400
 
-@app.route("/events/<int:eventID>/facilities/<int:facilityID>", methods=["DELETE"])
+@events_bp.route("/events/<int:eventID>/facilities/<int:facilityID>", methods=["DELETE"])
 def handler_delete_event_facility_from_id_from_id(eventID, facilityID):
     """Delete the facility of the event with the given IDs.
     
@@ -255,6 +270,7 @@ def handler_delete_event_facility_from_id_from_id(eventID, facilityID):
     :param int facilityID: The ID of the facility to delete
     :status 200: The facility was correctly deleted
     :status 400: The event or the facility could not be found
+    :status 401: The user has not logged in
     :return: Empty response
     """
     try:
@@ -268,7 +284,7 @@ def handler_delete_event_facility_from_id_from_id(eventID, facilityID):
 
 # Participants subcollection
 
-@app.route("/events/<int:eventID>/participants", methods=["GET"])
+@events_bp.route("/events/<int:eventID>/participants", methods=["GET"])
 def handler_get_event_participants(eventID):
     """Get the participants of the event with the given ID.
 
@@ -277,6 +293,7 @@ def handler_get_event_participants(eventID):
     :param int eventID: The ID of the event to retrieve the collection from
     :status 200: The list was correctly retrieved
     :status 400: The event could not be found
+    :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
     try:
@@ -288,7 +305,7 @@ def handler_get_event_participants(eventID):
             "msg": str(e)
         }), 400
 
-@app.route("/events/<int:eventID>/participants", methods=["POST"])
+@events_bp.route("/events/<int:eventID>/participants", methods=["POST"])
 def handler_add_event_participant(eventID):
     """Add a participant to the event with the given ID.
 
@@ -298,6 +315,7 @@ def handler_add_event_participant(eventID):
     :json int userID: The ID of the user to add to the participants
     :status 200: The participant was correctly inserted
     :status 400: The event could not be found
+    :status 401: The user has not logged in
     :return: The JSON-encoded newly created participant
     """
     try:
@@ -308,7 +326,7 @@ def handler_add_event_participant(eventID):
             "msg": str(e)
         }), 400
 
-@app.route("/events/<int:eventID>/participants/<int:userID>", methods=["GET"])
+@events_bp.route("/events/<int:eventID>/participants/<int:userID>", methods=["GET"])
 def handler_get_event_participant_from_id_from_id(eventID, userID):
     """Get the participant of the event with the given IDs.
 
@@ -318,6 +336,7 @@ def handler_get_event_participant_from_id_from_id(eventID, userID):
     :param int userID: The ID of the participant to retrieve
     :status 200: The participant was correctly retrieved
     :status 400: The event or participant could not be found
+    :status 401: The user has not logged in
     :return: The JSON-encoded participant
     """
     try:
@@ -328,7 +347,7 @@ def handler_get_event_participant_from_id_from_id(eventID, userID):
             "msg": str(e)
         }), 400
 
-@app.route("/events/<int:eventID>/participants/<int:userID>", methods=["DELETE"])
+@events_bp.route("/events/<int:eventID>/participants/<int:userID>", methods=["DELETE"])
 def handler_delete_event_participant_from_id_from_id(eventID, userID):
     """Delete the participant of the event with the given IDs.
     
@@ -338,6 +357,7 @@ def handler_delete_event_participant_from_id_from_id(eventID, userID):
     :param int userID: The ID of the participant to delete
     :status 200: The participant was correctly deleted
     :status 400: The event or the participant could not be found
+    :status 401: The user has not logged in
     :return: Empty response
     """
     try:

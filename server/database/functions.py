@@ -69,4 +69,5 @@ def upd(upd_object: Base, upd_dict: Dict[str, Any]) -> Base:
     for (key, value) in upd_dict.items():
         if hasattr(upd_object, key):
             setattr(upd_object, key, value)
+    session.commit()
     return upd_object

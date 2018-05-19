@@ -1,7 +1,10 @@
 """Schedule API"""
 
-from . import app, jsonify, database
+from flask import jsonify, request, session, Blueprint
+import database
 
-@app.route("/schedule", methods=["GET"])
+schedule_bp = Blueprint("schedule_bp", __name__)
+
+@schedule_bp.route("/schedule", methods=["GET"])
 def handler_get_schedule():
     pass

@@ -1,14 +1,18 @@
 """Facilities API"""
 
-from . import app, jsonify, database
+from flask import jsonify, request, Blueprint
+import database
 
-@app.route("/facilities", methods=["GET"])
+facilities_bp = Blueprint("facilities_bp", __name__)
+
+@facilities_bp.route("/facilities", methods=["GET"])
 def handler_get_facilities():
     """Get the list of the facilities.
     
     .. :quickref: Facilities; Get the list of the facilities.
     
     :status 200: The list was correctly retrieved
+    :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
 

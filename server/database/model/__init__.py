@@ -3,7 +3,8 @@
 # Import and expose model modules
 
 from . import base
+from . import login
 from . import standard
 from . import relationships
 
-__all__ = ["base", "standard", "relationships"]
+__all__ = ["base", "login", "standard", "relationships"]

@@ -1,21 +1,25 @@
 """Users API"""
 
-from . import app, jsonify, database, request
+from flask import jsonify, request, Blueprint
+import database
+
+users_bp = Blueprint("users_bp", __name__)
 
 # Basic usage
 
-@app.route("/users", methods=["GET"])
+@users_bp.route("/users", methods=["GET"])
 def handler_get_users():
     """Get the list of the users.
 
     .. :quickref: Users; Get the list of the users.
     
     :status 200: The list was correctly retrieved
+    :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
     return jsonify([u.to_dict() for u in database.functions.get(database.model.standard.User)])
 
-@app.route("/users", methods=["POST"])
+@users_bp.route("/users", methods=["POST"])
 def handler_add_user():
     """Add an user.
 
@@ -27,6 +31,7 @@ def handler_add_user():
     :json string link: The link of the new user
     :status 200: The user was correctly inserted
     :status 400: The provided JSON is invalid or there is a database error
+    :status 401: The user has not logged in
     :return: The JSON-encoded newly created user
     """
     try:
@@ -39,7 +44,7 @@ def handler_add_user():
 
 # ID indexed
 
-@app.route("/users/<int:userID>", methods=["GET"])
+@users_bp.route("/users/<int:userID>", methods=["GET"])
 def handler_get_user_from_id(userID):
     """Get the user with the given ID.
 
@@ -48,6 +53,7 @@ def handler_get_user_from_id(userID):
     :param int userID: The ID of the user to retrieve
     :status 200: The user was correctly retrieved
     :status 400: The user could not be found
+    :status 401: The user has not logged in
     :return: The JSON-encoded user
     """
     try:
@@ -57,7 +63,7 @@ def handler_get_user_from_id(userID):
             "msg": str(e)
         }), 400
 
-@app.route("/users/<int:userID>", methods=["PUT"])
+@users_bp.route("/users/<int:userID>", methods=["PUT"])
 def handler_patch_user_from_id(userID):
     """Update the user with the given ID.
 
@@ -70,6 +76,7 @@ def handler_patch_user_from_id(userID):
     :param int userID: The ID of the user to update
     :status 200: The user was correctly updated
     :status 400: The user could not be found
+    :status 401: The user has not logged in
     :return: The JSON-encoded user
     """
     try:
@@ -80,7 +87,7 @@ def handler_patch_user_from_id(userID):
             "msg": str(e)
         }), 400
 
-@app.route("/users/<int:userID>", methods=["DELETE"])
+@users_bp.route("/users/<int:userID>", methods=["DELETE"])
 def handler_delete_user_from_id(userID):
     """Delete the user with the given ID.
 
@@ -89,6 +96,7 @@ def handler_delete_user_from_id(userID):
     :param int userID: The ID of the user to delete
     :status 200: The user was correctly deleted
     :status 400: The user could not be found
+    :status 401: The user has not logged in
     :return: Empty response
     """
     try:
@@ -102,7 +110,7 @@ def handler_delete_user_from_id(userID):
 
 # Connections subcollection
 
-@app.route("/users/<int:userID>/connections", methods=["GET"])
+@users_bp.route("/users/<int:userID>/connections", methods=["GET"])
 def handler_get_user_connections_from_id(userID):
     """Get the connections of the user with the given ID.
 
@@ -111,6 +119,7 @@ def handler_get_user_connections_from_id(userID):
     :param int userID: The ID of the user to retrieve the collection from
     :status 200: The list was correctly retrieved
     :status 400: The user could not be found
+    :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
     try:
@@ -122,7 +131,7 @@ def handler_get_user_connections_from_id(userID):
             "msg": str(e)
         }), 400
 
-@app.route("/users/<int:userID>/connections", methods=["POST"])
+@users_bp.route("/users/<int:userID>/connections", methods=["POST"])
 def handler_add_user_connection_from_id(userID):
     """Add a connection to the user with the given ID.
 
@@ -133,6 +142,7 @@ def handler_add_user_connection_from_id(userID):
     :json int eventID: The ID of the event where the connection was created
     :status 200: The connection was correctly inserted
     :status 400: The user could not be found
+    :status 401: The user has not logged in
     :return: The JSON-encoded newly created connection
     """
     try:
@@ -145,7 +155,7 @@ def handler_add_user_connection_from_id(userID):
 
 # Events subcollection
 
-@app.route("/users/<int:userID>/events", methods=["GET"])
+@users_bp.route("/users/<int:userID>/events", methods=["GET"])
 def handler_get_user_events_from_id(userID):
     """Get the events of the user with the given ID.
 
@@ -154,6 +164,7 @@ def handler_get_user_events_from_id(userID):
     :param int userID: The ID of the user to retrieve the collection from
     :status 200: The list was correctly retrieved
     :status 400: The user could not be found
+    :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
     try:
@@ -167,7 +178,7 @@ def handler_get_user_events_from_id(userID):
 
 # Interests subcollection
 
-@app.route("/users/<int:userID>/interests", methods=["GET"])
+@users_bp.route("/users/<int:userID>/interests", methods=["GET"])
 def handler_get_user_interests_from_id(userID):
     """Get the interests of the user with the given ID.
 
@@ -176,6 +187,7 @@ def handler_get_user_interests_from_id(userID):
     :param int userID: The ID of the user to retrieve the collection from
     :status 200: The list was correctly retrieved
     :status 400: The user could not be found
+    :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
     try:
@@ -187,7 +199,7 @@ def handler_get_user_interests_from_id(userID):
             "msg": str(e)
         }), 400
 
-@app.route("/users/<int:userID>/interests", methods=["POST"])
+@users_bp.route("/users/<int:userID>/interests", methods=["POST"])
 def handler_add_user_interest_from_id(userID):
     """Add an interest to the user with the given ID.
 
@@ -197,6 +209,7 @@ def handler_add_user_interest_from_id(userID):
     :json int categoryID: The ID of the category to add to the interests
     :status 200: The insterest was correctly inserted
     :status 400: The user could not be found
+    :status 401: The user has not logged in
     :return: The JSON-encoded newly created interest
     """
     try:
@@ -207,7 +220,7 @@ def handler_add_user_interest_from_id(userID):
             "msg": str(e)
         }), 400
 
-@app.route("/users/<int:userID>/interests/<int:categoryID>", methods=["GET"])
+@users_bp.route("/users/<int:userID>/interests/<int:categoryID>", methods=["GET"])
 def handler_get_user_interest_from_id_from_id(userID, categoryID):
     """Get the interest of the user with the given IDs.
 
@@ -217,6 +230,7 @@ def handler_get_user_interest_from_id_from_id(userID, categoryID):
     :param int categoryID: The ID of the category to retrieve
     :status 200: The interest was correctly retrieved
     :status 400: The user or category could not be found
+    :status 401: The user has not logged in
     :return: The JSON-encoded interest
     """
     try:
@@ -227,7 +241,7 @@ def handler_get_user_interest_from_id_from_id(userID, categoryID):
             "msg": str(e)
         }), 400
 
-@app.route("/users/<int:userID>/interests/<int:categoryID>", methods=["DELETE"])
+@users_bp.route("/users/<int:userID>/interests/<int:categoryID>", methods=["DELETE"])
 def handler_delete_user_interest_from_id_from_id(userID, categoryID):
     """Delete the interest of the user with the given IDs.
     
@@ -237,6 +251,7 @@ def handler_delete_user_interest_from_id_from_id(userID, categoryID):
     :param int categoryID: The ID of the category to delete
     :status 200: The interest was correctly deleted
     :status 400: The user or the category could not be found
+    :status 401: The user has not logged in
     :return: Empty response
     """
     try:
