@@ -18,6 +18,7 @@ from . import api_categories, api_events, api_facilities, api_login, api_rooms, 
 @api_events.events_bp.before_request
 @api_facilities.facilities_bp.before_request
 @api_rooms.rooms_bp.before_request
+@api_schedule.schedule_bp.before_request
 @api_users.users_bp.before_request
 def require_login():
     try:

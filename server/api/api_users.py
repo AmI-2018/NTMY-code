@@ -29,6 +29,7 @@ def handler_add_user():
     :json string surname: The surname of the new user
     :json string phone: The phone of the new user
     :json string link: The link of the new user
+    :json string password: The password of the new user
     :status 200: The user was correctly inserted
     :status 400: The provided JSON is invalid or there is a database error
     :status 401: The user has not logged in
@@ -73,6 +74,7 @@ def handler_patch_user_from_id(userID):
     :json string surname: The surname of the updated user
     :json string phone: The phone of the updated user
     :json string link: The link of the updated user
+    :json string password: The password of the updated user
     :param int userID: The ID of the user to update
     :status 200: The user was correctly updated
     :status 400: The user could not be found

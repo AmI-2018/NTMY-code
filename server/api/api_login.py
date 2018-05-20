@@ -23,7 +23,7 @@ def login_user():
         userID = request.json["userID"]
         password = request.json["password"]
 
-        user = database.functions.get(database.model.login.UserLogin, userID)[0]
+        user = database.functions.get(database.model.standard.User, userID)[0]
         if user.check_password(password):
             session["user"] = userID
             return jsonify({"msg": "Login OK"})

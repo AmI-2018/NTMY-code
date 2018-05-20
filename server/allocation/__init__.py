@@ -2,9 +2,21 @@
 
 # Import and expose allocation modules
 
-from . import allocator
-from . import dailysched
-from . import exceptions
-from . import targetfun
+from . import allocator, dailysched, exceptions, targetfun
 
 __all__ = ["allocator", "dailysched", "exceptions", "targetfun"]
+
+# Define the functions for the schedule
+
+sched = None
+
+def update_sched():
+    import database
+    global sched
+
+    rooms = database.functions.get(database.model.standard.Room)
+    events = database.functions.get(database.model.standard.Event)
+    sched = allocator.allocate(rooms, events)
+
+# Get the first schedule
+update_sched()

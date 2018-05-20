@@ -1,6 +1,7 @@
 """This module provides all the base classes of the data model."""
 
 from sqlalchemy import Column, Integer, String, DateTime
+from passlib.hash import sha512_crypt
 from typing import Dict, Any
 from .base import Base
 from ..exceptions import InvalidDictError
@@ -124,6 +125,7 @@ class User(Base):
     surname = Column(String, nullable=False)
     phone = Column(String, nullable=False)
     link = Column(String, nullable=False)
+    password = Column(String, nullable=False)
 
     # Relationships
     events = []
@@ -133,6 +135,29 @@ class User(Base):
     def __repr__(self):
         return "User #{}: {} {}".format(self.userID, self.name, self.surname)
     
+    @staticmethod
+    def make_password(password: str) -> str:
+        """Returns the hashed password.
+        
+        :param password: The password to encrypt
+        :type password: str
+        :return: The encrypted password
+        :rtype: str
+        """
+
+        return sha512_crypt.hash(password)
+
+    def check_password(self, pwd_to_check: str) -> bool:
+        """Checks if the provided password is correct.
+        
+        :param pwd_to_check: The password to check
+        :type pwd_to_check: str
+        :return: True if the password is correct, False otherwise
+        :rtype: bool
+        """
+
+        return sha512_crypt.verify(pwd_to_check, self.password)
+
     def to_dict(self) -> Dict[str, Any]:
         """Returns a dictionary representation of the class.
         
@@ -147,7 +172,7 @@ class User(Base):
             "phone": str(self.phone),
             "link": str(self.link)
         }
-    
+
     @staticmethod
     def from_dict(user_dict: Dict[str, Any]) -> "User":
         """Returns a class created from the provided dictionary.
@@ -164,7 +189,8 @@ class User(Base):
                 name=user_dict["name"],
                 surname=user_dict["surname"],
                 phone=user_dict["phone"],
-                link=user_dict["link"]
+                link=user_dict["link"],
+                password=User.make_password(user_dict["password"])
             )
         except KeyError as e:
             raise InvalidDictError("The provided dictionary is missing the key {}".format(str(e)))

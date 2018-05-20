@@ -14,7 +14,7 @@ from .targetfun import TargetFunction, TargetFunctionSet
 
 def total_part_calc(schedule: DailySchedule) -> int:
     # Sum participants for every event in every room
-    tot = sum([len(e.participants) for r in schedule.sched for e in schedule.sched[r]])    
+    tot = sum([len(e["event"].participants) for r in schedule.sched for e in schedule.sched[r]])    
     return tot
 total_part = TargetFunction("total_participants", int.__gt__, total_part_calc)
 
@@ -30,7 +30,7 @@ events_distrib = TargetFunction("events_distrib", int.__lt__, events_distrib_cal
 
 def best_fit_calc(schedule: DailySchedule) -> int:
     # Get the maximum difference between room size and the number of participants
-    max_delta = max([r.size - len(e.participants) for r in schedule.sched for e in schedule.sched[r]])
+    max_delta = max([r.size - len(e["event"].participants) for r in schedule.sched for e in schedule.sched[r]])
     return max_delta
 best_fit = TargetFunction("best_room_fit", int.__lt__, best_fit_calc)
 
