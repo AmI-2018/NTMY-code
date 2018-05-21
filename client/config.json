@@ -1,5 +1,7 @@
 {
-    "roomID": 1,
+    "roomID": 3,
     "serveruri": "http://127.0.0.1:5000",
-    "rootpwd": "ntmyroot"
+    "rootpwd": "ntmyroot",
+    "lightsuri": "http://localhost:8080",
+    "lightsuser": "newdeveloper"
 }

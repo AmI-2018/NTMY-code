@@ -4,6 +4,7 @@ import json
 import pause
 import requests
 
+from lights import LightManager
 from player import Player
 
 # Read config file
@@ -23,6 +24,12 @@ session.post(config["serveruri"] + "/login", json={
     "password": config["rootpwd"]
 })
 
+# LightManager instantiation
+
+lm = LightManager(config["lightsuri"], config["lightsuser"])
+print("Available lights:")
+print(lm.get_lights())
+
 # Main loop
 
 while True:
@@ -36,14 +43,16 @@ while True:
     print("Next event:")
     print(next_event)
 
+    # Set the color of the lights
+    lm.set_color_all(next_event["color"]["red"], next_event["color"]["green"], next_event["color"]["blue"], 255)
+    print(lm.get_lights())
+
     # Get the facilities
     facilities = session.get("{}/events/{}/facilities".format(config["serveruri"], next_event["event"]["eventID"])).json()
 
     # Prepare the room
     for f in facilities:
-        if f["facility"]["name"] == "lights":
-            pass
-        elif f["facility"]["name"] == "tv":
+        if f["facility"]["name"] == "tv":
             pass
         elif f["facility"]["name"] == "audio":
             pass
