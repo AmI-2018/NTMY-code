@@ -30,6 +30,10 @@ lm = LightManager(config["lightsuri"], config["lightsuser"])
 print("Available lights:")
 print(lm.get_lights())
 
+# Player instantiation
+
+p = Player()
+
 # Main loop
 
 while True:
@@ -52,10 +56,11 @@ while True:
 
     # Prepare the room
     for f in facilities:
-        if f["facility"]["name"] == "tv":
-            pass
-        elif f["facility"]["name"] == "audio":
-            pass
+        if f["facility"]["name"] == "tv" or f["facility"]["name"] == "audio":
+            path = f["facility"]["options"]
+            p.add_media(path)
+    
+    p.play()
 
     # Wait until the end of the event
     end_time = datetime.datetime.strptime(next_event["event"]["end"], "%x %X")
