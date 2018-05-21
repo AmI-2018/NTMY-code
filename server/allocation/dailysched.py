@@ -1,8 +1,9 @@
 """This module provides the definition of the class used to describe a daily schedule."""
 
+from typing import List, Dict
+
 from database.model.standard import Room, Event
 from .exceptions import InvalidScheduleError
-from typing import List, Dict
 
 colors = [
     "FF0000", # Red
@@ -69,7 +70,7 @@ class DailySchedule:
             sched_dict[r.roomID] = []
             for e in self.sched[r]:
                 sched_dict[r.roomID].append({
-                    "eventID": e["event"].eventID,
+                    "event": e["event"].to_dict(),
                     "color": e["color"]
                 })
         return sched_dict

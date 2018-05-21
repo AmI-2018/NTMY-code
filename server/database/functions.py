@@ -1,10 +1,12 @@
 """This module provides all the functions that can be used to access the database."""
 
+from typing import Type, List, Dict, Any
+
+from sqlalchemy.sql.expression import text
+
 from . import session
 from .model.base import Base
 from .exceptions import DatabaseError
-
-from typing import Type, List, Dict, Any
 
 def get(get_type: Type(Base), get_id: int=None) -> List[Base]:
     """Retrieves the elements of the given type from the database.
@@ -25,6 +27,19 @@ def get(get_type: Type(Base), get_id: int=None) -> List[Base]:
         if obj is None:
             raise DatabaseError("The requested object could not be found.")
         return [obj]
+
+def filter(get_type: Type(Base), expr: str) -> List[Base]:
+    """Retrieves the elements of the given type from the database with the given filter.
+    
+    :param get_type: The type of the elements to be found (subclass of Base)
+    :type get_type: Type(Base)
+    :param expr: The SQL expression to filter the results
+    :type expr: str
+    :return: The list of the elements that match the given expression
+    :rtype: List[Base]
+    """
+
+    return session.query(get_type).filter(text(expr)).all()
 
 def add(add_object: Base) -> Base:
     """Add the given element to the database.

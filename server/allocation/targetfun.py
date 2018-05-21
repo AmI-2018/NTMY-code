@@ -1,6 +1,7 @@
 """This module provides the definition of the classes to describe the target functions to be optimized to obtain the best daily schedule."""
 
 from typing import Callable, List
+
 from .dailysched import DailySchedule
 
 ####################################

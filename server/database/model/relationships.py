@@ -1,9 +1,11 @@
 """This module provides all the classes to describe the relationships between objects from the standard module."""
 
-from sqlalchemy import Column, Integer, ForeignKey
-from sqlalchemy.orm import relationship
-from .base import Base
 from typing import Dict, Any
+
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
+
+from .base import Base
 from ..exceptions import InvalidDictError
 
 ###################################
@@ -63,6 +65,7 @@ class EventFacility(Base):
 
     eventID = Column(Integer, ForeignKey("events.eventID"), primary_key=True)
     facilityID = Column(Integer, ForeignKey("facilities.facilityID"), primary_key=True)
+    options = Column(String, nullable=True)
 
     event = relationship("Event", backref="facilities")
     facility = relationship("Facility", backref="events")
@@ -76,7 +79,8 @@ class EventFacility(Base):
 
         return {
             "event": self.event.to_dict(),
-            "facility": self.facility.to_dict()
+            "facility": self.facility.to_dict(),
+            "options": self.options
         }
     
     @staticmethod
@@ -93,7 +97,8 @@ class EventFacility(Base):
         try:
             return EventFacility(
                 eventID=input_dict["eventID"],
-                facilityID=input_dict["facilityID"]
+                facilityID=input_dict["facilityID"],
+                options=input_dict["options"]
             )
         except KeyError as e:
             raise InvalidDictError("The provided dictionary is missing the key {}".format(str(e)))
@@ -287,4 +292,4 @@ class UserInterest(Base):
             raise InvalidDictError("The provided dictionary is missing the key {}".format(str(e)))
 
 # Remove imports so they won't be exposed
-del Column, Integer, ForeignKey, relationship, Base
+del Column, Integer, String, ForeignKey, relationship, Base

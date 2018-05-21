@@ -1,8 +1,8 @@
 """This module provides the function to compute the best daily schedule for the events."""
 
-from database.model.standard import Room, Event
 from typing import List
 
+from database.model.standard import Room, Event
 from .dailysched import DailySchedule, InvalidScheduleError
 from .targetfun import TargetFunction, TargetFunctionSet
 

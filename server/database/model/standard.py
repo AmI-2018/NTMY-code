@@ -1,8 +1,10 @@
 """This module provides all the base classes of the data model."""
 
+from typing import Dict, Any
+
 from sqlalchemy import Column, Integer, String, DateTime
 from passlib.hash import sha512_crypt
-from typing import Dict, Any
+
 from .base import Base
 from ..exceptions import InvalidDictError
 
