@@ -28,4 +28,5 @@ dependencies {
     wearApp project(':wear')
     implementation 'com.google.android.gms:play-services-wearable:+'
     implementation 'com.android.support:design:27.1.1'
+    implementation 'com.android.volley:volley:1.1.0'
 }

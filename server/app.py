@@ -6,4 +6,4 @@ import api
 import database
 
 # Run API server
-api.app.run()
+api.app.run(host='0.0.0.0')
