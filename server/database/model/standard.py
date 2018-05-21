@@ -123,6 +123,7 @@ class User(Base):
 
     # Attributes
     userID = Column(Integer, primary_key=True, nullable=False)
+    email = Column(String, nullable=False, unique=True)
     name = Column(String, nullable=False)
     surname = Column(String, nullable=False)
     phone = Column(String, nullable=False)
@@ -169,6 +170,7 @@ class User(Base):
         
         return {
             "userID": int(self.userID),
+            "email": str(self.email),
             "name": str(self.name),
             "surname": str(self.surname),
             "phone": str(self.phone),
@@ -188,6 +190,7 @@ class User(Base):
         
         try:
             return User(
+                email=user_dict["email"],
                 name=user_dict["name"],
                 surname=user_dict["surname"],
                 phone=user_dict["phone"],

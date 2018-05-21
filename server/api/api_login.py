@@ -5,6 +5,14 @@ import database
 
 login_bp = Blueprint("login_bp", __name__)
 
+@login_bp.route("/login", methods=["GET"])
+def get_login_status():
+    try:
+        user = database.functions.get(database.model.standard.User, session["user"])[0]
+        return jsonify(user.to_dict())
+    except KeyError:
+        return jsonify({"msg": "User not logged in"}), 401
+
 @login_bp.route("/login", methods=["POST"])
 def login_user():
     """Logs the user in.
@@ -20,12 +28,12 @@ def login_user():
 
     try:
         # Check the info is correct and start session
-        userID = request.json["userID"]
+        email = request.json["email"]
         password = request.json["password"]
 
-        user = database.functions.get(database.model.standard.User, userID)[0]
+        user = database.functions.filter(database.model.standard.User, "email='{}'".format(email))[0]
         if user.check_password(password):
-            session["user"] = userID
+            session["user"] = user.userID
             return jsonify({"msg": "Login OK"})
         return jsonify({"msg": "Login error"}), 401
     except Exception:
