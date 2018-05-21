@@ -6,6 +6,8 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColorPrimary">@color/textColorPrimary</item>
+        <item name="android:textColorSecondary">@color/textColorSecondary</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -14,7 +16,13 @@
     </style>
 
     <style name="PrimaryButton" parent="Theme.AppCompat">
-        <item name="colorButtonNormal">@color/colorPrimary</item>
+        <item name="android:backgroundTint">@color/colorPrimary</item>
+        <item name="colorControlHighlight">@color/lightPrimaryColor</item>
+    </style>
+
+    <style name="SecondaryButton" parent="Theme.AppCompat">
+        <item name="android:backgroundTint">@color/white</item>
+        <item name="android:textColor">@color/colorPrimary</item>
         <item name="colorControlHighlight">@color/lightPrimaryColor</item>
     </style>
 
