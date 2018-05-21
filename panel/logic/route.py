@@ -13,20 +13,32 @@ def plot_graph():
     plt.show()
 
 
-def generate_direction(actual_node, destination):
+def generate_direction(actual_node_id, destination_id):
     """
-    :param actual_node: the node where the panel is setted
-    :param destination: user's destination
+    Returns the port ID from the nodes IDs
+
+    :param actual_node_id: panel's node id
+    :type actual_node_id: str
+    :param destination_id: user's destination id
+    :type destination_id: str
     :return: index of the direction (cardinal point)
     """
-    next_node = get_next_node(G.Graph,actual_node,destination,G.edge_weight_name)
-    port = generate_port(actual_node,next_node)
+    """ Obtain the Nodes objects """
+    source_node = get_node_from_id(actual_node_id)
+    dest_node = get_node_from_id(destination_id)
+
+    """ Generate the next node """
+    next_node = get_next_node(source_node,dest_node)
+
+    """ Generate the exit_point """
+    port = generate_port(source_node,next_node)
+
     return port
 
 
 def generate_port(node, next):
-    """ This function receives the source node and the next node
-        and returns the direction [ 0 - E; 1 - N; 2 - O; 3 - S]
+    """ This function calculate the angle between two nodes and then
+        return the coordinate [ 0 - E; 1 - N; 2 - O; 3 - S]
 
         :param node: Source node
         :type node: dict
@@ -38,14 +50,21 @@ def generate_port(node, next):
     """
     """
     since some nodes may have the edges not aligned with the cardinal points
-    for each of them is stored the orientation betw 
-
+    for each of them is stored the angle between Graph's East and Node's East
+       
     """
+
+    """ Retrieve orientation  """
     setting = node['orientation']
+
+    """ Calculate the angle """
     x = node['X'] - next['X']
     y = node['Y'] - next['Y']
 
     angle = math.degrees(math.atan2(y, x) + math.pi) + setting
+    """ I added 180° because atan2() return an angle in [-180; 180] """
+    """ Since the exits' ids are in [0; 3] I need an angle in [0; 360]"""
+
     port = round(angle / 90)
 
     return port
@@ -59,13 +78,14 @@ def get_shortest_path(source, dest):
 
 
 def get_next_node(source, dest):
-    """Return the next node from the shortest path to the destination."""
+    """ Returns the next node receiving the shortest path to the destination."""
 
     path = get_shortest_path(source['id'], dest['id'])
     return path[1]
 
 
 def search_node(node_id):
+    """ Try to obtain a node by its ID """
     result = None
     for i,x in G.nodelist.iterrows():
         if x['id'] == node_id:
@@ -79,7 +99,7 @@ def search_node(node_id):
 
 
 def get_node_from_id(node_id):
-
+    """ Provides the Node object receiving the ID """
     try:
         node = search_node(node_id)
     except InvalidNodeId:
