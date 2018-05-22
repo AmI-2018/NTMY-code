@@ -20,15 +20,13 @@ print(config)
 
 session = requests.Session()
 session.post(config["serveruri"] + "/login", json={
-    "userID": 0,
+    "email": config["rootmail"],
     "password": config["rootpwd"]
 })
 
 # LightManager instantiation
 
 lm = LightManager(config["lightsuri"], config["lightsuser"])
-print("Available lights:")
-print(lm.get_lights())
 
 # Player instantiation
 
@@ -48,17 +46,15 @@ while True:
     print(next_event)
 
     # Set the color of the lights
-    lm.set_color_all(next_event["color"]["red"], next_event["color"]["green"], next_event["color"]["blue"], 255)
-    print(lm.get_lights())
+    lm.set_color_all(next_event["color"]["red"], next_event["color"]["green"], next_event["color"]["blue"], 254, 254)
+    print("Lights have been set.")
 
     # Get the facilities
     facilities = session.get("{}/events/{}/facilities".format(config["serveruri"], next_event["event"]["eventID"])).json()
 
     # Prepare the room
     for f in facilities:
-        if f["facility"]["name"] == "tv" or f["facility"]["name"] == "audio":
-            path = f["facility"]["options"]
-            p.add_media(path)
+        pass
     
     p.play()
 
