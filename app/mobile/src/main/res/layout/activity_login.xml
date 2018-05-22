@@ -6,6 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".LoginActivity">
 
+    <include layout="@layout/progress_overlay" />
+
     <TextView
         android:id="@+id/login_iv_logo"
         android:layout_width="64dp"
