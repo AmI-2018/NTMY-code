@@ -54,3 +54,10 @@ def generate_arrow(exit_point):
 
     """
     pass
+
+
+def reset_arrow():
+    """ Turn off the arrows"""
+
+    pass
+
