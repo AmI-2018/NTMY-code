@@ -1,4 +1,5 @@
 import requests
+import bluetooth
 
 
 def obtain_dest_by_user(config, user_id):
@@ -22,13 +23,27 @@ def obtain_dest_by_user(config, user_id):
     """ Return the destination's node id """
 
 
-def detect_user(config):
+def detect_user():
 
-    """ Wait until a user is detected """
+    """ Wait until a user (Device) is detected """
 
-    user_id = ""
+    devices = []
+
+    """ Device name version """
+
+    while not devices:
+        devices = bluetooth.discover_devices(lookup_names=True)
+
+    user_id = devices[0][1]
+
+    """ 
+    Device MAC version :
+    user_id = devices[0][0]
+    """
 
     """ Once detected return the user id """
+
+    return user_id
 
 
 def generate_arrow(exit_point):
@@ -39,3 +54,10 @@ def generate_arrow(exit_point):
 
     """
     pass
+
+
+def reset_arrow():
+    """ Turn off the arrows"""
+
+    pass
+
