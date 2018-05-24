@@ -1,6 +1,7 @@
 package io.ami2018.ntmy;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
@@ -13,25 +14,24 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+
+import io.ami2018.ntmy.network.PersistentCookieStore;
+import io.ami2018.ntmy.network.RequestHelper;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
     //WARNING Make sure to use the exact url of the api location
     private static final String url = "http://192.168.1.110:5000/";
-    public static final String TAG = "LoginActivityTAG";
-
-    private static final boolean DEBUG = true;
+    public static final String TAG = LoginActivity.class.getSimpleName();
 
     private TextInputLayout mEmailLayout;
     private TextInputLayout mPasswordLayout;
@@ -41,24 +41,16 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private Button mSignUp;
     private View mProgress;
 
-    private RequestQueue mQueue;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        initViews();
-        initObjects();
-        initListeners();
-    }
+        CookieManager cookieManager = new CookieManager(new PersistentCookieStore(getApplicationContext()), CookiePolicy.ACCEPT_ALL);
+        CookieHandler.setDefault(cookieManager);
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mQueue != null) {
-            mQueue.cancelAll(TAG);
-        }
+        initViews();
+        initListeners();
     }
 
     @Override
@@ -69,6 +61,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 break;
             case R.id.login_btn_sign_up:
                 signUp();
+                break;
+            case R.id.login_tv_password_forget:
+                //Forgot pw
+                Toast.makeText(this, "Clicked here", Toast.LENGTH_SHORT).show();
                 break;
         }
     }
@@ -81,10 +77,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mSignIn = findViewById(R.id.login_btn_sign_in);
         mSignUp = findViewById(R.id.login_btn_sign_up);
         mProgress = findViewById(R.id.progress_overlay);
-    }
-
-    private void initObjects() {
-        mQueue = Volley.newRequestQueue(this);
     }
 
     private void initListeners() {
@@ -103,20 +95,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             // Creation of the JSON Object that we want to POST to the API
             JSONObject jsonBody = new JSONObject();
             try {
-                jsonBody.put("userID", email);
+                jsonBody.put("email", email);
                 jsonBody.put("password", password);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            final String requestBody = jsonBody.toString();
 
-            // Creation of the request
-            StringRequest request = new StringRequest(Request.Method.POST, url + "login", new Response.Listener<String>() {
+            RequestHelper.post(getApplicationContext(), "login", jsonBody, new Response.Listener<JSONObject>() {
                 @Override
-                public void onResponse(String response) {
+                public void onResponse(JSONObject response) {
                     hideProgress();
                     Toast.makeText(LoginActivity.this, "Good credentials!", Toast.LENGTH_SHORT).show();
-                    // TODO Launch MainActivity
+                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                    finish();
                 }
             }, new Response.ErrorListener() {
                 @Override
@@ -124,24 +115,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     hideProgress();
                     Snackbar.make(mEmail, "Wrong Email or Password", Snackbar.LENGTH_LONG).show();
                 }
-            }) {
-                @Override
-                public byte[] getBody() {
-                    try {
-                        return requestBody.getBytes("utf-8");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                }
-
-                @Override
-                public String getBodyContentType() {
-                    return "application/json; charset=utf-8";
-                }
-            };
-
-            mQueue.add(request);
+            });
         }
     }
 
@@ -155,7 +129,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             hideKeyboard();
             return false;
         } else {
-            if (!DEBUG && !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 mEmailLayout.setError("The string you entered is not an email.");
                 hideKeyboard();
                 return false;

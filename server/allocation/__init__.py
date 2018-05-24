@@ -1,5 +1,8 @@
 """This module provides all the functions and classes to smartly allocate rooms for the events in the residence."""
 
+import pause
+from threading import Thread
+
 # Import and expose allocation modules
 
 from . import allocator, dailysched, exceptions, targetfun
@@ -26,4 +29,17 @@ def update_sched():
     sched = allocator.allocate(rooms, events)
 
 # Get the first schedule
+
 update_sched()
+
+# Generate the allocator thread object
+
+def allocation_thread_fun():
+    global sched
+    while True:
+        pause.seconds(30)
+        print("Allocator is running...")
+        update_sched()
+        print("Allocator has generated today's schedule.")
+
+allocation_thread = Thread(target=allocation_thread_fun, daemon=True)

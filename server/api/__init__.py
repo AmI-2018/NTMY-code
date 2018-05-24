@@ -34,6 +34,3 @@ app.register_blueprint(api_facilities.facilities_bp)
 app.register_blueprint(api_rooms.rooms_bp)
 app.register_blueprint(api_schedule.schedule_bp)
 app.register_blueprint(api_users.users_bp)
-
-if __name__ == "__main__":
-    app.run()
