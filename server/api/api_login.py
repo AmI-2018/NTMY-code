@@ -49,5 +49,6 @@ def logout_user():
     :return: A confirmation message
     """
 
-    del session["user"]
+    if "user" in session:
+        del session["user"]
     return jsonify({"msg": "Logout OK"})
