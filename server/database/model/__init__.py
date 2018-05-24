@@ -2,6 +2,6 @@
 
 # Import and expose model modules
 
-from . import base, standard, relationships
+from . import base, map, standard, relationships
 
-__all__ = ["base", "standard", "relationships"]
+__all__ = ["base", "map", "standard", "relationships"]

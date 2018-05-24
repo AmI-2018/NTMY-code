@@ -217,6 +217,7 @@ class Room(Base):
 
     # Relationships
     facilities = []
+    node = None
 
     def __repr__(self):
         return "Room #{}: {}".format(self.roomID, self.name)
@@ -232,7 +233,8 @@ class Room(Base):
             "roomID": int(self.roomID),
             "name": str(self.name),
             "description": str(self.description),
-            "size": int(self.size)
+            "size": int(self.size),
+            "node": self.node.to_dict()
         }
     
     @staticmethod
@@ -250,7 +252,8 @@ class Room(Base):
             return Room(
                 name=room_dict["name"],
                 description=room_dict["description"],
-                size=room_dict["size"]
+                size=room_dict["size"],
+                node=room_dict["node"]
             )
         except KeyError as e:
             raise InvalidDictError("The provided dictionary is missing the key {}".format(str(e)))
