@@ -1,6 +1,6 @@
 """Schedule API"""
 
-from flask import jsonify, request, session, Blueprint
+from flask import jsonify, request, session, Blueprint, abort
 import allocation
 import database
 
@@ -30,4 +30,7 @@ def handler_get_schedule_from_id(roomID):
     :status 401: The user has not logged in
     :return: The JSON-encoded user
     """
-    return jsonify(allocation.sched.to_dict()[roomID])
+    if roomID in allocation.sched.to_dict():
+        return jsonify(allocation.sched.to_dict()[roomID])
+    else:
+        return abort(400, "The requested object could not be found.")

@@ -1,17 +1,25 @@
 """Login API"""
 
-from flask import jsonify, request, session, Blueprint
+from flask import jsonify, request, session, Blueprint, abort
 import database
 
 login_bp = Blueprint("login_bp", __name__)
 
 @login_bp.route("/login", methods=["GET"])
 def get_login_status():
+    """Checks if the user has logged in.
+
+    .. :quickref: Login; Checks if the user has logged in.
+    
+    :status 200: The user has logged in
+    :status 401: The user has not logged in
+    :return: The user's info or an error message
+    """
     try:
         user = database.functions.get(database.model.standard.User, session["user"])[0]
         return jsonify(user.to_dict())
     except KeyError:
-        return jsonify({"msg": "User not logged in"}), 401
+        return abort(401)
 
 @login_bp.route("/login", methods=["POST"])
 def login_user():
@@ -23,7 +31,7 @@ def login_user():
     :json string password: The password of the user
     :status 200: The user was correctly logged in
     :status 401: The user could not log in
-    :return: A confirmation or error message
+    :return: The user's info or an error message
     """
 
     try:
@@ -34,10 +42,11 @@ def login_user():
         user = database.functions.filter(database.model.standard.User, "email='{}'".format(email))[0]
         if user.check_password(password):
             session["user"] = user.userID
-            return jsonify({"msg": "Login OK"})
-        return jsonify({"msg": "Login error"}), 401
+            user = database.functions.get(database.model.standard.User, session["user"])[0]
+            return jsonify(user.to_dict())
+        return abort(401)
     except Exception:
-        return jsonify({"msg": "Login error"}), 401
+        return abort(401)
 
 @login_bp.route("/logout", methods=["GET"])
 def logout_user():
@@ -51,4 +60,4 @@ def logout_user():
 
     if "user" in session:
         del session["user"]
-    return jsonify({"msg": "Logout OK"})
+    return ""

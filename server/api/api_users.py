@@ -1,6 +1,6 @@
 """Users API"""
 
-from flask import jsonify, request, Blueprint
+from flask import jsonify, request, Blueprint, abort
 import database
 
 users_bp = Blueprint("users_bp", __name__)
@@ -39,9 +39,7 @@ def handler_add_user():
         new_user =  database.functions.add(database.model.standard.User.from_dict(request.json))
         return jsonify(new_user.to_dict())
     except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 # ID indexed
 
@@ -60,9 +58,7 @@ def handler_get_user_from_id(userID):
     try:
         return jsonify(database.functions.get(database.model.standard.User, userID)[0].to_dict())
     except database.exceptions.DatabaseError as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>", methods=["PUT"])
 def handler_patch_user_from_id(userID):
@@ -85,9 +81,7 @@ def handler_patch_user_from_id(userID):
         upd_user = database.functions.get(database.model.standard.User, userID)[0]
         return jsonify(database.functions.upd(upd_user, request.json).to_dict())
     except database.exceptions.DatabaseError as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>", methods=["DELETE"])
 def handler_delete_user_from_id(userID):
@@ -106,9 +100,7 @@ def handler_delete_user_from_id(userID):
         database.functions.rem(del_user)
         return ""
     except database.exceptions.DatabaseError as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 # Connections subcollection
 
@@ -125,13 +117,29 @@ def handler_get_user_connections_from_id(userID):
     :return: The JSON-encoded list
     """
     try:
-        user = database.functions.get(database.model.standard.User, userID)[0]
-        connections = [u.to_dict() for u in user.connections]
-        return jsonify(connections)
+        connections = database.functions.filter(database.model.relationships.UserConnection, "userID = '{}'".format(userID))
+        return jsonify([c.to_dict() for c in connections])
     except database.exceptions.DatabaseError as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
+
+@users_bp.route("/users/<int:userID>/connections/<int:eventID>", methods=["GET"])
+def handler_get_user_connections_from_id_from_id(userID, eventID):
+    """Get the connections of the user with the given IDs.
+
+    .. :quickref: Users; Get the connections of the user with the given IDs.
+    
+    :param int userID: The ID of the user to retrieve the collection from
+    :param int eventID: The ID of the event where the connection happened
+    :status 200: The list was correctly retrieved
+    :status 400: The user or event could not be found
+    :status 401: The user has not logged in
+    :return: The JSON-encoded list
+    """
+    try:
+        connections = database.functions.filter(database.model.relationships.UserConnection, "userID1 = '{}' AND eventID = '{}'".format(userID, eventID))
+        return jsonify([c.to_dict() for c in connections])
+    except database.exceptions.DatabaseError as e:
+        return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>/connections", methods=["POST"])
 def handler_add_user_connection_from_id(userID):
@@ -151,9 +159,7 @@ def handler_add_user_connection_from_id(userID):
         new_connection =  database.functions.add(database.model.relationships.UserConnection.from_dict({**request.json, **{"userID1": userID}}))
         return jsonify(new_connection.to_dict())
     except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 # Events subcollection
 
@@ -174,9 +180,7 @@ def handler_get_user_events_from_id(userID):
         events = [e.to_dict() for e in user.events]
         return jsonify(events)
     except database.exceptions.DatabaseError as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 # Interests subcollection
 
@@ -197,9 +201,7 @@ def handler_get_user_interests_from_id(userID):
         interests = [c.to_dict() for c in user.interests]
         return jsonify(interests)
     except database.exceptions.DatabaseError as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>/interests", methods=["POST"])
 def handler_add_user_interest_from_id(userID):
@@ -218,9 +220,7 @@ def handler_add_user_interest_from_id(userID):
         new_int =  database.functions.add(database.model.relationships.UserInterest.from_dict({**request.json, **{"userID": userID}}))
         return jsonify(new_int.to_dict())
     except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>/interests/<int:categoryID>", methods=["GET"])
 def handler_get_user_interest_from_id_from_id(userID, categoryID):
@@ -239,9 +239,7 @@ def handler_get_user_interest_from_id_from_id(userID, categoryID):
         user_int = database.functions.get(database.model.relationships.UserInterest, (userID, categoryID))[0]
         return jsonify(user_int.to_dict())
     except database.exceptions.DatabaseError as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>/interests/<int:categoryID>", methods=["DELETE"])
 def handler_delete_user_interest_from_id_from_id(userID, categoryID):
@@ -261,6 +259,4 @@ def handler_delete_user_interest_from_id_from_id(userID, categoryID):
         database.functions.rem(user_int)
         return ""
     except database.exceptions.DatabaseError as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))

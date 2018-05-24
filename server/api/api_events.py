@@ -1,6 +1,6 @@
 """Events API"""
 
-from flask import jsonify, request, Blueprint
+from flask import jsonify, request, Blueprint, abort
 import database
 
 events_bp = Blueprint("events_bp", __name__)
@@ -38,9 +38,7 @@ def handler_add_event():
         new_event = database.functions.add(database.model.standard.Event.from_dict(request.json))
         return jsonify(new_event.to_dict())
     except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 # ID indexed
 
@@ -59,9 +57,7 @@ def handler_get_event_from_id(eventID):
     try:
         return jsonify(database.functions.get(database.model.standard.Event, eventID)[0].to_dict())
     except database.exceptions.DatabaseError as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>", methods=["PUT"])
 def handler_patch_event_from_id(eventID):
@@ -83,9 +79,7 @@ def handler_patch_event_from_id(eventID):
         upd_event = database.functions.get(database.model.standard.Event, eventID)[0]
         return jsonify(database.functions.upd(upd_event, request.json).to_dict())
     except database.exceptions.DatabaseError as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>", methods=["DELETE"])
 def handler_delete_event_from_id(eventID):
@@ -104,9 +98,7 @@ def handler_delete_event_from_id(eventID):
         database.functions.rem(del_event)
         return ""
     except database.exceptions.DatabaseError as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 # Categories subcollection
 
@@ -127,9 +119,7 @@ def handler_get_event_categories_from_id(eventID):
         categories = [c.to_dict() for c in event.categories]
         return jsonify(categories)
     except database.exceptions.DatabaseError as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/categories", methods=["POST"])
 def handler_add_event_category_from_id(eventID):
@@ -148,9 +138,7 @@ def handler_add_event_category_from_id(eventID):
         new_cat = database.functions.add(database.model.relationships.EventCategory.from_dict({**request.json, **{"eventID": eventID}}))
         return jsonify(new_cat.to_dict())
     except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/categories/<int:categoryID>", methods=["GET"])
 def handler_get_event_category_from_id_from_id(eventID, categoryID):
@@ -169,9 +157,7 @@ def handler_get_event_category_from_id_from_id(eventID, categoryID):
         event_cat = database.functions.get(database.model.relationships.EventCategory, (eventID, categoryID))[0]
         return jsonify(event_cat.to_dict())
     except database.exceptions.DatabaseError as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/categories/<int:categoryID>", methods=["DELETE"])
 def handler_delete_event_category_from_id_from_id(eventID, categoryID):
@@ -191,9 +177,7 @@ def handler_delete_event_category_from_id_from_id(eventID, categoryID):
         database.functions.rem(event_cat)
         return ""
     except database.exceptions.DatabaseError as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 # Facilities subcollection
 
@@ -214,9 +198,7 @@ def handler_get_event_facilities(eventID):
         facilities = [f.to_dict() for f in event.facilities]
         return jsonify(facilities)
     except database.exceptions.DatabaseError as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/facilities", methods=["POST"])
 def handler_add_event_facility(eventID):
@@ -235,9 +217,7 @@ def handler_add_event_facility(eventID):
         new_fac =  database.functions.add(database.model.relationships.EventFacility.from_dict({**request.json, **{"eventID": eventID}}))
         return jsonify(new_fac.to_dict())
     except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/facilities/<int:facilityID>", methods=["GET"])
 def handler_get_event_facility_from_id_from_id(eventID, facilityID):
@@ -256,9 +236,7 @@ def handler_get_event_facility_from_id_from_id(eventID, facilityID):
         event_fac = database.functions.get(database.model.relationships.EventFacility, (eventID, facilityID))[0]
         return jsonify(event_fac.to_dict())
     except database.exceptions.DatabaseError as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/facilities/<int:facilityID>", methods=["DELETE"])
 def handler_delete_event_facility_from_id_from_id(eventID, facilityID):
@@ -278,9 +256,7 @@ def handler_delete_event_facility_from_id_from_id(eventID, facilityID):
         database.functions.rem(event_fac)
         return ""
     except database.exceptions.DatabaseError as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 # Participants subcollection
 
@@ -301,9 +277,7 @@ def handler_get_event_participants(eventID):
         users = [u.to_dict() for u in event.users]
         return jsonify(users)
     except database.exceptions.DatabaseError as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/participants", methods=["POST"])
 def handler_add_event_participant(eventID):
@@ -322,9 +296,7 @@ def handler_add_event_participant(eventID):
         new_event =  database.functions.add(database.model.relationships.UserConnection.from_dict({**request.json, **{"eventID": eventID}}))
         return jsonify(new_event.to_dict())
     except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/participants/<int:userID>", methods=["GET"])
 def handler_get_event_participant_from_id_from_id(eventID, userID):
@@ -343,9 +315,7 @@ def handler_get_event_participant_from_id_from_id(eventID, userID):
         event_part = database.functions.get(database.model.relationships.EventParticipant, (eventID, userID))[0]
         return jsonify(event_part.to_dict())
     except database.exceptions.DatabaseError as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/participants/<int:userID>", methods=["DELETE"])
 def handler_delete_event_participant_from_id_from_id(eventID, userID):
@@ -365,6 +335,4 @@ def handler_delete_event_participant_from_id_from_id(eventID, userID):
         database.functions.rem(event_part)
         return ""
     except database.exceptions.DatabaseError as e:
-        return jsonify({
-            "msg": str(e)
-        }), 400
+        return abort(400, str(e))
