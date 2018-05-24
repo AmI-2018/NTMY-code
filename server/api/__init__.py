@@ -10,7 +10,7 @@ app.secret_key = "ntmysupersecretkey"
 
 # API routing imports
 
-from . import api_categories, api_events, api_facilities, api_login, api_rooms, api_schedule, api_users
+from . import api_categories, api_events, api_facilities, api_login, api_map, api_rooms, api_schedule, api_users
 
 # Error handlers
 
@@ -29,6 +29,7 @@ def err_handler(error):
 @api_categories.categories_bp.before_request
 @api_events.events_bp.before_request
 @api_facilities.facilities_bp.before_request
+@api_map.map_bp.before_request
 @api_rooms.rooms_bp.before_request
 @api_schedule.schedule_bp.before_request
 @api_users.users_bp.before_request
@@ -41,8 +42,9 @@ def require_login():
 
 app.register_blueprint(api_categories.categories_bp)
 app.register_blueprint(api_events.events_bp)
-app.register_blueprint(api_login.login_bp)
 app.register_blueprint(api_facilities.facilities_bp)
+app.register_blueprint(api_login.login_bp)
+app.register_blueprint(api_map.map_bp)
 app.register_blueprint(api_rooms.rooms_bp)
 app.register_blueprint(api_schedule.schedule_bp)
 app.register_blueprint(api_users.users_bp)
