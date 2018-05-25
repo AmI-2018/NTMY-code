@@ -6,13 +6,13 @@ from database.model.standard import Room, Event
 from .exceptions import InvalidScheduleError
 
 colors = [
-    {"red": 255, "green": 0, "blue": 0}, # Red
-    {"red": 0, "green": 255, "blue": 0}, # Green
-    {"red": 0, "green": 0, "blue": 255}, # Blue
-    {"red": 255, "green": 255, "blue": 0}, # Yellow
-    {"red": 0, "green": 255, "blue": 255}, # Aqua
-    {"red": 255, "green": 0, "blue": 255}, # Fuchsia
-    {"red": 255, "green": 255, "blue": 255} # White
+    {"red": 1, "green": 0, "blue": 0}, # Red
+    {"red": 0, "green": 1, "blue": 0}, # Green
+    {"red": 0, "green": 0, "blue": 1}, # Blue
+    {"red": 1, "green": 1, "blue": 0}, # Yellow
+    {"red": 0, "green": 1, "blue": 1}, # Aqua
+    {"red": 1, "green": 0, "blue": 1}, # Fuchsia
+    {"red": 1, "green": 1, "blue": 1} # White
 ]
 """List of the available colors for the events"""
 

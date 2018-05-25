@@ -9,10 +9,6 @@ class LightManager:
     
     @staticmethod
     def rgb_to_hue(red, green, blue):
-        red = red / 255
-        green = green / 255
-        blue = blue / 255
-
         color = rgb_to_hls(red, green, blue)[0] * 360 * 182
         return color
     
