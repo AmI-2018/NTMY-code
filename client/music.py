@@ -1,26 +1,27 @@
-import webbrowser
-import os
-from . import exceptions
+import pafy
 
-ROCK = "https://www.youtube.com/watch?v=HbaQ9xnoMGQ&list=PLhd1HyMTk3f7KwWMyGRfyTE12IahrHk52"
-POP = "https://www.youtube.com/watch?v=Jkf1mG0YYU4&list=PLDcnymzs18LXHh9m-CyGtzC-6MiPrE2JV"
-LATIN = "https://www.youtube.com/watch?v=j1W5An7eo2g&list=PLcfQmtiAG0X_3a1RP-bcjWImDwdYaOW4b"
-CLASSIC = "https://www.youtube.com/watch?v=XUcJaXjMwRw&list=PLVXq77mXV53-Np39jM456si2PeTrEm9Mj"
-channels = [ROCK, POP, CLASSIC, LATIN]
+from player import Player
 
+# Available playlists
 
-def start_music(channel):
-    """ Open the browser and start the music """
+playlists = {
+    "rock": pafy.get_playlist("https://www.youtube.com/playlist?list=PLhd1HyMTk3f7KwWMyGRfyTE12IahrHk52"),
+    "pop": pafy.get_playlist("https://www.youtube.com/playlist?list=PLDcnymzs18LXHh9m-CyGtzC-6MiPrE2JV"),
+    "latin": pafy.get_playlist("https://www.youtube.com/playlist?list=PLcfQmtiAG0X_3a1RP-bcjWImDwdYaOW4b"),
+    "classic": pafy.get_playlist("https://www.youtube.com/playlist?list=PLVXq77mXV53-Np39jM456si2PeTrEm9Mj"),
+    "house": pafy.get_playlist("https://www.youtube.com/playlist?list=PLhInz4M-OzRUDjZYmK62_k2xAMwTXiTup")
+}
 
-    """ Check parameter """
+# Add all the songs to the given player
+
+def prepare_music_player(player: Player, playlist_name: str):
     try:
-        if channel not in channels:
-            raise exceptions.WrongStyle
-    except exceptions.WrongStyle:
+        playlist = playlists[playlist_name]
+    except KeyError:
         return
-
-    """ Close the browser if already opened """
-    os.system("pkill chromium-browse")
-
-    """  Open the browser with the received link  """
-    webbrowser.get("/usr/bin/chromium-browser").open(channel)
+    
+    for song in playlist["items"]:
+        try:
+            player.add_media(song["pafy"].getbestaudio().url)
+        except Exception:
+            continue

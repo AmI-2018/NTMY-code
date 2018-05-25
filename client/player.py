@@ -15,5 +15,12 @@ class Player():
         self.media_list.add_media(path)
 
     def play(self):
-        # Start the player
         self.media_player.play()
+    
+    def stop(self):
+        self.media_player.stop()
+    
+    def empty(self):
+        self.media_list.release()
+        self.media_list = self.instance.media_list_new()
+        self.media_player.set_media_list(self.media_list)

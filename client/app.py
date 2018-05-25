@@ -5,6 +5,7 @@ import pause
 import requests
 
 from lights import LightManager
+from music import prepare_music_player
 from player import Player
 
 # Read config file
@@ -53,9 +54,14 @@ while True:
     facilities = session.get("{}/events/{}/facilities".format(config["serveruri"], next_event["event"]["eventID"])).json()
 
     # Prepare the room
+    print("Fetching media info...")
     for f in facilities:
-        pass
+        if f["facility"]["name"] == "video":
+            pass
+        elif f["facility"]["name"] == "audio":
+            prepare_music_player(p, f["facility"]["options"])
     
+    print("Media info fetch completed. Player starting...")
     p.play()
 
     # Wait until the end of the event
@@ -63,3 +69,7 @@ while True:
     print("Event will end at:")
     print(end_time)
     pause.until(end_time.timestamp())
+
+    # Stop and empty the player
+    p.stop()
+    p.empty()
