@@ -20,8 +20,10 @@ def prepare_music_player(player: Player, playlist_name: str):
     except KeyError:
         return
     
+    print("Using playlist '{}'.".format(playlist_name))
     for song in playlist["items"]:
         try:
+            print("Adding song '{}'".format(song["pafy"].title))
             player.add_media(song["pafy"].getbestaudio().url)
         except Exception:
             continue

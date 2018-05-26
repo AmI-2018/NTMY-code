@@ -5,8 +5,9 @@ import pause
 import requests
 
 from lights import LightManager
-from music import prepare_music_player
 from player import Player
+from music import prepare_music_player
+from tv import prepare_tv_player
 
 # Read config file
 
@@ -24,6 +25,7 @@ session.post(config["serveruri"] + "/login", json={
     "email": config["rootmail"],
     "password": config["rootpwd"]
 })
+print("Login OK.")
 
 # LightManager instantiation
 
@@ -56,11 +58,11 @@ while True:
     # Prepare the room
     print("Fetching media info...")
     for f in facilities:
-        if f["facility"]["name"] == "video":
-            pass
+        if f["facility"]["name"] == "TV":
+            prepare_tv_player(p, f["options"])
         elif f["facility"]["name"] == "audio":
-            prepare_music_player(p, f["facility"]["options"])
-    
+            prepare_music_player(p, f["options"])
+
     print("Media info fetch completed. Player starting...")
     p.play()
 
