@@ -6,5 +6,11 @@
     <string name="hint_password">Password</string>
     <string name="sign_in">Sign In</string>
     <string name="sign_up">Sing Up</string>
+    <string name="sign_out">Sign Out</string>
     <string name="password_forget">Forgot password?</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="menu_nav_home">Home</string>
 </resources>
