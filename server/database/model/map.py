@@ -3,7 +3,7 @@
 from typing import Dict, Any
 
 from sqlalchemy import Column, Integer, Float, String, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 
 from .base import Base
 from ..exceptions import InvalidDictError
@@ -27,7 +27,7 @@ class Node(Base):
 
     # Relationships
     edges = []
-    room = relationship("Room", backref="node")
+    room = relationship("Room", backref=backref("node", uselist=False))
 
     def __repr__(self):
         return "Node #{}: {}".format(self.nodeID, self.name)
@@ -44,8 +44,7 @@ class Node(Base):
             "name": str(self.name),
             "X": float(self.X),
             "Y": float(self.Y),
-            "orientation": float(self.orientation),
-            "room": self.room.to_dict() if self.room is not None else None
+            "orientation": float(self.orientation)
         }
     
     @staticmethod

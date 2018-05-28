@@ -76,6 +76,7 @@ class DailySchedule:
             for e in self.sched[r]:
                 sched_dict[r.roomID].append({
                     "event": e["event"].to_dict(),
+                    "room": r.to_dict(),
                     "color": e["color"]
                 })
         return sched_dict

@@ -18,8 +18,8 @@ def handler_get_schedule():
     """
     return jsonify(allocation.sched.to_dict())
 
-@schedule_bp.route("/schedule/<int:roomID>", methods=["GET"])
-def handler_get_schedule_from_id(roomID):
+@schedule_bp.route("/schedule/room/<int:roomID>", methods=["GET"])
+def handler_get_schedule_from_room_id(roomID):
     """Get the schedule for the room with the given ID.
 
     .. :quickref: Schedule; Get the schedule for the room with the given ID.
@@ -32,5 +32,24 @@ def handler_get_schedule_from_id(roomID):
     """
     if roomID in allocation.sched.to_dict():
         return jsonify(allocation.sched.to_dict()[roomID])
+    else:
+        return abort(400, "The requested object could not be found.")
+
+@schedule_bp.route("/schedule/event/<int:eventID>", methods=["GET"])
+def handler_get_schedule_from_event_id(eventID):
+    """Get the schedule for the event with the given ID.
+
+    .. :quickref: Schedule; Get the schedule for the event with the given ID.
+    
+    :param int eventID: The ID of the event to retrieve the schedule
+    :status 200: The schedule was correctly retrieved
+    :status 400: The event could not be found
+    :status 401: The user has not logged in
+    :return: The JSON-encoded user
+    """
+    for roomID in allocation.sched.to_dict():
+        for event in allocation.sched.to_dict()[roomID]:
+            if event["event"]["eventID"] == eventID:
+                return jsonify(event)
     else:
         return abort(400, "The requested object could not be found.")
