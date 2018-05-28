@@ -75,11 +75,16 @@ def detect_user(users):
     return user_id
 
 
-def generate_arrow(exit_point):
+def generate_arrow(exit_point, color):
     """ Lights the arrow in the circuit
 
         :param exit_point: arrow id
         :type exit_point: int
+        exit_point is a number in [0; 3]:
+        0 -> E;
+        1 -> N;
+        2 -> O;
+        3 -> S.
 
     """
     pass

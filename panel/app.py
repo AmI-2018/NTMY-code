@@ -24,16 +24,16 @@ while True:
 
     """ obtain his/her destination from the server """
     dest_id = af.obtain_dest_by_user(config, user_id, session)
-    print(dest_id)
+
     """ generate the exit point according to the direction """
-    exit_point = pl.route.generate_direction(config,dest_id)
+    exit_point = pl.route.generate_direction(config['panelID'], dest_id)
 
     """ light up the related arrow """
 
     af.generate_arrow(exit_point)
 
     """ give time to look the arrow """
-    time.sleep(5)
+    time.sleep(10)
 
     """ turn off the arrows"""
     af.reset_arrow()

@@ -36,13 +36,13 @@ def generate_direction(actual_node_id, destination_id):
     return port
 
 
-def generate_port(node, next):
+def generate_port(node, next_node):
     """ This function calculate the angle between two nodes and then
         return the coordinate [ 0 - E; 1 - N; 2 - O; 3 - S]
 
         :param node: Source node
         :type node: dict
-        :param next: Next node in the path
+        :param next_node: Next node in the path
         :type node: dict
         :return: the index corresponding to the direction
         :rtype: int
@@ -58,14 +58,14 @@ def generate_port(node, next):
     setting = node['orientation']
 
     """ Calculate the angle """
-    x = node['X'] - next['X']
-    y = node['Y'] - next['Y']
+    x = node['X'] - next_node['X']
+    y = node['Y'] - next_node['Y']
 
     angle = math.degrees(math.atan2(y, x) + math.pi) + setting
     """ I added 180° because atan2() return an angle in [-180; 180] """
     """ Since the exits' ids are in [0; 3] I need an angle in [0; 360]"""
 
-    port = round(angle / 90)
+    port = round(angle / 90) % 4
 
     return port
 
@@ -81,7 +81,8 @@ def get_next_node(source, dest):
     """ Returns the next node receiving the shortest path to the destination."""
 
     path = get_shortest_path(source['id'], dest['id'])
-    return path[1]
+    node = search_node(path[1])
+    return node
 
 
 def search_node(node_id):
