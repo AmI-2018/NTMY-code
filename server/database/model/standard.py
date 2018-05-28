@@ -234,7 +234,7 @@ class Room(Base):
             "name": str(self.name),
             "description": str(self.description),
             "size": int(self.size),
-            "node": self.node.to_dict()
+            "node": self.node.to_dict() if self.node is not None else None
         }
     
     @staticmethod
