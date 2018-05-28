@@ -17,11 +17,16 @@ def obtain_dest_by_user(config, user_id):
     """ Retrieve the events and takes the first """
     user_events = r.json()
     event = user_events[0]
-
+    event_id = event.eventID
     """ Retrieve the node nearest to the event's room """
 
-    """ Return the destination's node id """
+    url = config['serveruri'] + "/schedule/event/" + event_id
+    r = requests.get(url)
+    schedule = r.json()
+    room = schedule.room
 
+    """ Return the destination's node id """
+    return room['node']
 
 def detect_user():
 
