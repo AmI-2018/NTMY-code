@@ -9,7 +9,7 @@ map_bp = Blueprint("map_bp", __name__)
 def handler_get_map():
     """Get the list of the nodes and edges.
 
-    .. :quickref: Map; Get the list of the nodes.
+    .. :quickref: Map; Get the list of the nodes and edges.
 
     :status 200: The list was correctly retrieved
     :status 401: The user has not logged in

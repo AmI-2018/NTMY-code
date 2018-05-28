@@ -6,8 +6,6 @@ import requests
 
 from lights import LightManager
 from player import Player
-from music import prepare_music_player
-from tv import prepare_tv_player
 
 # Read config file
 
@@ -59,9 +57,11 @@ while True:
     print("Fetching media info...")
     for f in facilities:
         if f["facility"]["name"] == "TV":
-            prepare_tv_player(p, f["options"])
+            channel = session.get(config["serveruri"] + "/media/channels/{}".format(f["options"])).json()
+            p.fetch_channel(channel)
         elif f["facility"]["name"] == "audio":
-            prepare_music_player(p, f["options"])
+            playlist = session.get(config["serveruri"] + "/media/playlists/{}".format(f["options"])).json()
+            p.fetch_playlist(playlist)
 
     print("Media info fetch completed. Player starting...")
     p.play()

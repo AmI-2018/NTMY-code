@@ -1,4 +1,4 @@
-"""This module provides all classes to map the residence on a graph."""
+"""This module provides all the classes to map the residence on a graph."""
 
 from typing import Dict, Any
 

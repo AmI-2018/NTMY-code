@@ -1,3 +1,6 @@
+import fake_useragent
+import pafy
+import requests
 import vlc
 
 class Player():
@@ -24,3 +27,20 @@ class Player():
         self.media_list.release()
         self.media_list = self.instance.media_list_new()
         self.media_player.set_media_list(self.media_list)
+    
+    def fetch_channel(self, channel):
+        print("Fetching channel '{}'...".format(channel["name"]))
+        url = requests.get(channel["link"], headers={"User-Agent": fake_useragent.UserAgent().chrome}).text
+        self.add_media(url)
+        print("Fetch completed.")
+    
+    def fetch_playlist(self, playlist):
+        print("Fetching playlist '{}'...".format(playlist["name"]))
+        playlist = pafy.get_playlist(playlist["link"])
+        for song in playlist["items"]:
+            try:
+                print("Adding song '{}'".format(song["pafy"].title))
+                self.add_media(song["pafy"].getbestaudio().url)
+            except Exception:
+                continue
+        print("Fetch completed.")
