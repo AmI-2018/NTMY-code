@@ -1,8 +1,8 @@
-import graph as G
-from graph import nx
+from . import graph as G
+from .graph import nx
 import matplotlib.pyplot as plt
 import math
-from exceptions import InvalidNodeId
+from .exceptions import InvalidNodeId
 
 
 def plot_graph():

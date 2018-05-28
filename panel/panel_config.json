@@ -1,5 +1,6 @@
 {
-    "panelID": ""
+    "panelID": "",
     "serveruri": "http://127.0.0.1:5000",
-    "rootpwd": "ntmyroot",
+    "email": "root@root.com",
+    "rootpwd": "ntmyroot"
 }

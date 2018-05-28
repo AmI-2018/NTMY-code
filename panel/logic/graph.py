@@ -14,8 +14,10 @@ create a connection with sqlite database "graph.db" where is stored
 all the data concerning the nodes and the edges
 
 """
-
-conn = sqlite3.connect("../database/graph.db")
+if __name__ == "__main__":
+    conn = sqlite3.connect("../database/graph.db")
+else:
+    conn = sqlite3.connect("./database/graph.db")
 
 """
 store the data in two container, is used pandas in order 
