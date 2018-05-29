@@ -8,7 +8,7 @@ GPIOZERO LIBRARY https://gpiozero.readthedocs.io/en/stable/recipes.html#full-col
 
 RaspberryPi   pin connections
 
-GPIO PINS: High 3.3 V max  Low  0V   
+GPIO PINS range: High -> 3V3;  Low -> 0V   
 24 GPIO pins  output to drive RGB leds 
 1 pin 5V  DC power voltage
 1 pin GND  
