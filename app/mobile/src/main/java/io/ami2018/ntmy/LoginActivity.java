@@ -29,10 +29,6 @@ import io.ami2018.ntmy.network.RequestHelper;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
-    //WARNING Make sure to use the exact url of the api location
-    private static final String url = "http://192.168.1.110:5000/";
-    public static final String TAG = LoginActivity.class.getSimpleName();
-
     private TextInputLayout mEmailLayout;
     private TextInputLayout mPasswordLayout;
     private TextInputEditText mEmail;
@@ -101,7 +97,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 e.printStackTrace();
             }
 
-            RequestHelper.post(getApplicationContext(), "login", jsonBody, new Response.Listener<JSONObject>() {
+            RequestHelper.postJson(getApplicationContext(), "login", jsonBody, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
                     hideProgress();

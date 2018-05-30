@@ -8,14 +8,15 @@
 
     <include layout="@layout/progress_overlay" />
 
-    <TextView
+    <ImageView
         android:id="@+id/login_iv_logo"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_marginEnd="32dp"
         android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
-        android:text="@string/alt_logo"
+        android:contentDescription="@string/alt_logo"
+        app:srcCompat="@drawable/ic_handshake"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -112,10 +113,10 @@
         android:layout_marginBottom="16dp"
         android:layout_marginEnd="32dp"
         android:layout_marginStart="32dp"
-        android:text="@string/password_forget"
-        android:textColor="@color/colorAccent"
         android:clickable="true"
         android:focusable="true"
+        android:text="@string/password_forget"
+        android:textColor="@color/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

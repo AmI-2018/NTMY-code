@@ -11,21 +11,23 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 
+import io.ami2018.ntmy.model.User;
 import io.ami2018.ntmy.network.PersistentCookieStore;
 import io.ami2018.ntmy.network.RequestHelper;
 
@@ -34,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout mDrawer;
     private View mProgress;
 
-    private JSONObject mUser;
+    private User mUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +44,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
 
         initViews();
-        initObjects();
         initDrawer();
         initListeners();
 
@@ -51,16 +52,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         CookieManager cookieManager = new CookieManager(new PersistentCookieStore(getApplicationContext()), CookiePolicy.ACCEPT_ALL);
         CookieHandler.setDefault(cookieManager);
 
-        RequestHelper.get(getApplicationContext(), "login", new Response.Listener<JSONObject>() {
+        RequestHelper.getJson(getApplicationContext(), "login", new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                mUser = response;
-                try {
-                    String fullName = mUser.get("name").toString() + mUser.get("surname").toString();
-                    ((TextView) findViewById(R.id.nav_tv_name)).setText(fullName);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                mUser = new User(response);
+                String fullName = mUser.getName() + mUser.getSurname();
+                ((TextView) findViewById(R.id.nav_tv_name)).setText(fullName);
+                ((TextView) findViewById(R.id.nav_tv_email)).setText(mUser.getEmail());
                 hideProgress();
             }
         }, new Response.ErrorListener() {
@@ -148,20 +146,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ft.commit();
     }
 
-    private void initObjects() {
-        mUser = new JSONObject();
-    }
-
     private void signOut() {
-        RequestHelper.get(getApplicationContext(), "logout", new Response.Listener<JSONObject>() {
+        Log.d("Main", "signout");
+        RequestHelper.get(getApplicationContext(), "logout", new Response.Listener<String>() {
             @Override
-            public void onResponse(JSONObject response) {
+            public void onResponse(String response) {
                 startActivity(new Intent(getApplicationContext(), LoginActivity.class));
                 finish();
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                Toast.makeText(MainActivity.this, "Error loggin out", Toast.LENGTH_SHORT).show();
             }
         });
     }
