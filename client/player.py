@@ -1,32 +1,48 @@
+from threading import Thread
+from time import sleep
+
 import fake_useragent
+import omxplayer
 import pafy
 import requests
-import vlc
 
 class Player():
     def __init__(self):
-        # VLC instantiation
-        self.instance = vlc.Instance()
-        self.media_list = self.instance.media_list_new()
-        self.media_player = self.instance.media_list_player_new()
-
-        # VLC options
-        self.media_player.get_media_player().set_fullscreen(True)
-        self.media_player.set_media_list(self.media_list)
+        self.media_list = []
+        self.media_player = None
+        self.media_player_thread = Thread(target=self.runner)
+        self.stop_playing = False
     
     def add_media(self, path):
-        self.media_list.add_media(path)
+        self.media_list.append(path)
+    
+    def runner(self):
+        for media in self.media_list:
+            if self.media_player is None:
+                self.media_player = omxplayer.OMXPlayer(media)
+            else:
+                self.media_player.load(media)
 
+            print("Now playing '{}'".format(media))
+            self.media_player.play()
+            while self.media_player.is_playing():
+                sleep(1)
+                if self.stop_playing:
+                    self.media_player.quit()
+                    return
+    
     def play(self):
-        self.media_player.play()
+        self.stop_playing = False
+        self.media_player_thread.start()
     
     def stop(self):
-        self.media_player.stop()
+        self.stop_playing = True
+        self.media_player_thread.join()
+        self.media_player_thread = Thread(target=self.runner)
     
     def empty(self):
-        self.media_list.release()
-        self.media_list = self.instance.media_list_new()
-        self.media_player.set_media_list(self.media_list)
+        self.media_list = []
+        self.media_player = None
     
     def fetch_channel(self, channel):
         print("Fetching channel '{}'...".format(channel["name"]))

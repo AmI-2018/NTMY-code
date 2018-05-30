@@ -37,7 +37,7 @@ p = Player()
 
 while True:
     # Get the schedule
-    schedule = session.get("{}/schedule/{}".format(config["serveruri"], config["roomID"])).json()
+    schedule = session.get("{}/schedule/room/{}".format(config["serveruri"], config["roomID"])).json()
     print("Current schedule:")
     print(schedule)
 
@@ -70,7 +70,8 @@ while True:
     end_time = datetime.datetime.strptime(next_event["event"]["end"], "%x %X")
     print("Event will end at:")
     print(end_time)
-    pause.until(end_time.timestamp())
+    # pause.until(end_time.timestamp())
+    pause.seconds(30)
 
     # Stop and empty the player
     p.stop()
