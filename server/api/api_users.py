@@ -117,7 +117,7 @@ def handler_get_user_connections_from_id(userID):
     :return: The JSON-encoded list
     """
     try:
-        connections = database.functions.filter(database.model.relationships.UserConnection, "userID = '{}'".format(userID))
+        connections = database.functions.filter(database.model.relationships.UserConnection, "userID1 = '{}'".format(userID))
         return jsonify([c.to_dict() for c in connections])
     except database.exceptions.DatabaseError as e:
         return abort(400, str(e))
