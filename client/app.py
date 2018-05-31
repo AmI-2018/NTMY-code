@@ -70,8 +70,11 @@ while True:
     end_time = datetime.datetime.strptime(next_event["event"]["end"], "%x %X")
     print("Event will end at:")
     print(end_time)
-    # pause.until(end_time.timestamp())
-    pause.seconds(30)
+    try:
+        pause.until(end_time.timestamp())
+    except KeyboardInterrupt:
+        p.stop()
+        break
 
     # Stop and empty the player
     p.stop()
