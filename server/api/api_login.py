@@ -1,6 +1,9 @@
 """Login API"""
 
 from flask import jsonify, request, session, Blueprint, abort
+from functools import wraps
+from typing import Callable
+
 import database
 
 login_bp = Blueprint("login_bp", __name__)

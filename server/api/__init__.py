@@ -41,6 +41,8 @@ def require_login():
     except KeyError:
         return abort(401)
 
+# Blueprints registration
+
 app.register_blueprint(api_categories.categories_bp)
 app.register_blueprint(api_events.events_bp)
 app.register_blueprint(api_facilities.facilities_bp)
