@@ -1,8 +1,8 @@
 """Events API"""
 
-from flask import jsonify, request, Blueprint, abort
+from flask import jsonify, request, Blueprint, abort, session
 
-from .decorators import require_root, is_mine
+from .decorators import require_root, is_me, is_mine
 import database
 
 events_bp = Blueprint("events_bp", __name__)
@@ -282,13 +282,12 @@ def handler_get_event_participants(eventID):
     """
     try:
         event = database.functions.get(database.model.standard.Event, eventID)[0]
-        users = [u.to_dict() for u in event.users]
+        users = [u.to_dict() for u in event.participants]
         return jsonify(users)
     except database.exceptions.DatabaseError as e:
         return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/participants", methods=["POST"])
-@is_mine
 def handler_add_event_participant(eventID):
     """Add a participant to the event with the given ID.
 
@@ -302,9 +301,11 @@ def handler_add_event_participant(eventID):
     :return: The JSON-encoded newly created participant
     """
     try:
-        new_event =  database.functions.add(database.model.relationships.UserConnection.from_dict({**request.json, **{"eventID": eventID}}))
-        return jsonify(new_event.to_dict())
-    except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
+        if session["user"] != request.json["userID"]:
+            abort(401)
+        event_part = database.functions.add(database.model.relationships.EventParticipant.from_dict({**request.json, **{"eventID": eventID}}))
+        return jsonify(event_part.to_dict())
+    except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError, KeyError) as e:
         return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/participants/<int:userID>", methods=["GET"])
@@ -327,8 +328,7 @@ def handler_get_event_participant_from_id_from_id(eventID, userID):
         return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/participants/<int:userID>", methods=["DELETE"])
-@is_mine
-@is_mine
+@is_me
 def handler_delete_event_participant_from_id_from_id(eventID, userID):
     """Delete the participant of the event with the given IDs.
     
