@@ -1,5 +1,7 @@
 package io.ami2018.ntmy.model;
 
+import android.util.SparseArray;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -10,13 +12,19 @@ public class Event {
     private String start;
     private String end;
     private Integer eventId;
+    private Integer creatorId;
 
-    public Event(String name, String description, String start, String end, Integer eventId) {
+    private Room room;
+    private SparseArray<Category> categories;
+
+    public Event(String name, String description, String start, String end, Integer eventId, Integer creatorId) {
         this.name = name;
         this.description = description;
         this.start = start;
         this.end = end;
         this.eventId = eventId;
+        this.creatorId = creatorId;
+        this.categories = new SparseArray<>();
     }
 
     public Event(JSONObject jsonObject) {
@@ -26,9 +34,11 @@ public class Event {
             this.start = jsonObject.getString("start");
             this.end = jsonObject.getString("end");
             this.eventId = jsonObject.getInt("eventID");
+            this.creatorId = jsonObject.getJSONObject("creator").getInt("userID");
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        this.categories = new SparseArray<>();
     }
 
     public String getName() {
@@ -69,5 +79,35 @@ public class Event {
 
     public void setEventId(Integer eventId) {
         this.eventId = eventId;
+    }
+
+    public Integer getCreatorId() {
+        return creatorId;
+    }
+
+    public void setCreatorId(Integer creatorId) {
+        this.creatorId = creatorId;
+    }
+
+    public SparseArray<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(SparseArray<Category> categories) {
+        this.categories = categories;
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
+    }
+
+    public void addCategory(Category category) {
+        if (this.categories.get(category.getCategoryId()) == null) {
+            this.categories.append(category.getCategoryId(), category);
+        }
     }
 }

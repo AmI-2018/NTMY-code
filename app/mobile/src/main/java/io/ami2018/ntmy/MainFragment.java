@@ -18,7 +18,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.ami2018.ntmy.model.Category;
 import io.ami2018.ntmy.model.Event;
+import io.ami2018.ntmy.model.Room;
 import io.ami2018.ntmy.model.User;
 import io.ami2018.ntmy.network.RequestHelper;
 import io.ami2018.ntmy.recyclerviews.NextEventAdapter;
@@ -51,10 +53,41 @@ public class MainFragment extends Fragment {
             public void onResponse(JSONArray response) {
                 try {
                     for (int i = 0; i < response.length(); i++) {
-                        JSONObject jsonObject = response.getJSONObject(i);
-                        Event event = new Event(jsonObject.getJSONObject("event"));
-                        mUser.addEvent(event);
-                        mAdapter.addElement(event);
+                        final Event event = new Event(response.getJSONObject(i).getJSONObject("event"));
+                        RequestHelper.getJsonArray(getContext(), "events/" + event.getEventId() + "/categories", new Response.Listener<JSONArray>() {
+                            @Override
+                            public void onResponse(JSONArray response) {
+                                try {
+                                    for (int i = 0; i < response.length(); i++) {
+                                        event.addCategory(new Category(response.getJSONObject(i).getJSONObject("category")));
+                                    }
+                                    RequestHelper.getJson(getContext(), "schedule/event/" + event.getEventId(), new Response.Listener<JSONObject>() {
+                                        @Override
+                                        public void onResponse(JSONObject response) {
+                                            try {
+                                                event.setRoom(new Room(response.getJSONObject("room")));
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                            mUser.addEvent(event);
+                                            mAdapter.addElement(event);
+                                        }
+                                    }, new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+
+                                        }
+                                    });
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+
+                            }
+                        });
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

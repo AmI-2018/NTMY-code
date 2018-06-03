@@ -48,11 +48,18 @@ public class NextEventAdapter extends RecyclerView.Adapter<NextEventAdapter.Next
 
     @Override
     public void onBindViewHolder(@NonNull NextEventAdapter.NextEventViewHolder holder, int position) {
-        holder.mTitle.setText(list.get(position).getName());
-        holder.mDescr.setText(list.get(position).getDescription());
-        holder.mDate.setText(list.get(position).getStart().split(" ")[0]);
-        String time = list.get(position).getStart().split(" ")[1] + " - " + list.get(position).getEnd().split(" ")[1];
+        Event event = list.get(position);
+        StringBuffer categories = new StringBuffer();
+        String time = event.getStart().split(" ")[1] + " - " + event.getEnd().split(" ")[1];
+        for (int i = 0; i < event.getCategories().size(); i++) {
+            categories.append(event.getCategories().get(event.getCategories().keyAt(i)).getName());
+            if (i != event.getCategories().size() - 1) categories.append(", ");
+        }
+        holder.mTitle.setText(event.getName());
+        holder.mCategories.setText(categories);
+        holder.mDate.setText(event.getStart().split(" ")[0]);
         holder.mTime.setText(time);
+        holder.mRoom.setText(event.getRoom().getName());
     }
 
     @Override
@@ -63,16 +70,18 @@ public class NextEventAdapter extends RecyclerView.Adapter<NextEventAdapter.Next
     public static class NextEventViewHolder extends RecyclerView.ViewHolder {
 
         private TextView mTitle;
-        private TextView mDescr;
+        private TextView mCategories;
         private TextView mDate;
         private TextView mTime;
+        private TextView mRoom;
 
         public NextEventViewHolder(View itemView) {
             super(itemView);
             this.mTitle = itemView.findViewById(R.id.item_event_card_tv_title);
-            this.mDescr = itemView.findViewById(R.id.item_event_card_tv_descr);
+            this.mCategories = itemView.findViewById(R.id.item_event_card_tv_categories);
             this.mDate = itemView.findViewById(R.id.item_event_card_tv_date);
             this.mTime = itemView.findViewById(R.id.item_event_card_tv_time);
+            mRoom = itemView.findViewById(R.id.item_event_card_tv_room);
         }
     }
 }

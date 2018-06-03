@@ -13,9 +13,11 @@ public class User {
     private String surname;
     private String email;
     private String phone;
+
     // Attributes
     private String name;
     private Integer userId;
+
     // Relationships
     private Map<Integer, Event> events;
 
