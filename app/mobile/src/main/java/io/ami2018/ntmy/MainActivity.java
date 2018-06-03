@@ -55,10 +55,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         RequestHelper.getJson(getApplicationContext(), "login", new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                mUser = new User(response);
-                String fullName = mUser.getName() + mUser.getSurname();
+                mUser = User.getInstance();
+                mUser.setInstance(response);
+                String fullName = mUser.getName() + " " + mUser.getSurname();
                 ((TextView) findViewById(R.id.nav_tv_name)).setText(fullName);
                 ((TextView) findViewById(R.id.nav_tv_email)).setText(mUser.getEmail());
+                displayMainFragment();
                 hideProgress();
             }
         }, new Response.ErrorListener() {
@@ -138,12 +140,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView mNav = findViewById(R.id.main_nv);
         mNav.setNavigationItemSelectedListener(this);
         mNav.setCheckedItem(R.id.nav_home);
-
-        //Fragment
-        Fragment fragment = new MainFragment();
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.content_frame, fragment);
-        ft.commit();
     }
 
     private void signOut() {
@@ -168,5 +164,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void hideProgress() {
         mProgress.setVisibility(View.GONE);
+    }
+
+    private void displayMainFragment() {
+        //Fragment
+        Fragment fragment = new MainFragment();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.content_frame, fragment);
+        ft.commit();
     }
 }

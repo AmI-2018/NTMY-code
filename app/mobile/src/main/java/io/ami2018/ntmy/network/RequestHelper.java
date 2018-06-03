@@ -4,9 +4,11 @@ import android.content.Context;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class RequestHelper {
@@ -21,6 +23,11 @@ public class RequestHelper {
     public static void getJson(Context context, String path, Response.Listener<JSONObject> responseListener, Response.ErrorListener errorListener) {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url + path, null, responseListener, errorListener);
         QueueSingleton.getInstance(context).addToRequestQueue(jsonObjectRequest);
+    }
+
+    public static void getJsonArray(Context context, String path, Response.Listener<JSONArray> responseListener, Response.ErrorListener errorListener) {
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url + path, null, responseListener, errorListener);
+        QueueSingleton.getInstance(context).addToRequestQueue(jsonArrayRequest);
     }
 
     public static void postJson(Context context, String path, JSONObject jsonObject, Response.Listener<JSONObject> responseListener, Response.ErrorListener errorListener) {
