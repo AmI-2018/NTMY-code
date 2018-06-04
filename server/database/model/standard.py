@@ -2,7 +2,8 @@
 
 from typing import Dict, Any
 
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 from passlib.hash import sha512_crypt
 
 from .base import Base
@@ -131,6 +132,7 @@ class User(Base):
     password = Column(String, nullable=False)
 
     # Relationships
+    created_events = []
     events = []
     connections = []
     interests = []
@@ -273,8 +275,10 @@ class Event(Base):
     description = Column(String, nullable=False)
     start = Column(DateTime, nullable=False)
     end = Column(DateTime, nullable=False)
+    creatorID = Column(Integer, ForeignKey("users.userID"), nullable=False)
 
     # Relationships
+    creator = relationship("User", backref="created_events")
     categories = []
     facilities = []
     participants = []
@@ -295,7 +299,8 @@ class Event(Base):
             "name": str(self.name),
             "description": str(self.description),
             "start": datetime.strftime(self.start, "%x %X"),
-            "end": datetime.strftime(self.end, "%x %X")
+            "end": datetime.strftime(self.end, "%x %X"),
+            "creator": self.creator.to_dict()
         }
     
     @staticmethod
@@ -315,7 +320,8 @@ class Event(Base):
                 name=event_dict["name"],
                 description=event_dict["description"],
                 start=datetime.strptime(event_dict["start"], "%x %X"),
-                end=datetime.strptime(event_dict["end"], "%x %X")
+                end=datetime.strptime(event_dict["end"], "%x %X"),
+                creatorID=event_dict["creatorID"]
             )
         except KeyError as e:
             raise InvalidDictError("The provided dictionary is missing the key {}".format(str(e)))

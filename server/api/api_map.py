@@ -1,6 +1,8 @@
 """Map API"""
 
 from flask import jsonify, request, Blueprint, abort
+
+from .decorators import require_root
 import database
 
 map_bp = Blueprint("map_bp", __name__)
@@ -35,6 +37,7 @@ def handler_get_nodes():
     return jsonify([n.to_dict() for n in database.functions.get(database.model.map.Node)])
 
 @map_bp.route("/map/nodes", methods=["POST"])
+@require_root
 def handler_add_node():
     """Add a node.
 
@@ -74,6 +77,7 @@ def handler_get_node_from_id(nodeID):
         return abort(400, str(e))
 
 @map_bp.route("/map/nodes/<int:nodeID>", methods=["PUT"])
+@require_root
 def handler_patch_node_from_id(nodeID):
     """Update the node with the given ID.
 
@@ -97,6 +101,7 @@ def handler_patch_node_from_id(nodeID):
         return abort(400, str(e))
 
 @map_bp.route("/map/nodes/<int:nodeID>", methods=["DELETE"])
+@require_root
 def handler_delete_node_from_id(nodeID):
     """Delete the node with the given ID.
 
@@ -130,6 +135,7 @@ def handler_get_edges():
     return jsonify([e.to_dict() for e in database.functions.get(database.model.map.Edge)])
 
 @map_bp.route("/map/edges", methods=["POST"])
+@require_root
 def handler_add_edge():
     """Add an edge.
 
@@ -169,6 +175,7 @@ def handler_get_edge_from_id(nodeID1, nodeID2):
         return abort(400, str(e))
 
 @map_bp.route("/map/edges/<int:nodeID1>/<int:nodeID2>", methods=["PUT"])
+@require_root
 def handler_patch_edge_from_id(nodeID1, nodeID2):
     """Update the edge with the given IDs.
 
@@ -190,6 +197,7 @@ def handler_patch_edge_from_id(nodeID1, nodeID2):
         return abort(400, str(e))
 
 @map_bp.route("/map/edges/<int:nodeID1>/<int:nodeID2>", methods=["DELETE"])
+@require_root
 def handler_delete_edge_from_id(nodeID1, nodeID2):
     """Delete the edge with the given IDs.
 

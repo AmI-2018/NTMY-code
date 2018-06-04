@@ -1,6 +1,8 @@
 """Rooms API"""
 
 from flask import jsonify, request, Blueprint, abort
+
+from .decorators import require_root
 import database
 
 rooms_bp = Blueprint("rooms_bp", __name__)
@@ -20,6 +22,7 @@ def handler_get_rooms():
     return jsonify([r.to_dict() for r in database.functions.get(database.model.standard.Room)])
 
 @rooms_bp.route("/rooms", methods=["POST"])
+@require_root
 def handler_add_room():
     """Add a room.
 
@@ -59,6 +62,7 @@ def handler_get_room_from_id(roomID):
         return abort(400, str(e))
 
 @rooms_bp.route("/rooms/<int:roomID>", methods=["PUT"])
+@require_root
 def handler_patch_room_from_id(roomID):
     """Update the room with the given ID.
 
@@ -80,6 +84,7 @@ def handler_patch_room_from_id(roomID):
         return abort(400, str(e))
 
 @rooms_bp.route("/rooms/<int:roomID>", methods=["DELETE"])
+@require_root
 def handler_delete_room_from_id(roomID):
     """Delete the room with the given ID.
 
@@ -120,6 +125,7 @@ def handler_get_room_facilities(roomID):
         return abort(400, str(e))
 
 @rooms_bp.route("/rooms/<int:roomID>/facilities", methods=["POST"])
+@require_root
 def handler_add_room_facility(roomID):
     """Add a facility to the room with the given ID.
 
@@ -158,6 +164,7 @@ def handler_get_room_facility_from_id_from_id(roomID, facilityID):
         return abort(400, str(e))
 
 @rooms_bp.route("/rooms/<int:roomID>/facilities/<int:facilityID>", methods=["DELETE"])
+@require_root
 def handler_delete_room_facility_from_id_from_id(roomID, facilityID):
     """Delete the facility of the room with the given IDs.
     

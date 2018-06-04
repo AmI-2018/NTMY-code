@@ -1,6 +1,8 @@
 """Users API"""
 
 from flask import jsonify, request, Blueprint, abort
+
+from .decorators import require_root, is_me, is_known
 import database
 
 users_bp = Blueprint("users_bp", __name__)
@@ -8,6 +10,7 @@ users_bp = Blueprint("users_bp", __name__)
 # Basic usage
 
 @users_bp.route("/users", methods=["GET"])
+@require_root
 def handler_get_users():
     """Get the list of the users.
 
@@ -44,6 +47,7 @@ def handler_add_user():
 # ID indexed
 
 @users_bp.route("/users/<int:userID>", methods=["GET"])
+@is_known
 def handler_get_user_from_id(userID):
     """Get the user with the given ID.
 
@@ -61,6 +65,7 @@ def handler_get_user_from_id(userID):
         return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>", methods=["PUT"])
+@is_me
 def handler_patch_user_from_id(userID):
     """Update the user with the given ID.
 
@@ -84,6 +89,7 @@ def handler_patch_user_from_id(userID):
         return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>", methods=["DELETE"])
+@is_me
 def handler_delete_user_from_id(userID):
     """Delete the user with the given ID.
 
@@ -105,6 +111,7 @@ def handler_delete_user_from_id(userID):
 # Connections subcollection
 
 @users_bp.route("/users/<int:userID>/connections", methods=["GET"])
+@is_me
 def handler_get_user_connections_from_id(userID):
     """Get the connections of the user with the given ID.
 
@@ -122,8 +129,29 @@ def handler_get_user_connections_from_id(userID):
     except database.exceptions.DatabaseError as e:
         return abort(400, str(e))
 
-@users_bp.route("/users/<int:userID>/connections/<int:eventID>", methods=["GET"])
-def handler_get_user_connections_from_id_from_id(userID, eventID):
+@users_bp.route("/users/<int:userID>/connections/user/<int:otherID>", methods=["GET"])
+@is_me
+def handler_get_user_connections_from_id_from_user_id(userID, otherID):
+    """Get the connections of the user with the given IDs.
+
+    .. :quickref: Users; Get the connections of the user with the given IDs.
+    
+    :param int userID: The ID of the user to retrieve the collection from
+    :param int otherID: The ID of the user which whom the connection happened
+    :status 200: The list was correctly retrieved
+    :status 400: The user could not be found
+    :status 401: The user has not logged in
+    :return: The JSON-encoded list
+    """
+    try:
+        connections = database.functions.filter(database.model.relationships.UserConnection, "userID1 = '{}' AND userID2 = '{}'".format(userID, otherID))
+        return jsonify([c.to_dict() for c in connections])
+    except database.exceptions.DatabaseError as e:
+        return abort(400, str(e))
+
+@users_bp.route("/users/<int:userID>/connections/event/<int:eventID>", methods=["GET"])
+@is_me
+def handler_get_user_connections_from_id_from_event_id(userID, eventID):
     """Get the connections of the user with the given IDs.
 
     .. :quickref: Users; Get the connections of the user with the given IDs.
@@ -142,6 +170,7 @@ def handler_get_user_connections_from_id_from_id(userID, eventID):
         return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>/connections", methods=["POST"])
+@is_me
 def handler_add_user_connection_from_id(userID):
     """Add a connection to the user with the given ID.
 
@@ -163,7 +192,27 @@ def handler_add_user_connection_from_id(userID):
 
 # Events subcollection
 
+@users_bp.route("/users/<int:userID>/created_events", methods=["GET"])
+def handler_get_user_created_events_from_id(userID):
+    """Get the events created by the user with the given ID.
+
+    .. :quickref: Users; Get the events created by the user with the given ID.
+    
+    :param int userID: The ID of the user to retrieve the collection from
+    :status 200: The list was correctly retrieved
+    :status 400: The user could not be found
+    :status 401: The user has not logged in
+    :return: The JSON-encoded list
+    """
+    try:
+        user = database.functions.get(database.model.standard.User, userID)[0]
+        events = [e.to_dict() for e in user.created_events]
+        return jsonify(events)
+    except database.exceptions.DatabaseError as e:
+        return abort(400, str(e))
+
 @users_bp.route("/users/<int:userID>/events", methods=["GET"])
+@is_me
 def handler_get_user_events_from_id(userID):
     """Get the events of the user with the given ID.
 
@@ -185,6 +234,7 @@ def handler_get_user_events_from_id(userID):
 # Interests subcollection
 
 @users_bp.route("/users/<int:userID>/interests", methods=["GET"])
+@is_me
 def handler_get_user_interests_from_id(userID):
     """Get the interests of the user with the given ID.
 
@@ -204,6 +254,7 @@ def handler_get_user_interests_from_id(userID):
         return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>/interests", methods=["POST"])
+@is_me
 def handler_add_user_interest_from_id(userID):
     """Add an interest to the user with the given ID.
 
@@ -223,6 +274,7 @@ def handler_add_user_interest_from_id(userID):
         return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>/interests/<int:categoryID>", methods=["GET"])
+@is_me
 def handler_get_user_interest_from_id_from_id(userID, categoryID):
     """Get the interest of the user with the given IDs.
 
@@ -242,6 +294,7 @@ def handler_get_user_interest_from_id_from_id(userID, categoryID):
         return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>/interests/<int:categoryID>", methods=["DELETE"])
+@is_me
 def handler_delete_user_interest_from_id_from_id(userID, categoryID):
     """Delete the interest of the user with the given IDs.
     

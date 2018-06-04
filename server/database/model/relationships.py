@@ -206,7 +206,7 @@ class UserConnection(Base):
 
     userID1 = Column(Integer, ForeignKey("users.userID"), primary_key=True)
     userID2 = Column(Integer, ForeignKey("users.userID"), primary_key=True)
-    eventID = Column(Integer, ForeignKey("events.eventID"))
+    eventID = Column(Integer, ForeignKey("events.eventID"), primary_key=True)
 
     user1 = relationship("User", backref="connections", foreign_keys=[userID1])
     user2 = relationship("User", foreign_keys=[userID2])
