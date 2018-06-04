@@ -71,7 +71,7 @@ def is_mine(func: Callable) -> Callable:
     def wrapped(*args, **kwargs):
         eventID = kwargs["eventID"]
         event = database.functions.get(database.model.standard.Event, eventID)[0]
-        if event.creator.userID == session["user"]:
+        if session["user"] == 0 or event.creator.userID == session["user"]:
             return func(*args, **kwargs)
         else:
             return abort(401)

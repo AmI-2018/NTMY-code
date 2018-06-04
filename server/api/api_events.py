@@ -1,6 +1,7 @@
 """Events API"""
 
 from flask import jsonify, request, Blueprint, abort, session
+from datetime import datetime
 
 from .decorators import require_root, is_me, is_mine
 import database
@@ -20,6 +21,18 @@ def handler_get_events():
     :return: The JSON-encoded list
     """
     return jsonify([e.to_dict() for e in database.functions.get(database.model.standard.Event)])
+
+@events_bp.route("/events/next", methods=["GET"])
+def handler_get_next_events():
+    """Get the list of the next events sorted by date.
+
+    .. :quickref: Events; Get the list of the events.
+    
+    :status 200: The list was correctly retrieved
+    :status 401: The user has not logged in
+    :return: The JSON-encoded list
+    """
+    return jsonify([e.to_dict() for e in sorted(database.functions.get(database.model.standard.Event), key=(lambda e: e.start)) if e.end > datetime.now()])
 
 @events_bp.route("/events", methods=["POST"])
 def handler_add_event():

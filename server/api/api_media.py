@@ -23,7 +23,7 @@ def handler_get_channels():
 def handler_get_channel_from_id(channelID):
     """Get the channel with the given ID.
 
-    .. :quickref: Media; Get the chennel with the given ID.
+    .. :quickref: Media; Get the channel with the given ID.
     
     :param int channelID: The ID of the channel to retrieve
     :status 200: The channel was correctly retrieved
@@ -54,7 +54,7 @@ def handler_get_playlists():
 def handler_get_playlist_from_id(playlistID):
     """Get the playlist with the given ID.
 
-    .. :quickref: Media; Get the chennel with the given ID.
+    .. :quickref: Media; Get the playlist with the given ID.
     
     :param int playlistID: The ID of the playlist to retrieve
     :status 200: The playlist was correctly retrieved
