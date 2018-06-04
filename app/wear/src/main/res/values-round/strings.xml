@@ -1,3 +1,54 @@
 <resources>
-    <string name="hello_world">Hello Round World!</string>
+    <string name="app_name">NTMY</string>
+
+    <!--
+    Reference name for each mode's information array.
+    -->
+    <string-array name="modes_array_names">
+        <item>home</item>
+        <item>navigation</item>
+        <item>meeting</item>
+        <item>settings</item>
+    </string-array>
+
+    <!--
+    Keys for mode array information below:
+        "Mode Name",
+        "Navigation icon",
+        "Drawable for mode"
+        "Info"
+        "Counter"
+
+    -->
+    <string-array name="home">
+        <item>Home</item>
+        <item>round_home_white_48</item>
+        <item>home</item>
+        <item>Scroll down the menù to switch to other modes.</item>
+        <item>0</item>
+    </string-array>
+
+    <string-array name="navigation">
+        <item>Navigation</item>
+        <item>round_directions_white_48</item>
+        <item>directions</item>
+        <item>Get near to a panel to retrieve the direction.</item>
+        <item>0</item>
+    </string-array>
+
+    <string-array name="meeting">
+        <item>Meeting</item>
+        <item>round_group_add_white_48</item>
+        <item>handshake</item>
+        <item>"Shake someone's hand to receive his/her info."</item>
+        <item>0</item>
+    </string-array>
+
+    <string-array name="settings">
+        <item>Settings</item>
+        <item>round_settings_white_48</item>
+        <item>settings</item>
+        <item>Change options.</item>
+        <item>0</item>
+    </string-array>
 </resources>
