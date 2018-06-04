@@ -30,10 +30,9 @@ def handler_get_schedule_from_room_id(roomID):
     :status 401: The user has not logged in
     :return: The JSON-encoded user
     """
-    if roomID in allocation.sched.to_dict():
-        return jsonify(allocation.sched.to_dict()[roomID])
-    else:
-        return abort(400, "The requested object could not be found.")
+    schedule = allocation.sched.to_dict()
+    room_schedule = list(filter(lambda e: e["room"]["roomID"] == roomID, schedule))
+    return jsonify(room_schedule) if len(room_schedule) > 0 else abort(400, "The requested object could not be found.")
 
 @schedule_bp.route("/schedule/event/<int:eventID>", methods=["GET"])
 def handler_get_schedule_from_event_id(eventID):
@@ -47,9 +46,6 @@ def handler_get_schedule_from_event_id(eventID):
     :status 401: The user has not logged in
     :return: The JSON-encoded user
     """
-    for roomID in allocation.sched.to_dict():
-        for event in allocation.sched.to_dict()[roomID]:
-            if event["event"]["eventID"] == eventID:
-                return jsonify(event)
-    else:
-        return abort(400, "The requested object could not be found.")
+    schedule = allocation.sched.to_dict()
+    event_schedule = list(filter(lambda e: e["event"]["eventID"] == eventID, schedule))
+    return jsonify(event_schedule) if len(event_schedule) > 0 else abort(400, "The requested object could not be found.")

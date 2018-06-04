@@ -26,7 +26,7 @@ def handler_get_events():
 def handler_get_next_events():
     """Get the list of the next events sorted by date.
 
-    .. :quickref: Events; Get the list of the events.
+    .. :quickref: Events; Get the list of the next events sorted by date.
     
     :status 200: The list was correctly retrieved
     :status 401: The user has not logged in
