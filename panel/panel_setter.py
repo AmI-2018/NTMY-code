@@ -3,48 +3,136 @@ from time import sleep
 
 """
     RGB positions              LED SCANNING CONFIG
-          0                       MATRIX 4X6
-        7   1                    A0 A1 A2 B0 B1 B2
-      6       2      =>       C0 
-        5   3                 C1
-          4                   C2
-                              C3
+          0                       MATRIX 3X8
+        7   1                 L0 L1 L2 L3 L4 L5 L6 L7
+      6       2      =>      R
+        5   3                G
+          4                  B
 """
 
 # definizione LED -> da mettere pin
-couple_led = [
-    LED(12), # 0, 4   C0
-    LED(16), # 1, 7   C1
-    LED(20), # 2, 6   C2
-    LED(21) # 3, 5    C3
-]
-
-color_A={
-    "red": PWMLED(11),  #A0 RED
-    "green": PWMLED(5),   #A1 GREEN
-    "blue": PWMLED(6)    #A2 BLUE
+leds ={
+    "L0": LED(18), # 0
+    "L1": LED(23), # 1
+    "L2": LED(24), # 2
+    "L3": LED(25), # 3
+    "L4": LED(12), # 4
+    "L5": LED(16), # 5
+    "L6": LED(20), # 6
+    "L7": LED(21)  # 7
 }
 
-color_B={
-    "red": PWMLED(13), #A0 RED
-    "green": PWMLED(19), #A1 GREEN
-    "blue": PWMLED(26)  #A2 BLUE
+color={
+    "red": PWMLED(13),   # REDs
+    "green": PWMLED(19), # GREENs
+    "blue": PWMLED(26)   # BLUEs
 }
 
-color = [0, 0.3, 1]
 
-#if(direction==0)#EST
-couple_led[0].on()
-couple_led[1].on()
-couple_led[2].on()
-couple_led[3].on()
+color_set = [0, 0.6, 1]
+direction=0
 
-color_B["red"].value = color[0]
-color_B["green"].value = color[1]
-color_B["blue"].value = color[2]
+while 1:
+# if(direction==0): #EST
+     leds["L0"].on()
+     leds["L1"].on()
+     leds["L2"].on()
+     leds["L3"].on()
+     leds["L4"].on()
+     leds["L5"].off()
+     leds["L6"].off()
+     leds["L7"].off()
+     color["red"].value = color_set[0]
+     color["green"].value = color_set[1]
+     color["blue"].value = color_set[2]
+
+     sleep(3)
 
 
-sleep(30)
+    leds["L0"].off()
+    leds["L1"].off()
+    leds["L2"].off()
+    leds["L3"].off()
+    leds["L4"].off()
+    leds["L5"].off()
+    leds["L6"].off()
+    leds["L7"].off()
+    sleep(1)
+
+# if(direction==1):  SUD
+color["red"].value = 0.3
+color["green"].value = 0
+color["blue"].value = 1
+
+     leds["L2"].on()
+     leds["L3"].on()
+     leds["L4"].on()
+     leds["L5"].on()
+     leds["L6"].on()
+     leds["L7"].off()
+     leds["L0"].off()
+     leds["L1"].off()
+
+     sleep(3)
+     direction=3
+     leds["L2"].off()
+     leds["L3"].off()
+     leds["L4"].off()
+     leds["L5"].off()
+     leds["L6"].off()
+     leds["L7"].off()
+     leds["L0"].off()
+     leds["L1"].off()
+     sleep(1)
+# if(direction==2):  OVEST
+     color["red"].value=0.3
+     color["green"].value=0.5
+     color["blue"].value =1
+
+    leds["L4"].on()
+     leds["L5"].on()
+     leds["L6"].on()
+     leds["L7"].on()
+     leds["L0"].on()
+     leds["L1"].off()
+     leds["L2"].off()
+     leds["L3"].off()
+
+     sleep(3)
+
+     leds["L4"].off()
+     leds["L5"].off()
+     leds["L6"].off()
+     leds["L7"].off()
+     leds["L0"].off()
+     leds["L1"].off()
+     leds["L2"].off()
+     leds["L3"].off()
+
+     sleep(1)
+
+#if(direction==3): NORD
+color["red"].value = 0.3
+color["green"].value = 1
+color["blue"].value = 0
+
+leds["L6"].on()
+leds["L7"].on()
+leds["L0"].on()
+leds["L1"].on()
+leds["L2"].on()
+leds["L3"].off()
+leds["L4"].off()
+leds["L5"].off()
+sleep(3)
 
 
-
+leds["L6"].off()
+leds["L7"].off()
+leds["L0"].off()
+leds["L1"].off()
+leds["L2"].off()
+leds["L3"].off()
+leds["L4"].off()
+leds["L5"].off()
+sleep(1)
