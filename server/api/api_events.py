@@ -34,6 +34,18 @@ def handler_get_next_events():
     """
     return jsonify([e.to_dict() for e in sorted(database.functions.get(database.model.standard.Event), key=(lambda e: e.start)) if e.end > datetime.now()])
 
+@events_bp.route("/events/today", methods=["GET"])
+def handler_get_today_events():
+    """Get the list of the today events sorted by time.
+
+    .. :quickref: Events; Get the list of the today events sorted by time.
+    
+    :status 200: The list was correctly retrieved
+    :status 401: The user has not logged in
+    :return: The JSON-encoded list
+    """
+    return jsonify([e.to_dict() for e in sorted(database.functions.get(database.model.standard.Event), key=(lambda e: e.start)) if e.start.date() == datetime.today().date()])
+
 @events_bp.route("/events", methods=["POST"])
 def handler_add_event():
     """Add an event.
@@ -50,9 +62,9 @@ def handler_add_event():
     :return: The JSON-encoded newly created event
     """
     try:
-        new_event = database.functions.add(database.model.standard.Event.from_dict(request.json))
+        new_event = database.functions.add(database.model.standard.Event.from_dict({**request.json, **{"creatorID": session["user"]}}))
         return jsonify(new_event.to_dict())
-    except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
+    except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError, ValueError) as e:
         return abort(400, str(e))
 
 # ID indexed

@@ -298,8 +298,8 @@ class Event(Base):
             "eventID": int(self.eventID),
             "name": str(self.name),
             "description": str(self.description),
-            "start": datetime.strftime(self.start, "%x %X"),
-            "end": datetime.strftime(self.end, "%x %X"),
+            "start": datetime.strftime(self.start, "%m/%d/%Y %H:%M"),
+            "end": datetime.strftime(self.end, "%m/%d/%Y %H:%M"),
             "creator": self.creator.to_dict()
         }
     
@@ -319,8 +319,8 @@ class Event(Base):
             return Event(
                 name=event_dict["name"],
                 description=event_dict["description"],
-                start=datetime.strptime(event_dict["start"], "%x %X"),
-                end=datetime.strptime(event_dict["end"], "%x %X"),
+                start=datetime.strptime(event_dict["start"], "%m/%d/%Y %H:%M"),
+                end=datetime.strptime(event_dict["end"], "%m/%d/%Y %H:%M"),
                 creatorID=event_dict["creatorID"]
             )
         except KeyError as e:
