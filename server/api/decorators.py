@@ -14,10 +14,10 @@ def require_root(func: Callable) -> Callable:
     """
 
     @wraps(func)
-    def wrapped(*args):
+    def wrapped(*args, **kwargs):
         if session["user"] != 0:
             return abort(401)
-        return func(*args)
+        return func(*args, **kwargs)
     return wrapped
 
 def is_me(func: Callable) -> Callable:
@@ -32,10 +32,13 @@ def is_me(func: Callable) -> Callable:
     @wraps(func)
     def wrapped(*args, **kwargs):
         userID = kwargs["userID"]
-        if session["user"] == 0 or session["user"] == userID:
-            return func(*args, **kwargs)
-        else:
-            return abort(401)
+        try:
+            if session["user"] == 0 or session["user"] == userID:
+                return func(*args, **kwargs)
+            else:
+                return abort(401)
+        except Exception as e:
+            return abort(400, str(e))
     return wrapped
 
 def is_known(func: Callable) -> Callable:
@@ -50,12 +53,15 @@ def is_known(func: Callable) -> Callable:
     @wraps(func)
     def wrapped(*args, **kwargs):
         userID = kwargs["userID"]
-        connections = database.functions.filter(database.model.relationships.UserConnection, "userID1 = '{}'".format(session["user"]))
-        connections_ids = [c.userID2 for c in connections]
-        if session["user"] == 0 or session["user"] == userID or userID in connections_ids:
-            return func(*args, **kwargs)
-        else:
-            return abort(401)
+        try:
+            connections = database.functions.filter(database.model.relationships.UserConnection, "userID1 = '{}'".format(session["user"]))
+            connections_ids = [c.userID2 for c in connections]
+            if session["user"] == 0 or session["user"] == userID or userID in connections_ids:
+                return func(*args, **kwargs)
+            else:
+                return abort(401)
+        except Exception as e:
+            return abort(400, str(e))
     return wrapped
 
 def is_mine(func: Callable) -> Callable:
@@ -70,9 +76,12 @@ def is_mine(func: Callable) -> Callable:
     @wraps(func)
     def wrapped(*args, **kwargs):
         eventID = kwargs["eventID"]
-        event = database.functions.get(database.model.standard.Event, eventID)[0]
-        if session["user"] == 0 or event.creator.userID == session["user"]:
-            return func(*args, **kwargs)
-        else:
-            return abort(401)
+        try:
+            event = database.functions.get(database.model.standard.Event, eventID)[0]
+            if session["user"] == 0 or event.creator.userID == session["user"]:
+                return func(*args, **kwargs)
+            else:
+                return abort(401)
+        except Exception as e:
+            return abort(400, str(e))
     return wrapped

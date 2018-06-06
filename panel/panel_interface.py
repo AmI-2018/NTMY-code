@@ -2,8 +2,8 @@ from gpiozero import LED, PWMLED
 from time import sleep
 
 """
-    RGB positions              LED SCANNING CONFIG
-          0                       MATRIX 3X8
+    RGB leds position          LED SCANNING CONFIG            L(0-7) --> buffer current driving in open emitter
+          0                       MATRIX 3X8                  R,G,B --> buffer current pwm driving in open collector
         7   1                 L0 L1 L2 L3 L4 L5 L6 L7
       6       2      =>     R
         5   3               G
@@ -21,22 +21,21 @@ leds = [
     LED(20), # 6
     LED(21)  # 7
 ]
-
-# PWM LEDs definitions
-colors = {
+# PWM color driving definitions
+color_buffer = {
     "red": PWMLED(13),   # REDs
     "green": PWMLED(19), # GREENs
     "blue": PWMLED(26)   # BLUEs
 }
 
-# Correction factors for better color accuracy
-Kcorr = {
-    "red": 0.3,
-    "green": 0.7,
-    "blue": 1
+# Balancing  factors for better color accuracy
+K_corr = {
+    "R": 0.7,
+    "G": 0.8,
+    "B": 1
 }
 
-def make_arrow(direction: int, red: float, green: float, blue: float):
+def light_arrow(direction: int, red: float, green: float, blue: float):
     """Make the panel show an arrow pointing to the given direction.
 
     :param direction: The direction the arrow will point
@@ -53,11 +52,6 @@ def make_arrow(direction: int, red: float, green: float, blue: float):
     for led in leds:
         led.off()
 
-    # Set the colors
-    colors["red"].value = Kcorr["red"] * red
-    colors["green"].value = Kcorr["green"] * green
-    colors["blue"].value = Kcorr["blue"] * blue
-
     # Light up the neeeded LEDs
     arrow_leds = []
 
@@ -73,11 +67,17 @@ def make_arrow(direction: int, red: float, green: float, blue: float):
     elif direction == 3:
         # North direction
         arrow_leds = [6, 7, 0, 1, 2]
-    
-    for i in arrow_leds:
-        leds[i].blink()
 
-    # Sleep to watch LEDs blinking
+    # Set the colors
+    color_buffer["red"].value = K_corr["R"] * red *lum
+    color_buffer["green"].value = K_corr["G"] * green *lum
+    color_buffer["blue"].value = K_corr["B"] * blue *lum
+
+    #fade in & out  brightness
+    for i in arrow_leds:
+        leds[i].pulse()
+
+    # Sleep to watch Led's pulse
     sleep(5)
 
 # Test main
@@ -85,4 +85,4 @@ if __name__ == "__main__":
     color = [0, 0.6, 1]
     while True:
         for i in range(4):
-            make_arrow(i, *color)
+            light_arrow(i, *color)
