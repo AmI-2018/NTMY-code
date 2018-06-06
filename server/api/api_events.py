@@ -34,6 +34,18 @@ def handler_get_next_events():
     """
     return jsonify([e.to_dict() for e in sorted(database.functions.get(database.model.standard.Event), key=(lambda e: e.start)) if e.end > datetime.now()])
 
+@events_bp.route("/events/today", methods=["GET"])
+def handler_get_today_events():
+    """Get the list of the today's events sorted by date.
+
+    .. :quickref: Events; Get the list of the next events sorted by date.
+    
+    :status 200: The list was correctly retrieved
+    :status 401: The user has not logged in
+    :return: The JSON-encoded list
+    """
+    return jsonify([e.to_dict() for e in sorted(database.functions.get(database.model.standard.Event), key=(lambda e: e.start)) if e.start.date() == datetime.today().date()])
+
 @events_bp.route("/events", methods=["POST"])
 def handler_add_event():
     """Add an event.
