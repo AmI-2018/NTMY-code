@@ -358,7 +358,7 @@ class Event(Base):
         :rtype: bool
         """
 
-        if (other.start < self.start and other.end < self.end) or (other.start > self.end):
+        if (other.start < self.start and other.end < self.start) or (other.start > self.end):
             return False
         return True
 

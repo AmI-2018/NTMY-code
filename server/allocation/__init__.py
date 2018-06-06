@@ -14,12 +14,12 @@ __all__ = ["allocator", "dailysched", "exceptions", "targetfun"]
 sched = None
 
 def update_sched():
-    from datetime import datetime
+    import datetime
     import database
     global sched
 
-    start_check = datetime(2018, 7, 1)
-    end_check = datetime(2018, 7, 2)
+    start_check = datetime.date.today()
+    end_check = datetime.date.today() + datetime.timedelta(days=1)
 
     rooms = database.functions.get(database.model.standard.Room)
     events = database.functions.filter(
