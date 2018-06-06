@@ -10,6 +10,10 @@ public class Room {
     private Integer size;
     private Integer roomId;
 
+    public Room() {
+
+    }
+
     public Room(String name, String description, Integer size, Integer roomId) {
         this.name = name;
         this.description = description;
@@ -18,6 +22,17 @@ public class Room {
     }
 
     public Room(JSONObject jsonObject) {
+        try {
+            this.name = jsonObject.getString("name");
+            this.description = jsonObject.getString("description");
+            this.size = jsonObject.getInt("size");
+            this.roomId = jsonObject.getInt("roomID");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setRoom(JSONObject jsonObject) {
         try {
             this.name = jsonObject.getString("name");
             this.description = jsonObject.getString("description");

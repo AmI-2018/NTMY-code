@@ -1,6 +1,7 @@
 """Users API"""
 
 from flask import jsonify, request, Blueprint, abort
+from datetime import datetime
 
 from .decorators import require_root, is_me, is_known
 import database
@@ -132,9 +133,9 @@ def handler_get_user_connections_from_id(userID):
 @users_bp.route("/users/<int:userID>/connections/user/<int:otherID>", methods=["GET"])
 @is_me
 def handler_get_user_connections_from_id_from_user_id(userID, otherID):
-    """Get the connections of the user with the given IDs.
+    """Get the connections of the user with the given IDs (two users).
 
-    .. :quickref: Users; Get the connections of the user with the given IDs.
+    .. :quickref: Users; Get the connections of the user with the given IDs (two users).
     
     :param int userID: The ID of the user to retrieve the collection from
     :param int otherID: The ID of the user which whom the connection happened
@@ -152,9 +153,9 @@ def handler_get_user_connections_from_id_from_user_id(userID, otherID):
 @users_bp.route("/users/<int:userID>/connections/event/<int:eventID>", methods=["GET"])
 @is_me
 def handler_get_user_connections_from_id_from_event_id(userID, eventID):
-    """Get the connections of the user with the given IDs.
+    """Get the connections of the user with the given IDs (user and event).
 
-    .. :quickref: Users; Get the connections of the user with the given IDs.
+    .. :quickref: Users; Get the connections of the user with the given IDs (user and event).
     
     :param int userID: The ID of the user to retrieve the collection from
     :param int eventID: The ID of the event where the connection happened
@@ -192,7 +193,28 @@ def handler_add_user_connection_from_id(userID):
 
 # Events subcollection
 
-@users_bp.route("/users/<int:userID>/created_events", methods=["GET"])
+@users_bp.route("/users/<int:userID>/events", methods=["GET"])
+@is_me
+def handler_get_user_events_from_id(userID):
+    """Get the events of the user with the given ID.
+
+    .. :quickref: Users; Get the events of the user with the given ID.
+    
+    :param int userID: The ID of the user to retrieve the collection from
+    :status 200: The list was correctly retrieved
+    :status 400: The user could not be found
+    :status 401: The user has not logged in
+    :return: The JSON-encoded list
+    """
+    try:
+        user = database.functions.get(database.model.standard.User, userID)[0]
+        events = [e.to_dict() for e in user.events]
+        return jsonify(events)
+    except database.exceptions.DatabaseError as e:
+        return abort(400, str(e))
+
+@users_bp.route("/users/<int:userID>/events/created", methods=["GET"])
+@is_me
 def handler_get_user_created_events_from_id(userID):
     """Get the events created by the user with the given ID.
 
@@ -211,12 +233,12 @@ def handler_get_user_created_events_from_id(userID):
     except database.exceptions.DatabaseError as e:
         return abort(400, str(e))
 
-@users_bp.route("/users/<int:userID>/events", methods=["GET"])
+@users_bp.route("/users/<int:userID>/events/next", methods=["GET"])
 @is_me
-def handler_get_user_events_from_id(userID):
-    """Get the events of the user with the given ID.
+def handler_get_user_next_events_from_id(userID):
+    """Get the future events of the user with the given ID.
 
-    .. :quickref: Users; Get the events of the user with the given ID.
+    .. :quickref: Users; Get the future events of the user with the given ID.
     
     :param int userID: The ID of the user to retrieve the collection from
     :status 200: The list was correctly retrieved
@@ -226,7 +248,7 @@ def handler_get_user_events_from_id(userID):
     """
     try:
         user = database.functions.get(database.model.standard.User, userID)[0]
-        events = [e.to_dict() for e in user.events]
+        events = [e.to_dict() for e in sorted(user.events, key=(lambda e: e.event.start)) if e.event.end > datetime.now()]
         return jsonify(events)
     except database.exceptions.DatabaseError as e:
         return abort(400, str(e))

@@ -1,40 +1,31 @@
-import logic as pl
 import json
-import app_functions as af
-import time
 import requests
 
-""" Load Settings """
+import app_functions as af
+import logic as pl
+import panel_interface as pi
+
+# Load Settings
 with open("panel_config.json") as f:
     config = json.load(f)
 
 session = requests.session()
 
-""" login """
+# Login
 url = config['serveruri'] + "/login"
 json = {'email': config['email'], 'password': config['rootpwd']}
 session.post(url, json=json)
 
-users = af.populate_users(config,session)
-
-""" Main Loop """
+# Main Loop
 while True:
-    """ wait a nearby user """
-    user_id = af.detect_user(users)
+    # Search for a nearby user
+    user_id = af.detect_user()
 
-    """ obtain his/her destination from the server """
-    dest_id = af.obtain_dest_by_user(config, user_id, session)
+    # Obtain his/her destination from the server
+    dest_event = af.obtain_dest_by_user(config, user_id, session)
 
-    """ generate the exit point according to the direction """
-    exit_point = pl.route.generate_direction(config['panelID'], dest_id)
+    # Generate the exit point according to the direction
+    exit_point = pl.route.generate_direction(config['panelID'], dest_event["room"]["nodeID"])
 
-    """ light up the related arrow """
-
-    af.generate_arrow(exit_point)
-
-    """ give time to look the arrow """
-    time.sleep(10)
-
-    """ turn off the arrows"""
-    af.reset_arrow()
-
+    # Light up the related arrow
+    pi.make_arrow(exit_point, dest_event["color"]["red"], dest_event["color"]["green"], dest_event["color"]["blue"])

@@ -12,10 +12,21 @@ class LightManager:
         color = rgb_to_hls(red, green, blue)[0] * 360 * 182
         return color
     
+    @staticmethod
+    def create_user(lightsuri, device):
+        try:
+            resp = requests.post("{}/api".format(lightsuri), json={"devicetype": device}).json()[0]
+            if "success" in resp:
+                return resp["success"]["username"]
+            else:
+                return None
+        except Exception:
+            return None
+    
     def get_lights(self):
         try:
             return requests.get("{}/api/{}/lights".format(self.lightsuri, self.username)).json()
-        except ValueError:
+        except Exception:
             return None
     
     def set_color_all(self, red, green, blue, sat, bri):

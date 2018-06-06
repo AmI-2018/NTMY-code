@@ -24,6 +24,7 @@ public class Event {
         this.end = end;
         this.eventId = eventId;
         this.creatorId = creatorId;
+        this.room = null;
         this.categories = new SparseArray<>();
     }
 
@@ -38,6 +39,7 @@ public class Event {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        this.room = null;
         this.categories = new SparseArray<>();
     }
 

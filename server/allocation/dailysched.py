@@ -70,13 +70,12 @@ class DailySchedule:
         :rtype: Dict[int, List[int]]
         """
 
-        sched_dict = {}
+        sched_list = []
         for r in self.sched:
-            sched_dict[r.roomID] = []
             for e in self.sched[r]:
-                sched_dict[r.roomID].append({
+                sched_list.append({
                     "event": e["event"].to_dict(),
                     "room": r.to_dict(),
                     "color": e["color"]
                 })
-        return sched_dict
+        return sched_list
