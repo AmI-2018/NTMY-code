@@ -1,11 +1,12 @@
 from gpiozero import LED, PWMLED
 from time import sleep
 
+
 """
     RGB leds position          LED SCANNING CONFIG            L(0-7) --> buffer current driving in open emitter
           0                       MATRIX 3X8                  R,G,B --> buffer current pwm driving in open collector
         7   1                 L0 L1 L2 L3 L4 L5 L6 L7
-      6       2      =>     R
+      6       2      =>     R 
         5   3               G
           4                 B
 """
@@ -69,9 +70,9 @@ def light_arrow(direction: int, red: float, green: float, blue: float):
         arrow_leds = [6, 7, 0, 1, 2]
 
     # Set the colors
-    color_buffer["red"].value = K_corr["R"] * red *lum
-    color_buffer["green"].value = K_corr["G"] * green *lum
-    color_buffer["blue"].value = K_corr["B"] * blue *lum
+    color_buffer["red"].value = K_corr["R"] * red
+    color_buffer["green"].value = K_corr["G"] * green
+    color_buffer["blue"].value = K_corr["B"] * blue
 
     #fade in & out  brightness
     for i in arrow_leds:
