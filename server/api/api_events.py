@@ -36,15 +36,9 @@ def handler_get_next_events():
 
 @events_bp.route("/events/today", methods=["GET"])
 def handler_get_today_events():
-<<<<<<< HEAD
     """Get the list of the today's events sorted by date.
 
     .. :quickref: Events; Get the list of the next events sorted by date.
-=======
-    """Get the list of the today events sorted by time.
-
-    .. :quickref: Events; Get the list of the today events sorted by time.
->>>>>>> 00c1f0a06619a10c0e41552c61608e88035a15a6
     
     :status 200: The list was correctly retrieved
     :status 401: The user has not logged in
