@@ -12,16 +12,12 @@ import java.util.ArrayList;
 import io.ami2018.ntmy.R;
 import io.ami2018.ntmy.model.Event;
 
-public class NextEventAdapter extends RecyclerView.Adapter<NextEventAdapter.NextEventViewHolder> {
+public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHolder> {
 
     private ArrayList<Event> list;
 
-    public NextEventAdapter() {
+    public EventAdapter() {
         this.list = new ArrayList<>();
-    }
-
-    public NextEventAdapter(ArrayList<Event> list) {
-        this.list = list;
     }
 
     public void addElement(Event event) {
@@ -31,7 +27,7 @@ public class NextEventAdapter extends RecyclerView.Adapter<NextEventAdapter.Next
         }
     }
 
-    public boolean contains(Integer eventId) {
+    private boolean contains(Integer eventId) {
         for (Event e : this.list) {
             if (e.getEventId().intValue() == eventId.intValue()) return true;
         }
@@ -40,14 +36,14 @@ public class NextEventAdapter extends RecyclerView.Adapter<NextEventAdapter.Next
 
     @NonNull
     @Override
-    public NextEventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View view = inflater.inflate(R.layout.item_event_card, parent, false);
-        return new NextEventViewHolder(view);
+        return new EventViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull NextEventAdapter.NextEventViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull EventAdapter.EventViewHolder holder, int position) {
         Event event = list.get(position);
         StringBuffer categories = new StringBuffer();
         String time = event.getStart().split(" ")[1] + " - " + event.getEnd().split(" ")[1];
@@ -59,7 +55,10 @@ public class NextEventAdapter extends RecyclerView.Adapter<NextEventAdapter.Next
         holder.mCategories.setText(categories);
         holder.mDate.setText(event.getStart().split(" ")[0]);
         holder.mTime.setText(time);
-        holder.mRoom.setText(event.getRoom().getName());
+        if (event.getRoom() != null)
+            holder.mRoom.setText(event.getRoom().getName());
+        else
+            holder.mRoom.setText("Not Assigned");
     }
 
     @Override
@@ -67,7 +66,7 @@ public class NextEventAdapter extends RecyclerView.Adapter<NextEventAdapter.Next
         return this.list.size();
     }
 
-    public static class NextEventViewHolder extends RecyclerView.ViewHolder {
+    protected static class EventViewHolder extends RecyclerView.ViewHolder {
 
         private TextView mTitle;
         private TextView mCategories;
@@ -75,7 +74,7 @@ public class NextEventAdapter extends RecyclerView.Adapter<NextEventAdapter.Next
         private TextView mTime;
         private TextView mRoom;
 
-        public NextEventViewHolder(View itemView) {
+        private EventViewHolder(View itemView) {
             super(itemView);
             this.mTitle = itemView.findViewById(R.id.item_event_card_tv_title);
             this.mCategories = itemView.findViewById(R.id.item_event_card_tv_categories);

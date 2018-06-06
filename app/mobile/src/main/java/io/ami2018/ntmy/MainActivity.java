@@ -33,6 +33,8 @@ import io.ami2018.ntmy.network.RequestHelper;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
+    private static final String TAG = MainActivity.class.getSimpleName();
+
     private DrawerLayout mDrawer;
     private View mProgress;
 
@@ -45,16 +47,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         initViews();
         initDrawer();
-        initListeners();
+        //initListeners();
 
         showProgress();
 
         CookieManager cookieManager = new CookieManager(new PersistentCookieStore(getApplicationContext()), CookiePolicy.ACCEPT_ALL);
         CookieHandler.setDefault(cookieManager);
 
+        Log.d(TAG, "Log In Starting");
         RequestHelper.getJson(getApplicationContext(), "login", new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                Log.d(TAG, "Log In OK");
                 mUser = User.getInstance();
                 mUser.setInstance(response);
                 String fullName = mUser.getName() + " " + mUser.getSurname();
@@ -66,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                Log.d(TAG, "Log In Error");
                 hideProgress();
                 startActivity(new Intent(getApplicationContext(), LoginActivity.class));
                 finish();
@@ -104,7 +109,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Fragment fragment = null;
 
         switch (id) {
-            case R.id.nav_home:
+            case R.id.nav_events:
+                Log.d(TAG, "Events Navigation Clicked");
                 fragment = new MainFragment();
                 break;
         }
@@ -120,15 +126,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void initViews() {
+        Log.d(TAG, "Views Init");
+
         mDrawer = findViewById(R.id.main_dl);
         mProgress = findViewById(R.id.progress_overlay);
     }
 
-    private void initListeners() {
-        //mSignOut.setOnClickListener(this);
-    }
+    /*private void initListeners() {
+
+    }*/
 
     private void initDrawer() {
+        Log.d(TAG, "Drawer Init");
+
         //Toolbar
         Toolbar mToolbar = findViewById(R.id.main_tb);
         setSupportActionBar(mToolbar);
@@ -139,35 +149,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
         NavigationView mNav = findViewById(R.id.main_nv);
         mNav.setNavigationItemSelectedListener(this);
-        mNav.setCheckedItem(R.id.nav_home);
+        mNav.setCheckedItem(R.id.nav_events);
     }
 
     private void signOut() {
-        Log.d("Main", "signout");
+        Log.d(TAG, "Sign Out Starting");
         RequestHelper.get(getApplicationContext(), "logout", new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
+                Log.d(TAG, "Sign Out OK");
                 startActivity(new Intent(getApplicationContext(), LoginActivity.class));
                 finish();
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(MainActivity.this, "Error loggin out", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "Sign Out Error");
+                Toast.makeText(MainActivity.this, "Error logging out", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void showProgress() {
+        Log.d(TAG, "Showing Progress");
         mProgress.setVisibility(View.VISIBLE);
     }
 
     private void hideProgress() {
+        Log.d(TAG, "Hiding Progress");
         mProgress.setVisibility(View.GONE);
     }
 
     private void displayMainFragment() {
         //Fragment
+        Log.d(TAG, "Injecting Main Fragment");
         Fragment fragment = new MainFragment();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.content_frame, fragment);

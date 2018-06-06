@@ -105,6 +105,10 @@ def handler_patch_event_from_id(eventID):
     """
     try:
         upd_event = database.functions.get(database.model.standard.Event, eventID)[0]
+        if "start" in request.json:
+            request.json["start"] = datetime.strptime(request.json["start"], "%m/%d/%Y %H:%M")
+        if "end" in request.json:
+            request.json["end"] = datetime.strptime(request.json["end"], "%m/%d/%Y %H:%M")
         return jsonify(database.functions.upd(upd_event, request.json).to_dict())
     except database.exceptions.DatabaseError as e:
         return abort(400, str(e))
