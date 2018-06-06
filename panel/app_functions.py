@@ -29,6 +29,7 @@ def detect_user() -> int:
     
     :return: The userID of a nearby user
     :rtype: int
+    :return: the matching device flag
     """
 
     while True:
@@ -41,4 +42,5 @@ def detect_user() -> int:
         for device in devices:
             if match("NTMY[0-9]+", device["name"]):
                 userID = split("NTMY", device["name"])[1]
-                return int(userID)
+
+                return int(userID), True
