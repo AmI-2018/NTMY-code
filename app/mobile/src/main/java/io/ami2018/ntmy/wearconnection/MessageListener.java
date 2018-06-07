@@ -42,6 +42,7 @@ public class MessageListener implements MessageClient.OnMessageReceivedListener 
             final String sNode = messageEvent.getSourceNodeId();
             final String userFullName = mUser.getName()+ " " +mUser.getSurname();
 
+
             // Perform a get request to the server to obtain user's next event
             RequestHelper.getJsonArray(context, "users/" + mUser.getUserId() + "/events/next", new Response.Listener<JSONArray>() {
                 @Override
@@ -75,7 +76,15 @@ public class MessageListener implements MessageClient.OnMessageReceivedListener 
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
+                            try {
+                                JSONObject result = new JSONObject();
+                                result.put("fullname", userFullName);
+                                result.put("userID", mUser.getUserId());
+                                Wearable.getMessageClient(context).sendMessage(sNode, RESPONSE_USER_DATA_PATH, result.toString().getBytes());
 
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
                     });
                 }
@@ -86,7 +95,6 @@ public class MessageListener implements MessageClient.OnMessageReceivedListener 
 
                 }
             });
-
         }else
         if (messageEvent.getPath().equals(HANDSHAKE_HAPPENED)){
             // If the watch signal to the phone that an handshake happened

@@ -37,9 +37,9 @@ public class BluetoothSearchActivity extends AppCompatActivity {
 
     private static final int REQUEST_ENABLE_BT = 1;
     private String sNode;
-    private String userID;
-    private String eventID;
-    private String fullnameID2;
+    private int userID;
+    private int eventID;
+    private JSONObject json;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,8 +58,8 @@ public class BluetoothSearchActivity extends AppCompatActivity {
         // Get data from parent activity
         Intent intent = getIntent();
         sNode = intent.getStringExtra("sNode");
-        userID = intent.getStringExtra("userID");
-        eventID = intent.getStringExtra("eventID");
+        userID = intent.getIntExtra("userID",-1);
+        eventID = intent.getIntExtra("eventID", -1);
 
         // Set a receiver for discovered devices
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
@@ -77,7 +77,7 @@ public class BluetoothSearchActivity extends AppCompatActivity {
                 mBluetoothAdapter.cancelDiscovery();
                 finish();
             }
-        }, 5000);
+        }, 10000);
     }
 
     // Create a BroadcastReceiver for ACTION_FOUND.
@@ -95,29 +95,20 @@ public class BluetoothSearchActivity extends AppCompatActivity {
                 // If it finds a device that match with regex "^NTMY[0-9]$" ,that isn't the connected watch
                 // and which rssi is under RSSI_THRESHOLD_VALUE
                 if(Math.abs(rssi) < RSSI_THRESHOLD_VALUE && deviceName.matches("^NTMY[0-9]$") && !deviceName.equals("NTMY"+userID)) {
-                    Toast toast = Toast.makeText(
-                            context,
-                            "New User: "+ deviceName,
-                            Toast.LENGTH_SHORT);
-                    toast.show();
                     // Obtain from the server the user's fullname
-                   if (getUserFullname(deviceName)) {
-                       // Send the fullname to the watch
-                       Wearable.getMessageClient(context).sendMessage(sNode, MessageListener.HANDSHAKE_VERIFIED, fullnameID2.getBytes());
-                   }
-                   mBluetoothAdapter.cancelDiscovery();
-                   finish();
+                    tryGetUserFullname(deviceName);
+                    mBluetoothAdapter.cancelDiscovery();
+                    finish();
                 }
             }
         }
     };
 
-    private boolean getUserFullname(String deviceName) {
+    private void tryGetUserFullname(String deviceName) {
         // Obtain the userID2 from the device Name
         final int userID2 =  Character.getNumericValue(deviceName.charAt(4));
-        fullnameID2 = "";
         // Create a JSON to post a connection event to the server
-        JSONObject json = new JSONObject();
+        json = new JSONObject();
         try {
             json.put("userID2", userID2);
             json.put("eventID", eventID);
@@ -126,50 +117,35 @@ public class BluetoothSearchActivity extends AppCompatActivity {
         }
 
         // Start the post request to the server
-            RequestHelper.postJson(this,"/users/"+userID+"/connections",json, new Response.Listener<JSONObject>() {
+            RequestHelper.postJson(this,"users/"+userID+"/connections",json, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
                     // If the post get a positive response, start the GET request to obtain user's fullname
-                    RequestHelper.getJsonArray(BluetoothSearchActivity.this, "users/" + userID + "/connections/user/" + userID2, new Response.Listener<JSONArray>() {
-                        @Override
-                        public void onResponse(JSONArray response) {
-                            try {
-
-                                String name = response.getJSONObject(0).getJSONObject("user1").getString("name");
-                                String surname = response.getJSONObject(0).getJSONObject("user1").getString("surname");
-                                fullnameID2 = name + " " + surname;
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Toast toast = Toast.makeText(
-                                    getApplicationContext(),
-                                    "Error on inner request",
-                                    Toast.LENGTH_SHORT);
-                            toast.show();
-                        }
-                    });
+                    try {
+                        String fullname = response.getJSONObject("user2").getString("name") + " ";
+                        fullname += response.getJSONObject("user2").getString("surname");
+                        Toast toast = Toast.makeText(
+                                getApplicationContext(),
+                                "+ "+fullname,
+                                Toast.LENGTH_SHORT);
+                        toast.show();
+                        Wearable.getMessageClient(getApplicationContext()).sendMessage(sNode, MessageListener.HANDSHAKE_VERIFIED, fullname.getBytes());
+                    }
+                    catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Toast toast = Toast.makeText(
-                            getApplicationContext(),
-                            "Error on first request",
-                            Toast.LENGTH_SHORT);
-                    toast.show();
+
                 }
             });
-        return !fullnameID2.equals("");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Don't forget to unregister the ACTION_FOUND receiver.
         unregisterReceiver(mReceiver);
     }
 }

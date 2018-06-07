@@ -30,17 +30,14 @@ public class MainActivity extends WearableActivity implements
 
     // Accelerometer parameters
     private final double epsilon = 2.0;
-    private static final int COUNTER_THRESHOLD = 10;
 
     private SensorManager mSensorManager;
     private Sensor mSensor;
     private Vibrator mvibrator;
 
     // Handshake flags & counters
-    private boolean handshake_started = false;
-    private int handshake_counter;
-    private boolean computing = false;
-    private int computing_counter;
+    private long lastHandshakeTime;
+    private static final long HANDSHAKE_DELAY = 1500;
 
     private int n = 0;
 
@@ -49,8 +46,9 @@ public class MainActivity extends WearableActivity implements
     private static final String RESPONSE_USER_DATA_PATH = "/response_user_data";
     private static final String HANDSHAKE_HAPPENED = "/handshake_happened";
     private static final String HANDSHAKE_VERIFIED = "/handshake_verified";
-    private boolean sync = false;
     private String phoneID;
+    private MessageSender mMessageSender;
+    private MessageClient mWearableClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +69,10 @@ public class MainActivity extends WearableActivity implements
         mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_GAME);
 
         // Set the messageclient and send a message to the phone to obtain the data
-        Wearable.getMessageClient(this).addListener(this);
-        new MessageSender(getApplicationContext(),REQUEST_USER_DATA_PATH,"").start();
+        mWearableClient = Wearable.getMessageClient(this);
+        mWearableClient.addListener(this);
+        mMessageSender = new MessageSender(getApplicationContext(),REQUEST_USER_DATA_PATH,"");
+        mMessageSender.start();
 
         setAmbientEnabled();
 
@@ -90,49 +90,13 @@ public class MainActivity extends WearableActivity implements
         float accZ = Math.abs(event.values[2]);
 
         // If there is a signifier acceleration in the Y axis only
-        if (accY >= 7 && accX < epsilon && accZ < epsilon && !computing){
+        if (accY >= 7 && accX < epsilon && accZ < epsilon
+                // And it's been enough time since last handshake
+                && System.currentTimeMillis()- lastHandshakeTime > HANDSHAKE_DELAY){
+
             // Handshake
-
-            // Start to detect handshake
-            if(!handshake_started){
-                handshake_started=true;
-                handshake_counter =0;
-            }
-            handshake_counter++;
-
-
-        }else
-            // If the device is still
-            if (accX < epsilon && accY < epsilon && accZ < epsilon && handshake_started){
-
-            // Start to detect the still period
-            if(!computing) {
-                computing = true;
-                computing_counter = 0;
-            }
-
-            computing_counter++;
-
-            // If device stay still more than COUNTER_THRESHOLD times
-            if(computing_counter >= COUNTER_THRESHOLD){
-                // The handshake is ended
-                handshake_started = false;
-
-                // If device has an acceleration in the Y axis more than COUNTER_THRESHOLD times
-                if (handshake_counter >= COUNTER_THRESHOLD) {
-                    // Send a message to the phone.
-                    Wearable.getMessageClient(getApplicationContext()).sendMessage(phoneID,HANDSHAKE_HAPPENED,null);
-                    Toast toast = Toast.makeText(
-                            getApplicationContext(),
-                            "Handshake!",
-                            Toast.LENGTH_SHORT);
-                    toast.show();
-                }
-                // Even if the handshake happened or not, the still period ends
-                // and it can starts to detects other handshakes.
-                computing = false;
-            }
-
+            lastHandshakeTime = System.currentTimeMillis();
+            Wearable.getMessageClient(getApplicationContext()).sendMessage(phoneID,HANDSHAKE_HAPPENED,null);
         }
 
 
@@ -148,7 +112,7 @@ public class MainActivity extends WearableActivity implements
     public void onMessageReceived(@NonNull MessageEvent messageEvent) {
 
         // If the watch receives a response from the phone for the data request
-        if (messageEvent.getPath().equals(RESPONSE_USER_DATA_PATH) && !sync) {
+        if (messageEvent.getPath().equals(RESPONSE_USER_DATA_PATH)) {
             // Store the phone's node ID for future message
             phoneID = messageEvent.getSourceNodeId();
             // Set the content to be changed
@@ -177,8 +141,6 @@ public class MainActivity extends WearableActivity implements
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            sync = true;
-
         } else if (messageEvent.getPath().equals(HANDSHAKE_VERIFIED)) {
             // Once the phone verified the handshake detected by the watch
             // shows a message with detected user's fullname obtained from the server
@@ -190,8 +152,13 @@ public class MainActivity extends WearableActivity implements
             toast.show();
             mvibrator.vibrate(200);
         }
+    }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mSensorManager.unregisterListener(this);
+        mWearableClient.removeListener(this);
     }
 }
 
