@@ -33,9 +33,6 @@ while True:
     #rest in standby mode until user detected
     if(match==False)
         pi.light_standby()
-
-
-
-
-    # Light up the related arrow
-    pi.light_arrow(exit_point, dest_event["color"]["red"], dest_event["color"]["green"], dest_event["color"]["blue"])
+    else
+        # Light up the related arrow
+        pi.light_arrow(exit_point, dest_event["color"]["red"], dest_event["color"]["green"], dest_event["color"]["blue"])

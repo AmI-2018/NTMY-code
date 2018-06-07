@@ -1,4 +1,4 @@
-from gpiozero import LED, PWMLED
+from gpiozero import LED, RGBLED
 from time import sleep
 
 
@@ -11,7 +11,7 @@ from time import sleep
           4                 B  x  x  x  x  x  x  x  x
 """
 
-# LEDs definitions
+# LEDs on/off switch pin definitions
 leds = [
     LED(18), # 0
     LED(23), # 1
@@ -22,15 +22,11 @@ leds = [
     LED(20), # 6
     LED(21)  # 7
 ]
-# PWM color driving definitions
-color_buffer = {
-    "red": PWMLED(13),   # REDs
-    "green": PWMLED(19), # GREENs
-    "blue": PWMLED(26)   # BLUEs
-}
+# PWM color driving  pin definitions
+rgb_driver=RGBLED(13, 19, 26)
 
 # Balancing  factors for better color accuracy
-K_corr = {
+scale = {
     "R": 0.7,
     "G": 0.8,
     "B": 1
@@ -41,13 +37,8 @@ def light_standby():
 """Make the panel show a standby mode switching on all led and creating a pulse effect to """
     for led in leds:
             led.on()
-    color_buffer["red"].value =K_corr["R"]
-    color_buffer["green"].value =K_corr["G"]
-    color_buffer["blue"].value =K_corr["B"]
 
-    color_buffer["red"].pulse()
-    color_buffer["green"].pulse()
-    color_buffer["blue"].pulse()
+    rgb_driver.pulse(on_color=(scale["R"], scale["G"], scale["B"]), off_color=(0,0,0))
 
 def light_arrow(direction: int, red: float, green: float, blue: float):
 """ Make the panel show an arrow pointing to the given direction.
@@ -67,10 +58,10 @@ def light_arrow(direction: int, red: float, green: float, blue: float):
     for led in leds:
         led.off()
 
-
-    if directions == 0:
+    #set the correct arrow configuration
+    if direction == 0:
         # East direction
-        for i in range (0,5):
+        for i in range (0, 5):
               leds[i].on()
 
     elif direction == 1:
@@ -86,15 +77,13 @@ def light_arrow(direction: int, red: float, green: float, blue: float):
     elif direction == 3:
         # North direction
         for i in range(6, 8):
-            leds[i].on()
+              leds[i].on()
         for i in range (0, 3):
               leds[i].on()
-    # Set the colors
-    color_buffer["red"].value = K_corr["R"] * red
-    color_buffer["green"].value = K_corr["G"] * green
-    color_buffer["blue"].value = K_corr["B"] * blue
 
+    # Set the event color and  start blinking arrow
+    rgb_driver.blink(on_color=(scale["R"]*red, scale["G"]*green, scale["B"]*blue), off_color=(0,0,0), n=5)
 
-    # Sleep to watch Led's pulse
+    # Sleep to watch Led's blink
     sleep(5)
 
