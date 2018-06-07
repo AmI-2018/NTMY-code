@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout mDrawer;
     private View mProgress;
 
-    private User mUser;
+    public static User mUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,8 +59,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onResponse(JSONObject response) {
                 Log.d(TAG, "Log In OK");
-                mUser = User.getInstance();
-                mUser.setInstance(response);
+                mUser = new User(response);
                 String fullName = mUser.getName() + " " + mUser.getSurname();
                 ((TextView) findViewById(R.id.nav_tv_name)).setText(fullName);
                 ((TextView) findViewById(R.id.nav_tv_email)).setText(mUser.getEmail());

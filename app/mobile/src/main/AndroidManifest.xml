@@ -27,9 +27,9 @@
         <activity
             android:name=".LoginActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".EventActivity" />
 
-        </activity>
     </application>
 
 </manifest>
