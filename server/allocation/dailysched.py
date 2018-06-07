@@ -32,7 +32,6 @@ class DailySchedule:
     def __init__(self, rooms: List[Room], events: List[Event], alloc: List[int]):
         self.sched = {}
 
-        # Build new lists for every room
         for r in rooms:
             self.sched[r] = []
 

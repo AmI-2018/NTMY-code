@@ -1,9 +1,11 @@
 package io.ami2018.ntmy;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -20,6 +22,8 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.google.android.gms.wearable.MessageClient;
+import com.google.android.gms.wearable.Wearable;
 
 import org.json.JSONObject;
 
@@ -30,6 +34,7 @@ import java.net.CookiePolicy;
 import io.ami2018.ntmy.model.User;
 import io.ami2018.ntmy.network.PersistentCookieStore;
 import io.ami2018.ntmy.network.RequestHelper;
+import io.ami2018.ntmy.wearconnection.MessageListener;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -38,7 +43,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout mDrawer;
     private View mProgress;
 
-    public static User mUser;
+    private static User mUser;
+    private MessageClient mMessageClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ((TextView) findViewById(R.id.nav_tv_name)).setText(fullName);
                 ((TextView) findViewById(R.id.nav_tv_email)).setText(mUser.getEmail());
                 displayMainFragment();
+                mMessageClient.addListener(new MessageListener(getApplicationContext(),mUser));
                 hideProgress();
             }
         }, new Response.ErrorListener() {
@@ -75,6 +82,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 finish();
             }
         });
+
+        int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
+
+        mMessageClient = Wearable.getMessageClient(this);
+
     }
 
     @Override

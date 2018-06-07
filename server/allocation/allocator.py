@@ -16,7 +16,15 @@ def total_part_calc(schedule: DailySchedule) -> int:
     # Sum participants for every event in every room
     tot = sum([len(e["event"].participants) for r in schedule.sched for e in schedule.sched[r]])    
     return tot
-total_part = TargetFunction("total_participants", int.__gt__, total_part_calc)
+total_part = TargetFunction("total_part", int.__gt__, total_part_calc)
+
+# Total scheduled events (better if bigger)
+
+def total_events_calc(schedule: DailySchedule) -> int:
+    # Sum the number of the scheduled events
+    tot = sum([len(schedule.sched[r]) for r in schedule.sched])
+    return tot
+total_events = TargetFunction("total_events", int.__gt__, total_events_calc)
 
 # Events distribution among different rooms (better if lower)
 
@@ -36,8 +44,8 @@ best_fit = TargetFunction("best_room_fit", int.__lt__, best_fit_calc)
 
 # Definition of the TargetFunctionSet
 
-target = TargetFunctionSet([total_part, events_distrib, best_fit])
-del total_part, total_part_calc, events_distrib, events_distrib_calc, best_fit, best_fit_calc
+target = TargetFunctionSet([total_part, total_events, events_distrib, best_fit])
+del total_part, total_part_calc, total_events, total_events_calc, events_distrib, events_distrib_calc, best_fit, best_fit_calc
 
 ##########################################
 # Declaration of the allocator functions #

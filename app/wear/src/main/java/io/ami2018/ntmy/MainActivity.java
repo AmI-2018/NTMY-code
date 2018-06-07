@@ -1,365 +1,197 @@
 
 package io.ami2018.ntmy;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
-import android.graphics.ColorFilter;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.drawable.Drawable;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.support.wear.ambient.AmbientMode;
-import android.support.wear.widget.drawer.WearableActionDrawerView;
-import android.support.wear.widget.drawer.WearableNavigationDrawerView;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
+import android.support.wearable.activity.WearableActivity;
+
+import android.widget.TextView;
 import android.widget.Toast;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
+import com.google.android.gms.wearable.MessageClient;
+import com.google.android.gms.wearable.MessageEvent;
+import com.google.android.gms.wearable.Wearable;
 
-public class MainActivity extends Activity implements
-        AmbientMode.AmbientCallbackProvider,
-        MenuItem.OnMenuItemClickListener,
-        WearableNavigationDrawerView.OnItemSelectedListener,
-        SensorEventListener {
+import org.json.JSONException;
+import org.json.JSONObject;
 
-    private MainActivity mainActivity = this;
-    private static final String TAG = "MainActivity";
-    private int i = 0 ;
-    private WearableNavigationDrawerView mWearableNavigationDrawer;
-    private WearableActionDrawerView mWearableActionDrawer;
-    //  private ArrayList<Person> mMetPeople;
-    private ArrayList<Mode> mModes;
-    private int mSelectedMode;
-    //  private int mSelectedPerson;
+public class MainActivity extends WearableActivity implements
+        SensorEventListener,
+        MessageClient.OnMessageReceivedListener{
 
-    private float accX;
-    private float accY;
-    private float accZ;
+    // Accelerometer parameters
     private final double epsilon = 2.0;
+    private static final int COUNTER_THRESHOLD = 10;
 
     private SensorManager mSensorManager;
     private Sensor mSensor;
     private Vibrator mvibrator;
 
-    private ModeFragment mModeFragment;
+    // Handshake flags & counters
+    private boolean handshake_started = false;
+    private int handshake_counter;
+    private boolean computing = false;
+    private int computing_counter;
+
+    private int n = 0;
+
+    // MessageClient paths
+    private static final String REQUEST_USER_DATA_PATH = "/request_user_data";
+    private static final String RESPONSE_USER_DATA_PATH = "/response_user_data";
+    private static final String HANDSHAKE_HAPPENED = "/handshake_happened";
+    private static final String HANDSHAKE_VERIFIED = "/handshake_verified";
+    private boolean sync = false;
+    private String phoneID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate()");
-
         setContentView(R.layout.activity_main);
 
-        // Enables Ambient mode.
-        AmbientMode.attachAmbientSupport(this);
+        // Make the device discoverable
+        Intent discoverableIntent =
+                new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0);
+        startActivity(discoverableIntent);
 
-        mModes = initializeModes();
-        mSelectedMode = 0;
-
-        // Initialize content to first mode.
-        mModeFragment = new ModeFragment();
-        Bundle args = new Bundle();
-
-        int imageId = getResources().getIdentifier(mModes.get(mSelectedMode).getImage(),
-                "drawable", getPackageName());
-
-
-        args.putInt(ModeFragment.ARG_MODE_IMAGE_ID, imageId);
-        mModeFragment.setArguments(args);
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, mModeFragment).commit();
-
-
-        // Top Navigation Drawer
-        mWearableNavigationDrawer =
-                (WearableNavigationDrawerView) findViewById(R.id.top_navigation_drawer);
-        mWearableNavigationDrawer.setAdapter(new NavigationAdapter(this));
-        // Peeks navigation drawer on the top.
-        mWearableNavigationDrawer.getController().peekDrawer();
-        mWearableNavigationDrawer.addOnItemSelectedListener(this);
-
-        // Bottom Action Drawer
-        mWearableActionDrawer =
-                (WearableActionDrawerView) findViewById(R.id.bottom_action_drawer);
-        // Peeks action drawer on the bottom.
-        mWearableActionDrawer.getController().peekDrawer();
-        mWearableActionDrawer.setOnMenuItemClickListener(this);
-
+        // Set the sensors
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         mvibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+        mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_GAME);
 
-    }
+        // Set the messageclient and send a message to the phone to obtain the data
+        Wearable.getMessageClient(this).addListener(this);
+        new MessageSender(getApplicationContext(),REQUEST_USER_DATA_PATH,"").start();
 
-    private ArrayList<Mode> initializeModes() {
-        ArrayList<Mode> modes = new ArrayList<Mode>();
-        String[] modesArrayNames = getResources().getStringArray(R.array.modes_array_names);
+        setAmbientEnabled();
 
-        for (int i = 0; i < modesArrayNames.length; i++) {
-            String mode = modesArrayNames[i];
-            int modeResourceId =
-                    getResources().getIdentifier(mode, "array", getPackageName());
-            String[] modeInformation = getResources().getStringArray(modeResourceId);
-
-            String[] parameters = {
-                    modeInformation[0],   // Name
-                    modeInformation[1],   // Navigation icon
-                    modeInformation[2],   // Image icon
-                    modeInformation[3],   // Info
-                    modeInformation[4]};  // Counter
-
-            switch (i){
-                case 1:
-                    modes.add(new Routing(parameters));
-                    break;
-                case 2:
-                    modes.add(new Meeting(parameters));
-                    break;
-                default:
-                    modes.add(new Mode(parameters));
-            }
-        }
-
-        return modes;
-    }
-
-    @Override
-    public boolean onMenuItemClick(MenuItem menuItem) {
-        Log.d(TAG, "onMenuItemClick(): " + menuItem);
-
-        final int itemId = menuItem.getItemId();
-
-        String toastMessage = "";
-
-        switch (itemId) {
-            case R.id.menu_mode_info:
-                toastMessage = mModes.get(mSelectedMode).getInfo();
-                break;
-            case R.id.menu_counter:
-                toastMessage = String.valueOf(mModes.get(mSelectedMode).getCount());
-                break;
-        }
-
-        mWearableActionDrawer.getController().closeDrawer();
-
-        if (toastMessage.length() > 0) {
-            Toast toast = Toast.makeText(
-                    getApplicationContext(),
-                    toastMessage,
-                    Toast.LENGTH_SHORT);
-            toast.show();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    // Updates content when user changes between items in the navigation drawer.
-    @Override
-    public void onItemSelected(int position) {
-        Log.d(TAG, "WearableNavigationDrawerView triggered onItemSelected(): " + position);
-
-        mModes.get(mSelectedMode).stop();
-        mSelectedMode = position;
-        mModes.get(mSelectedMode).start();
-
-        String selectedModeImage = mModes.get(mSelectedMode).getImage();
-        int drawableId =
-                getResources().getIdentifier(selectedModeImage, "drawable", getPackageName());
-        mModeFragment.updateMode(drawableId);
-    }
-
-    private final class NavigationAdapter
-            extends WearableNavigationDrawerView.WearableNavigationDrawerAdapter {
-
-        private final Context mContext;
-
-        public NavigationAdapter(Context context) {
-            mContext = context;
-        }
-
-        @Override
-        public int getCount() {
-            return mModes.size();
-        }
-
-        @Override
-        public String getItemText(int pos) {
-            return mModes.get(pos).getName();
-        }
-
-        @Override
-        public Drawable getItemDrawable(int pos) {
-            String navigationIcon = mModes.get(pos).getIcon();
-
-            int drawableNavigationIconId =
-                    getResources().getIdentifier(navigationIcon, "drawable", getPackageName());
-
-            return mContext.getDrawable(drawableNavigationIconId);
-        }
-    }
-
-    /**
-     * Fragment that appears in the "content_frame", just shows the currently selected Mode.
-     */
-    public static class ModeFragment extends Fragment {
-        public static final String ARG_MODE_IMAGE_ID = "node_mode_id";
-
-        private ImageView mImageView;
-        private ColorFilter mImageViewColorFilter;
-
-        public ModeFragment() {
-            // Empty constructor required for fragment subclasses
-        }
-
-        @Override
-        public View onCreateView(
-                LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_mode, container, false);
-
-            mImageView = ((ImageView) rootView.findViewById(R.id.image));
-
-            int imageIdToLoad = getArguments().getInt(ARG_MODE_IMAGE_ID);
-            mImageView.setImageResource(imageIdToLoad);
-
-            mImageViewColorFilter = mImageView.getColorFilter();
-
-            return rootView;
-        }
-
-        public void updateMode(int imageId) {
-            mImageView.setImageResource(imageId);
-        }
-
-        public void onEnterAmbientInFragment(Bundle ambientDetails) {
-            Log.d(TAG, "ModeFragment.onEnterAmbient() " + ambientDetails);
-
-            // Convert image to grayscale for ambient mode.
-            ColorMatrix matrix = new ColorMatrix();
-            matrix.setSaturation(0);
-
-            ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
-            mImageView.setColorFilter(filter);
-        }
-
-        /** Restores the UI to active (non-ambient) mode. */
-        public void onExitAmbientInFragment() {
-            Log.d(TAG, "ModeFragment.onExitAmbient()");
-
-            mImageView.setColorFilter(mImageViewColorFilter);
-        }
-    }
-
-    @Override
-    public AmbientMode.AmbientCallback getAmbientCallback() {
-        return new MyAmbientCallback();
-    }
-
-    private class MyAmbientCallback extends AmbientMode.AmbientCallback {
-        /** Prepares the UI for ambient mode. */
-        @Override
-        public void onEnterAmbient(Bundle ambientDetails) {
-            super.onEnterAmbient(ambientDetails);
-            Log.d(TAG, "onEnterAmbient() " + ambientDetails);
-
-            mModeFragment.onEnterAmbientInFragment(ambientDetails);
-            mWearableNavigationDrawer.getController().closeDrawer();
-            mWearableActionDrawer.getController().closeDrawer();
-        }
-
-        /** Restores the UI to active (non-ambient) mode. */
-        @Override
-        public  void onExitAmbient() {
-            super.onExitAmbient();
-            Log.d(TAG, "onExitAmbient()");
-
-            mModeFragment.onExitAmbientInFragment();
-            mWearableActionDrawer.getController().peekDrawer();
-        }
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        // We need accelerometer event only
         if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER )
             return;
 
-        accX = Math.abs(Math.abs(event.values[0]) - SensorManager.GRAVITY_EARTH);
-        accY = Math.abs(event.values[1]);
-        accZ = Math.abs(event.values[2]);
+        // The handshake is detected as an acceleration in the Y axis (excluding gravity)
+        float accX = Math.abs(event.values[0]);
+        float accY = Math.abs(Math.abs(event.values[1]) - SensorManager.GRAVITY_EARTH);
+        float accZ = Math.abs(event.values[2]);
 
-        if (accX >= 5 && accY < epsilon && accZ < epsilon){
+        // If there is a signifier acceleration in the Y axis only
+        if (accY >= 7 && accX < epsilon && accZ < epsilon && !computing){
             // Handshake
-            mvibrator.vibrate(200);
-            Toast toast = Toast.makeText(
-                    getApplicationContext(),
-                    "Handshake!" + i ,
-                    Toast.LENGTH_SHORT);
-            toast.show();
-            i++;
+
+            // Start to detect handshake
+            if(!handshake_started){
+                handshake_started=true;
+                handshake_counter =0;
+            }
+            handshake_counter++;
+
+
+        }else
+            // If the device is still
+            if (accX < epsilon && accY < epsilon && accZ < epsilon && handshake_started){
+
+            // Start to detect the still period
+            if(!computing) {
+                computing = true;
+                computing_counter = 0;
+            }
+
+            computing_counter++;
+
+            // If device stay still more than COUNTER_THRESHOLD times
+            if(computing_counter >= COUNTER_THRESHOLD){
+                // The handshake is ended
+                handshake_started = false;
+
+                // If device has an acceleration in the Y axis more than COUNTER_THRESHOLD times
+                if (handshake_counter >= COUNTER_THRESHOLD) {
+                    // Send a message to the phone.
+                    Wearable.getMessageClient(getApplicationContext()).sendMessage(phoneID,HANDSHAKE_HAPPENED,null);
+                    Toast toast = Toast.makeText(
+                            getApplicationContext(),
+                            "Handshake!",
+                            Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+                // Even if the handshake happened or not, the still period ends
+                // and it can starts to detects other handshakes.
+                computing = false;
+            }
 
         }
 
+
     }
+
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
 
-    public class Meeting extends Mode{
+    @Override
+    public void onMessageReceived(@NonNull MessageEvent messageEvent) {
 
-        public Meeting(String name, String icon, String image, String info, int count) {
-            super(name, icon, image, info, count);
+        // If the watch receives a response from the phone for the data request
+        if (messageEvent.getPath().equals(RESPONSE_USER_DATA_PATH) && !sync) {
+            // Store the phone's node ID for future message
+            phoneID = messageEvent.getSourceNodeId();
+            // Set the content to be changed
+            TextView user = findViewById(R.id.uName);
+            TextView rName = findViewById(R.id.rName);
+            TextView eName = findViewById(R.id.eName);
+            TextView eTime = findViewById(R.id.eTime);
+            ConstraintLayout eBackground = findViewById(R.id.main_background);
+
+            JSONObject data;
+            try {
+                // Get the bluetooth adapter
+                BluetoothAdapter mBA = BluetoothAdapter.getDefaultAdapter();
+                // Store the data received by the phone
+                data = new JSONObject(new String(messageEvent.getData()));
+                // Change the watch's device name according to userID
+                mBA.setName("NTMY"+data.getString("userID"));
+                // Set fields in layout
+                user.setText(data.getString("fullname"));
+                rName.setText(data.getString("rName"));
+                eName.setText(data.getString("eName"));
+                eTime.setText(data.getString("eTime"));
+                // change the background color according to event color
+                eBackground.setBackgroundColor(new Color(data.getJSONObject("color")).getIntColor());
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            sync = true;
+
+        } else if (messageEvent.getPath().equals(HANDSHAKE_VERIFIED)) {
+            // Once the phone verified the handshake detected by the watch
+            // shows a message with detected user's fullname obtained from the server
+            String username = new String (messageEvent.getData());
+            Toast toast = Toast.makeText(
+                    getApplicationContext(),
+                    "+ " + username,
+                    Toast.LENGTH_SHORT);
+            toast.show();
+            mvibrator.vibrate(200);
         }
 
-        public Meeting(String[] parameters) {
-            super(parameters);
-        }
 
-        @Override
-        public void start(){
-            mSensorManager.registerListener(mainActivity, mSensor, SensorManager.SENSOR_DELAY_GAME);
-        }
-
-        @Override
-        public void stop(){
-            mSensorManager.unregisterListener(mainActivity);
-        }
-    }
-
-    public class Routing extends Mode{
-
-        public Routing(String name, String icon, String image, String info, int count) {
-            super(name, icon, image, info, count);
-        }
-
-        public Routing(String[] parameters) {
-            super(parameters);
-        }
-
-        @Override
-        public void start(){
-
-        }
-
-        @Override
-        public void stop(){
-
-        }
     }
 }
 
