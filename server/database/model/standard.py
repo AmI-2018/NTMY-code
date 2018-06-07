@@ -2,7 +2,7 @@
 
 from typing import Dict, Any
 
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, LargeBinary, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from passlib.hash import sha512_crypt
 
@@ -130,6 +130,7 @@ class User(Base):
     phone = Column(String, nullable=False)
     link = Column(String, nullable=False)
     password = Column(String, nullable=False)
+    photo = Column(LargeBinary)
 
     # Relationships
     created_events = []
@@ -363,4 +364,4 @@ class Event(Base):
         return True
 
 # Remove imports so they won't be exposed
-del Column, Integer, String, DateTime, Base, Dict, Any
+del Column, Integer, String, LargeBinary, DateTime, Base, Dict, Any

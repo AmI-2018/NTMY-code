@@ -35,9 +35,9 @@ def is_me(func: Callable) -> Callable:
         try:
             if session["user"] == 0 or session["user"] == userID:
                 return func(*args, **kwargs)
-            else:
+            elif database.functions.get(database.model.standard.User, userID)[0]:
                 return abort(401)
-        except Exception as e:
+        except (database.exceptions.DatabaseError, database.exceptions.InvalidDictError) as e:
             return abort(400, str(e))
     return wrapped
 
@@ -54,13 +54,13 @@ def is_known(func: Callable) -> Callable:
     def wrapped(*args, **kwargs):
         userID = kwargs["userID"]
         try:
-            connections = database.functions.filter(database.model.relationships.UserConnection, "userID1 = '{}'".format(session["user"]))
-            connections_ids = [c.userID2 for c in connections]
+            user = database.functions.get(database.model.standard.User, session["user"])[0]
+            connections_ids = [c.userID2 for c in user.connections]
             if session["user"] == 0 or session["user"] == userID or userID in connections_ids:
                 return func(*args, **kwargs)
-            else:
+            elif database.functions.get(database.model.standard.User, userID)[0]:
                 return abort(401)
-        except Exception as e:
+        except (database.exceptions.DatabaseError, database.exceptions.InvalidDictError) as e:
             return abort(400, str(e))
     return wrapped
 
@@ -82,6 +82,6 @@ def is_mine(func: Callable) -> Callable:
                 return func(*args, **kwargs)
             else:
                 return abort(401)
-        except Exception as e:
+        except (database.exceptions.DatabaseError, database.exceptions.InvalidDictError) as e:
             return abort(400, str(e))
     return wrapped

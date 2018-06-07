@@ -1,6 +1,6 @@
 """Users API"""
 
-from flask import jsonify, request, Blueprint, abort
+from flask import jsonify, request, Blueprint, abort, Response
 from datetime import datetime
 
 from .decorators import require_root, is_me, is_known
@@ -106,6 +106,47 @@ def handler_delete_user_from_id(userID):
         del_user = database.functions.get(database.model.standard.User, userID)[0]
         database.functions.rem(del_user)
         return ""
+    except database.exceptions.DatabaseError as e:
+        return abort(400, str(e))
+
+# Photo access
+
+@users_bp.route("/users/<int:userID>/photo", methods=["GET"])
+@is_known
+def handler_get_user_photo_from_id(userID):
+    """Get the photo of the user with the given ID.
+
+    .. :quickref: Users; Get the photo of the user with the given ID.
+    
+    :param int userID: The ID of the user to retrieve the photo from
+    :status 200: The user was correctly retrieved
+    :status 400: The user could not be found
+    :status 401: The user has not logged in
+    :return: The jpeg photo of the user
+    """
+    try:
+        user = database.functions.get(database.model.standard.User, userID)[0]
+        return user.photo, {"Content-Type": "image/jpeg"}
+    except database.exceptions.DatabaseError as e:
+        return abort(400, str(e))
+
+@users_bp.route("/users/<int:userID>/photo", methods=["POST"])
+@is_me
+def handler_set_user_photo_from_id(userID):
+    """Set the photo of the user with the given ID.
+
+    .. :quickref: Users; Set the photo of the user with the given ID.
+    
+    :param int userID: The ID of the user to set the photo to
+    :status 200: The user was correctly retrieved
+    :status 400: The user could not be found
+    :status 401: The user has not logged in
+    :return: The jpeg photo of the user
+    """
+    try:
+        user = database.functions.get(database.model.standard.User, userID)[0]
+        database.functions.upd(user, {"photo": request.data})
+        return user.photo, {"Content-Type": "image/jpeg"}
     except database.exceptions.DatabaseError as e:
         return abort(400, str(e))
 
