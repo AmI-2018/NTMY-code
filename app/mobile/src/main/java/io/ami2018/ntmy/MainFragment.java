@@ -1,9 +1,11 @@
 package io.ami2018.ntmy;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SnapHelper;
@@ -24,6 +26,7 @@ import io.ami2018.ntmy.model.Room;
 import io.ami2018.ntmy.model.User;
 import io.ami2018.ntmy.network.RequestHelper;
 import io.ami2018.ntmy.recyclerviews.EventAdapter;
+import io.ami2018.ntmy.recyclerviews.EventClickListener;
 import io.ami2018.ntmy.recyclerviews.StartSnapHelper;
 
 public class MainFragment extends Fragment {
@@ -43,6 +46,7 @@ public class MainFragment extends Fragment {
 
         initObjects();
         initViews(view);
+        initSwipe(view);
 
         return view;
     }
@@ -58,10 +62,19 @@ public class MainFragment extends Fragment {
     }
 
     private void initObjects() {
-        mTodayAdapter = new EventAdapter();
-        mEnrolledAdapter = new EventAdapter();
-        mFutureAdapter = new EventAdapter();
-        mUser = User.getInstance();
+        EventClickListener eventClickListener = new EventClickListener() {
+            @Override
+            public void onClick(View view, Event event) {
+                Intent intent = new Intent(getContext(), EventActivity.class);
+                intent.putExtra("EVENT ID", event.getEventId());
+                startActivity(intent);
+            }
+        };
+
+        mTodayAdapter = new EventAdapter(eventClickListener);
+        mEnrolledAdapter = new EventAdapter(eventClickListener);
+        mFutureAdapter = new EventAdapter(eventClickListener);
+        mUser = MainActivity.mUser;
     }
 
     private void initViews(View mainView) {
@@ -92,6 +105,24 @@ public class MainFragment extends Fragment {
         mFutureRv.setLayoutManager(futureLinearLayoutManager);
         mFutureRv.setAdapter(mFutureAdapter);
         futureSnapHelper.attachToRecyclerView(mFutureRv);
+    }
+
+    private void initSwipe(View mainView) {
+        final SwipeRefreshLayout swipeRefreshLayout = mainView.findViewById(R.id.mainfrag_srl);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mTodayAdapter.clear();
+                mEnrolledAdapter.clear();
+                mFutureAdapter.clear();
+
+                todayEvents();
+                enrolledEvents();
+                futureEvents();
+
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
     }
 
     private void todayEvents() {

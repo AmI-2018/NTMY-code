@@ -1,15 +1,13 @@
 package io.ami2018.ntmy.model;
 
+import android.util.SparseArray;
+
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class User {
 
     // Instance
-    private static final User mInstance = new User();
     private String surname;
     private String email;
     private String phone;
@@ -19,17 +17,13 @@ public class User {
     private Integer userId;
 
     // Relationships
-    private Map<Integer, Event> events;
+    private SparseArray<Event> events;
 
-    private User() {
-        this.events = new HashMap<>();
+    public User() {
+        this.events = new SparseArray<>();
     }
 
-    public static User getInstance() {
-        return mInstance;
-    }
-
-    public void setInstance(JSONObject jsonObject) {
+    public User(JSONObject jsonObject) {
         try {
             this.name = jsonObject.getString("name");
             this.surname = jsonObject.getString("surname");
@@ -39,16 +33,16 @@ public class User {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        this.events = new HashMap<>();
+        this.events = new SparseArray<>();
     }
 
-    public void setInstance(String name, String surname, String email, String phone, Integer userId) {
+    public User(String name, String surname, String email, String phone, Integer userId) {
         this.name = name;
         this.surname = surname;
         this.email = email;
         this.phone = phone;
         this.userId = userId;
-        this.events = new HashMap<>();
+        this.events = new SparseArray<>();
     }
 
     public String getName() {
@@ -91,16 +85,16 @@ public class User {
         this.userId = userId;
     }
 
-    public Map<Integer, Event> getEvents() {
+    public SparseArray<Event> getEvents() {
         return events;
     }
 
-    public void setEvents(Map<Integer, Event> events) {
+    public void setEvents(SparseArray<Event> events) {
         this.events = events;
     }
 
     public void addEvent(Event event) {
-        if (!this.events.containsKey(event.getEventId()))
-            this.events.put(event.getEventId(), event);
+        if (this.events.get(event.getEventId()) == null)
+            this.events.append(event.getEventId(), event);
     }
 }

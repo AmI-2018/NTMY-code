@@ -15,9 +15,11 @@ import io.ami2018.ntmy.model.Event;
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHolder> {
 
     private ArrayList<Event> list;
+    private EventClickListener listener;
 
-    public EventAdapter() {
+    public EventAdapter(EventClickListener listener) {
         this.list = new ArrayList<>();
+        this.listener = listener;
     }
 
     public void addElement(Event event) {
@@ -27,6 +29,11 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         }
     }
 
+    public void clear() {
+        this.list.clear();
+        this.notifyDataSetChanged();
+    }
+
     private boolean contains(Integer eventId) {
         for (Event e : this.list) {
             if (e.getEventId().intValue() == eventId.intValue()) return true;
@@ -34,12 +41,17 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         return false;
     }
 
+    @Override
+    public int getItemCount() {
+        return this.list.size();
+    }
+
     @NonNull
     @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View view = inflater.inflate(R.layout.item_event_card, parent, false);
-        return new EventViewHolder(view);
+        return new EventViewHolder(view, listener);
     }
 
     @Override
@@ -59,14 +71,11 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             holder.mRoom.setText(event.getRoom().getName());
         else
             holder.mRoom.setText("Not Assigned");
+
+        holder.setEvent(event);
     }
 
-    @Override
-    public int getItemCount() {
-        return this.list.size();
-    }
-
-    protected static class EventViewHolder extends RecyclerView.ViewHolder {
+    protected static class EventViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private TextView mTitle;
         private TextView mCategories;
@@ -74,13 +83,28 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         private TextView mTime;
         private TextView mRoom;
 
-        private EventViewHolder(View itemView) {
+        private Event mEvent;
+
+        private EventClickListener mListener;
+
+        private EventViewHolder(View itemView, EventClickListener listener) {
             super(itemView);
             this.mTitle = itemView.findViewById(R.id.item_event_card_tv_title);
             this.mCategories = itemView.findViewById(R.id.item_event_card_tv_categories);
             this.mDate = itemView.findViewById(R.id.item_event_card_tv_date);
             this.mTime = itemView.findViewById(R.id.item_event_card_tv_time);
-            mRoom = itemView.findViewById(R.id.item_event_card_tv_room);
+            this.mRoom = itemView.findViewById(R.id.item_event_card_tv_room);
+            this.mListener = listener;
+            itemView.setOnClickListener(this);
+        }
+
+        private void setEvent(Event event) {
+            this.mEvent = event;
+        }
+
+        @Override
+        public void onClick(View view) {
+            mListener.onClick(view, mEvent);
         }
     }
 }

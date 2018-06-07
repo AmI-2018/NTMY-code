@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout mDrawer;
     private View mProgress;
 
-    private static User mUser;
+    public static User mUser;
     private MessageClient mMessageClient;
 
     @Override
@@ -51,9 +51,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initObjects();
         initViews();
         initDrawer();
-        //initListeners();
+        initListeners();
 
         showProgress();
 
@@ -70,7 +71,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ((TextView) findViewById(R.id.nav_tv_name)).setText(fullName);
                 ((TextView) findViewById(R.id.nav_tv_email)).setText(mUser.getEmail());
                 displayMainFragment();
-                mMessageClient.addListener(new MessageListener(getApplicationContext(),mUser));
                 hideProgress();
             }
         }, new Response.ErrorListener() {
@@ -88,7 +88,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                 MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
 
-        mMessageClient = Wearable.getMessageClient(this);
 
     }
 
@@ -139,6 +138,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    private void initObjects() {
+        mMessageClient = Wearable.getMessageClient(this);
+    }
+
     private void initViews() {
         Log.d(TAG, "Views Init");
 
@@ -146,9 +149,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mProgress = findViewById(R.id.progress_overlay);
     }
 
-    /*private void initListeners() {
-
-    }*/
+    private void initListeners() {
+        mMessageClient.addListener(new MessageListener(getApplicationContext(), mUser));
+    }
 
     private void initDrawer() {
         Log.d(TAG, "Drawer Init");
