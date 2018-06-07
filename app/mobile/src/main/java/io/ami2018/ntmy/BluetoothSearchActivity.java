@@ -115,7 +115,7 @@ public class BluetoothSearchActivity extends AppCompatActivity {
     private boolean getUserFullname(String deviceName) {
         // Obtain the userID2 from the device Name
         final int userID2 =  Character.getNumericValue(deviceName.charAt(4));
-        boolean result = false;
+        fullnameID2 = "";
         // Create a JSON to post a connection event to the server
         JSONObject json = new JSONObject();
         try {
@@ -138,7 +138,6 @@ public class BluetoothSearchActivity extends AppCompatActivity {
                                 String name = response.getJSONObject(0).getJSONObject("user1").getString("name");
                                 String surname = response.getJSONObject(0).getJSONObject("user1").getString("surname");
                                 fullnameID2 = name + " " + surname;
-                                return = true;
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -164,7 +163,7 @@ public class BluetoothSearchActivity extends AppCompatActivity {
                     toast.show();
                 }
             });
-        return result;
+        return !fullnameID2.equals("");
     }
 
     @Override

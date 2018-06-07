@@ -85,9 +85,9 @@ public class MainActivity extends WearableActivity implements
             return;
 
         // The handshake is detected as an acceleration in the Y axis (excluding gravity)
-        private float accX = Math.abs(event.values[0]);
-        private float accY = Math.abs(Math.abs(event.values[1]) - SensorManager.GRAVITY_EARTH);
-        private float accZ = Math.abs(event.values[2]);
+        float accX = Math.abs(event.values[0]);
+        float accY = Math.abs(Math.abs(event.values[1]) - SensorManager.GRAVITY_EARTH);
+        float accZ = Math.abs(event.values[2]);
 
         // If there is a signifier acceleration in the Y axis only
         if (accY >= 7 && accX < epsilon && accZ < epsilon && !computing){
