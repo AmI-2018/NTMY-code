@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initObjects();
         initViews();
         initDrawer();
-        initListeners();
+        //initListeners();
 
         showProgress();
 
@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 String fullName = mUser.getName() + " " + mUser.getSurname();
                 ((TextView) findViewById(R.id.nav_tv_name)).setText(fullName);
                 ((TextView) findViewById(R.id.nav_tv_email)).setText(mUser.getEmail());
+                initMessageListener();
                 displayMainFragment();
                 hideProgress();
             }
@@ -149,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mProgress = findViewById(R.id.progress_overlay);
     }
 
-    private void initListeners() {
+    private void initMessageListener() {
         mMessageClient.addListener(new MessageListener(getApplicationContext(), mUser));
     }
 
