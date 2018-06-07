@@ -12,18 +12,18 @@ public class Event {
     private String start;
     private String end;
     private Integer eventId;
-    private Integer creatorId;
+    private User creator;
 
     private Room room;
     private SparseArray<Category> categories;
 
-    public Event(String name, String description, String start, String end, Integer eventId, Integer creatorId) {
+    public Event(String name, String description, String start, String end, Integer eventId, User creator) {
         this.name = name;
         this.description = description;
         this.start = start;
         this.end = end;
         this.eventId = eventId;
-        this.creatorId = creatorId;
+        this.creator = creator;
         this.room = null;
         this.categories = new SparseArray<>();
     }
@@ -35,7 +35,7 @@ public class Event {
             this.start = jsonObject.getString("start");
             this.end = jsonObject.getString("end");
             this.eventId = jsonObject.getInt("eventID");
-            this.creatorId = jsonObject.getJSONObject("creator").getInt("userID");
+            this.creator = new User(jsonObject.getJSONObject("creator"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -83,12 +83,12 @@ public class Event {
         this.eventId = eventId;
     }
 
-    public Integer getCreatorId() {
-        return creatorId;
+    public User getCreator() {
+        return creator;
     }
 
-    public void setCreatorId(Integer creatorId) {
-        this.creatorId = creatorId;
+    public void setCreator(User creator) {
+        this.creator = creator;
     }
 
     public SparseArray<Category> getCategories() {

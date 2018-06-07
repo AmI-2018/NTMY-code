@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     tools:context=".EventActivity">
 
     <!--
@@ -20,37 +19,126 @@
         Users met   -> if some, so check first of all if event already started, and else if the user haven't met anyone yet
     -->
 
-    <ScrollView
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:padding="32dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Pippo" />
+            android:paddingBottom="32dp">
 
-    </ScrollView>
+            <TextView
+                android:id="@+id/event_tv_creator_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Creator"
+                android:textAllCaps="true"
+                android:textColor="@color/colorAccent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/event_tv_creator"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:drawablePadding="8dp"
+                android:drawableStart="@drawable/ic_person"
+                android:gravity="center_vertical"
+                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/event_tv_creator_title" />
+
+            <TextView
+                android:id="@+id/event_tv_description_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Description"
+                android:textAllCaps="true"
+                android:textColor="@color/colorAccent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/event_tv_creator" />
+
+            <TextView
+                android:id="@+id/event_tv_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/event_tv_description_title" />
+
+        </android.support.constraint.ConstraintLayout>
+
+    </android.support.v4.widget.NestedScrollView>
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/event_ctl"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fitsSystemWindows="true"
             app:contentScrim="@color/colorPrimary"
             app:expandedTitleGravity="top"
+            app:expandedTitleMarginStart="64dp"
+            app:expandedTitleMarginTop="64dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
 
-            <TextView
+            <LinearLayout
+                android:id="@+id/event_ll_details"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Prova" />
+                android:layout_marginStart="80dp"
+                android:layout_marginTop="112dp"
+                android:orientation="vertical"
+                android:paddingBottom="32dp"
+                android:paddingTop="16dp"
+                app:layout_collapseMode="parallax"
+                app:layout_collapseParallaxMultiplier="0.75">
+
+                <TextView
+                    android:id="@+id/event_tv_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="8dp"
+                    android:drawableStart="@drawable/ic_event"
+                    android:drawableTint="@color/colorAccent"
+                    android:gravity="center"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+
+                <TextView
+                    android:id="@+id/event_tv_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:drawablePadding="8dp"
+                    android:drawableStart="@drawable/ic_access_time"
+                    android:drawableTint="@color/colorAccent"
+                    android:gravity="center"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+                <TextView
+                    android:id="@+id/event_tv_room"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:drawablePadding="8dp"
+                    android:drawableStart="@drawable/ic_location"
+                    android:drawableTint="@color/colorAccent"
+                    android:gravity="center"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+            </LinearLayout>
 
             <android.support.v7.widget.Toolbar
+                android:id="@+id/event_tb"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin" />
@@ -58,5 +146,7 @@
         </android.support.design.widget.CollapsingToolbarLayout>
 
     </android.support.design.widget.AppBarLayout>
+
+    <include layout="@layout/progress_overlay" />
 
 </android.support.design.widget.CoordinatorLayout>

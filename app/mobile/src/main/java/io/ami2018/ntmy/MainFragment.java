@@ -65,8 +65,18 @@ public class MainFragment extends Fragment {
         EventClickListener eventClickListener = new EventClickListener() {
             @Override
             public void onClick(View view, Event event) {
+                String fullName = event.getCreator().getName() + " " + event.getCreator().getSurname();
                 Intent intent = new Intent(getContext(), EventActivity.class);
                 intent.putExtra("EVENT ID", event.getEventId());
+                intent.putExtra("NAME", event.getName());
+                intent.putExtra("DESCRIPTION", event.getDescription());
+                intent.putExtra("START", event.getStart());
+                intent.putExtra("END", event.getEnd());
+                if (event.getRoom() != null)
+                    intent.putExtra("ROOM", event.getRoom().getName());
+                else
+                    intent.putExtra("ROOM", "Not Assigned");
+                intent.putExtra("CREATOR NAME", fullName);
                 startActivity(intent);
             }
         };
