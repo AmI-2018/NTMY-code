@@ -4,6 +4,7 @@ package io.ami2018.ntmy;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -136,7 +137,9 @@ public class MainActivity extends WearableActivity implements
                 eName.setText(data.getString("eName"));
                 eTime.setText(data.getString("eTime"));
                 // change the background color according to event color
-                eBackground.setBackgroundColor(new Color(data.getJSONObject("color")).getIntColor());
+                ColorUtil color = new ColorUtil(data.getJSONObject("color"));
+                //eBackground.setBackgroundColor(Color.rgb(color.getRed(),color.getGreen(),color.getBlue()));
+                eBackground.setBackgroundColor(Color.parseColor(color.getHexString()));
 
             } catch (JSONException e) {
                 e.printStackTrace();

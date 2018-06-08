@@ -3,8 +3,9 @@ package io.ami2018.ntmy;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Color {
+public class ColorUtil {
     private String name;
+    private String hexString;
     private int red;
     private int green;
     private int blue;
@@ -31,25 +32,29 @@ public class Color {
         return blue;
     }
 
-    public Color(String name, int red, int green, int blue) {
-        this.name = name;
+    public ColorUtil(int red, int green, int blue) {
         this.red = red;
         this.green = green;
         this.blue = blue;
     }
 
-    public Color (JSONObject color){
+    public ColorUtil(JSONObject color){
         try{
         red = Math.round(Float.valueOf(color.getString("red")) * 255);
         green = Math.round(Float.valueOf(color.getString("green"))* 255);
         blue = Math.round(Float.valueOf(color.getString("blue"))* 255);
         intColor = getIntFromColor(red,green,blue);
+        hexString = genHexString(red,green,blue);
         }catch (JSONException e){
             e.printStackTrace();
         }
     }
 
-    public String getHexId(int red, int green, int blue){
+    public String getHexString() {
+        return hexString;
+    }
+
+    public String genHexString(int red, int green, int blue){
         String id ="#";
         id = id + Integer.toHexString(red);
         id = id + Integer.toHexString(green);
