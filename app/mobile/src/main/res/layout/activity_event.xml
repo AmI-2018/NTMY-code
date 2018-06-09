@@ -22,46 +22,64 @@
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="32dp"
+        android:paddingEnd="32dp"
+        android:paddingStart="32dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingTop="32dp"
             android:paddingBottom="32dp">
 
             <TextView
                 android:id="@+id/event_tv_creator_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Creator"
+                android:text="@string/creator"
                 android:textAllCaps="true"
                 android:textColor="@color/colorAccent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/event_tv_creator"
+            <LinearLayout
+                android:id="@+id/event_ll_creator"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:drawablePadding="8dp"
-                android:drawableStart="@drawable/ic_person"
                 android:gravity="center_vertical"
-                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                android:orientation="horizontal"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/event_tv_creator_title" />
+                app:layout_constraintTop_toBottomOf="@id/event_tv_creator_title">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/event_iv_creator"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:contentDescription="@string/creator"
+                    android:scaleType="centerCrop"
+                    app:civ_border_color="#FF000000"
+                    app:civ_border_width="0dp" />
+
+                <TextView
+                    android:id="@+id/event_tv_creator"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/event_tv_description_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Description"
+                android:text="@string/description"
                 android:textAllCaps="true"
                 android:textColor="@color/colorAccent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/event_tv_creator" />
+                app:layout_constraintTop_toBottomOf="@id/event_ll_creator" />
 
             <TextView
                 android:id="@+id/event_tv_description"
@@ -71,6 +89,44 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/event_tv_description_title" />
+
+            <TextView
+                android:id="@+id/event_tv_facilities_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/facilities"
+                android:textAllCaps="true"
+                android:textColor="@color/colorAccent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/event_tv_description" />
+
+            <LinearLayout
+                android:id="@+id/event_ll_facilities"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/event_tv_facilities_title" />
+
+            <TextView
+                android:id="@+id/event_tv_users_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/users_met"
+                android:textAllCaps="true"
+                android:textColor="@color/colorAccent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/event_ll_facilities" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/event_tv_users"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/event_tv_users_title" />
 
         </android.support.constraint.ConstraintLayout>
 
@@ -88,15 +144,15 @@
             app:contentScrim="@color/colorPrimary"
             app:expandedTitleGravity="top"
             app:expandedTitleMarginStart="64dp"
-            app:expandedTitleMarginTop="64dp"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
+            app:expandedTitleMarginTop="48dp"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <LinearLayout
                 android:id="@+id/event_ll_details"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="80dp"
-                android:layout_marginTop="112dp"
+                android:layout_marginTop="96dp"
                 android:orientation="vertical"
                 android:paddingBottom="32dp"
                 android:paddingTop="16dp"

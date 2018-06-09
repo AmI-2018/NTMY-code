@@ -14,4 +14,8 @@
     <string name="today_event">Today\'s Events</string>
     <string name="enrolled_event">Enrolled Events</string>
     <string name="future_event">Future Events</string>
+    <string name="creator">Creator</string>
+    <string name="description">Description</string>
+    <string name="facilities">Facilities</string>
+    <string name="users_met">Users Met</string>
 </resources>

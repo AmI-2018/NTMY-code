@@ -76,6 +76,7 @@ public class MainFragment extends Fragment {
                     intent.putExtra("ROOM", event.getRoom().getName());
                 else
                     intent.putExtra("ROOM", "Not Assigned");
+                intent.putExtra("CREATOR ID", event.getCreator().getUserId());
                 intent.putExtra("CREATOR NAME", fullName);
                 startActivity(intent);
             }
