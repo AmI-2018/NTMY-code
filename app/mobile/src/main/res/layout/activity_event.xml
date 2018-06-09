@@ -53,7 +53,7 @@
                 app:layout_constraintTop_toBottomOf="@id/event_tv_creator_title">
 
                 <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/event_iv_creator"
+                    android:id="@+id/event_civ_creator"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
                     android:contentDescription="@string/creator"
@@ -121,12 +121,14 @@
                 app:layout_constraintTop_toBottomOf="@id/event_ll_facilities" />
 
             <android.support.v7.widget.RecyclerView
-                android:id="@+id/event_tv_users"
+                android:id="@+id/event_rv_users"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:clipToPadding="false"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/event_tv_users_title" />
+                app:layout_constraintTop_toBottomOf="@id/event_tv_users_title"
+                tools:listitem="@layout/item_user_photo" />
 
         </android.support.constraint.ConstraintLayout>
 

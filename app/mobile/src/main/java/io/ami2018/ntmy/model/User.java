@@ -1,5 +1,6 @@
 package io.ami2018.ntmy.model;
 
+import android.graphics.Bitmap;
 import android.util.SparseArray;
 
 import org.json.JSONException;
@@ -7,16 +8,13 @@ import org.json.JSONObject;
 
 public class User {
 
-    // Instance
     private String surname;
     private String email;
     private String phone;
-
-    // Attributes
     private String name;
     private Integer userId;
+    private Bitmap photo;
 
-    // Relationships
     private SparseArray<Event> events;
 
     public User() {
@@ -83,6 +81,14 @@ public class User {
 
     public void setUserId(Integer userId) {
         this.userId = userId;
+    }
+
+    public Bitmap getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(Bitmap photo) {
+        this.photo = photo;
     }
 
     public SparseArray<Event> getEvents() {
