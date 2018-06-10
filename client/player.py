@@ -36,6 +36,7 @@ class Player():
 
             print("Now playing '{}'".format(media))
             self.media_player.play()
+            sleep(30)
             while self.media_player.is_playing():
                 sleep(1)
                 if self.stop_playing:

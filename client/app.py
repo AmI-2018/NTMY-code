@@ -67,7 +67,7 @@ while True:
     p.play()
 
     # Wait until the end of the event
-    end_time = datetime.datetime.strptime(next_event["event"]["end"], "%x %X")
+    end_time = datetime.datetime.strptime(next_event["event"]["end"], "%m/%d/%Y %H:%M")
     print("Event will end at:")
     print(end_time)
     try:
