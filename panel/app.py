@@ -31,8 +31,8 @@ while True:
     exit_point = pl.route.generate_direction(config['panelID'], dest_event["room"]["nodeID"])
 
     #rest in standby mode until user detected
-    if(match==False)
+    if match==False:
         pi.light_standby()
-    else
+    else:
         # Light up the related arrow
         pi.light_arrow(exit_point, dest_event["color"]["red"], dest_event["color"]["green"], dest_event["color"]["blue"])
