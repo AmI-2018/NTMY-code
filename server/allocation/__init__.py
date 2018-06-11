@@ -12,6 +12,7 @@ __all__ = ["allocator", "dailysched", "exceptions", "targetfun"]
 # Define the functions for the schedule
 
 sched = None
+debug_mode = True
 
 def update_sched():
     import datetime
@@ -22,10 +23,12 @@ def update_sched():
     end_check = datetime.date.today() + datetime.timedelta(days=1)
 
     rooms = database.functions.get(database.model.standard.Room)
-    events = database.functions.filter(
-        database.model.standard.Event,
-        "start >= '{}' AND end < '{}'".format(start_check, end_check)
-    )
+
+    if debug_mode:
+        events = database.functions.get(database.model.standard.Event)
+    else:
+        events = database.functions.filter(database.model.standard.Event, "start >= '{}' AND end < '{}'".format(start_check, end_check))
+    
     sched = allocator.allocate(rooms, events)
 
 # Get the first schedule
