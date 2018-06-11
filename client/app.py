@@ -10,7 +10,9 @@ from player import Player
 # Read config file
 
 config = {}
-with open("config.json") as f:
+config_file = "config_debug.json"
+
+with open(config_file) as f:
     config = json.loads(f.read())
 
 print("Current config:")
@@ -71,11 +73,7 @@ while True:
     end_time = datetime.datetime.strptime(next_event["event"]["end"], "%m/%d/%Y %H:%M")
     print("Event will end at:")
     print(end_time)
-    try:
-        pause.until(end_time.timestamp())
-    except KeyboardInterrupt:
-        p.stop()
-        break
+    pause.until(end_time.timestamp())
 
     # Stop and empty the player
     p.stop()
