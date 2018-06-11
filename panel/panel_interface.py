@@ -34,14 +34,14 @@ scale = {
 
 
 def light_standby():
-"""Make the panel show a standby mode switching on all led and creating a pulse effect to """
+    """Make the panel show a standby mode switching on all led and creating a pulse effect to """
     for led in leds:
-            led.on()
+        led.on()
 
     rgb_driver.pulse(on_color=(scale["R"], scale["G"], scale["B"]), off_color=(0,0,0))
 
 def light_arrow(direction: int, red: float, green: float, blue: float):
-""" Make the panel show an arrow pointing to the given direction.
+    """ Make the panel show an arrow pointing to the given direction.
 
     :param direction: The direction the arrow will point
     :type direction: int
@@ -53,7 +53,6 @@ def light_arrow(direction: int, red: float, green: float, blue: float):
     :type blue: float
     """
 
-
     # Shut down every LED and set color
     for led in leds:
         led.off()
@@ -62,28 +61,25 @@ def light_arrow(direction: int, red: float, green: float, blue: float):
     if direction == 0:
         # East direction
         for i in range (0, 5):
-              leds[i].on()
-
+            leds[i].on()
     elif direction == 1:
-        # South direction
-        for i in range (2, 7):
-              leds[i].on()
+        # North direction
+        for i in range(6, 8):
+            leds[i].on()
+        for i in range (0, 3):
+            leds[i].on()
     elif direction == 2:
         # West direction
         for i in range (4, 8):
               leds[i].on()
         leds[0].on()
-
     elif direction == 3:
-        # North direction
-        for i in range(6, 8):
-              leds[i].on()
-        for i in range (0, 3):
-              leds[i].on()
+        # South direction
+        for i in range (2, 7):
+            leds[i].on()
 
-    # Set the event color and  start blinking arrow
+    # Set the event color and start blinking arrow
     rgb_driver.blink(on_color=(scale["R"]*red, scale["G"]*green, scale["B"]*blue), off_color=(0,0,0), n=5)
 
     # Sleep to watch Led's blink
     sleep(5)
-

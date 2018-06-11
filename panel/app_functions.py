@@ -32,15 +32,13 @@ def detect_user() -> int:
     :return: the matching device flag
     """
 
-    while True:
-        # Loop until a device is found
-        devices = [{"name": "Pippo"}, {"name": "NTMY2"}]
-        while not devices:
-            devices = bluetooth.discover_devices(lookup_names=True)
+    # Loop until a device is found
+    devices = bluetooth.discover_devices(lookup_names=True)
 
-        # Search for devices with matching name
-        for device in devices:
-            if match("NTMY[0-9]+", device["name"]):
-                userID = split("NTMY", device["name"])[1]
-
-                return int(userID), True
+    # Search for devices with matching name
+    for device in devices:
+        if match("NTMY[0-9]+", device["name"]):
+            userID = split("NTMY", device["name"])[1]
+            return int(userID)
+    
+    return False
