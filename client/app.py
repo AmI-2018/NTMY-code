@@ -47,7 +47,8 @@ while True:
     print(next_event)
 
     # Set the color of the lights
-    lm.set_color_all(next_event["color"]["red"], next_event["color"]["green"], next_event["color"]["blue"], 254, 254)
+    for light in config["lights"]:
+        lm.set_color(light, next_event["color"]["red"], next_event["color"]["green"], next_event["color"]["blue"], 254, 254)
     print("Lights have been set.")
 
     # Get the facilities
