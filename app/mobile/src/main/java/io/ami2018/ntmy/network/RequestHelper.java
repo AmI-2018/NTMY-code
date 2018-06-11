@@ -2,6 +2,7 @@ package io.ami2018.ntmy.network;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -15,7 +16,7 @@ import org.json.JSONObject;
 
 public class RequestHelper {
 
-    private static final String url = "http://192.168.1.17:5000/";
+    private static final String url = "http://192.168.0.91:5000/";
 
     public static void get(Context context, String path, Response.Listener<String> responseListener, Response.ErrorListener errorListener) {
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url + path, responseListener, errorListener);
@@ -24,6 +25,7 @@ public class RequestHelper {
 
     public static void getJson(Context context, String path, Response.Listener<JSONObject> responseListener, Response.ErrorListener errorListener) {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url + path, null, responseListener, errorListener);
+        Log.d("Pippo", url);
         QueueSingleton.getInstance(context).addToRequestQueue(jsonObjectRequest);
     }
 

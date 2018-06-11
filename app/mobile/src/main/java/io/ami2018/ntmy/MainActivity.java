@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         CookieHandler.setDefault(cookieManager);
 
         Log.d(TAG, "Log In Starting");
-        RequestHelper.getJson(getApplicationContext(), "login", new Response.Listener<JSONObject>() {
+        RequestHelper.getJson(this, "login", new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 Log.d(TAG, "Log In OK");

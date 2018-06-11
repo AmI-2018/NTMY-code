@@ -1,5 +1,6 @@
 package io.ami2018.ntmy;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -60,12 +61,6 @@ public class EventActivity extends AppCompatActivity {
         loadUsersMet();
     }
 
-    private void initToolbar() {
-        Toolbar toolbar = findViewById(R.id.event_tb);
-        setSupportActionBar(toolbar);
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    }
-
     private void initObjects() {
         eventId = getIntent().getIntExtra("EVENT ID", 0);
         name = getIntent().getStringExtra("NAME");
@@ -78,7 +73,10 @@ public class EventActivity extends AppCompatActivity {
         mUserAdapter = new UserAdapter(new UserClickListener() {
             @Override
             public void onClick(View view, User user) {
-                //TODO Launch User Activity
+                Intent intent = new Intent(EventActivity.this, UserActivity.class);
+                intent.putExtra("NAME", user.getName() + " " + user.getSurname());
+                intent.putExtra("USER ID", user.getUserId());
+                startActivity(intent);
             }
         });
     }
@@ -103,6 +101,12 @@ public class EventActivity extends AppCompatActivity {
         mUserRv.setLayoutManager(userLinearLayoutManager);
         mUserRv.setAdapter(mUserAdapter);
         userSnapHelper.attachToRecyclerView(mUserRv);
+    }
+
+    private void initToolbar() {
+        Toolbar toolbar = findViewById(R.id.event_tb);
+        setSupportActionBar(toolbar);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     private void showProgress() {

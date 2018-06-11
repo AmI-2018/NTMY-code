@@ -23,7 +23,6 @@ import org.json.JSONException;
 import io.ami2018.ntmy.model.Category;
 import io.ami2018.ntmy.model.Event;
 import io.ami2018.ntmy.model.Room;
-import io.ami2018.ntmy.model.User;
 import io.ami2018.ntmy.network.RequestHelper;
 import io.ami2018.ntmy.recyclerviews.EventAdapter;
 import io.ami2018.ntmy.recyclerviews.EventClickListener;
@@ -32,8 +31,6 @@ import io.ami2018.ntmy.recyclerviews.StartSnapHelper;
 public class MainFragment extends Fragment {
 
     private static final String TAG = MainFragment.class.getSimpleName();
-
-    private User mUser;
 
     private EventAdapter mTodayAdapter;
     private EventAdapter mEnrolledAdapter;
@@ -85,7 +82,6 @@ public class MainFragment extends Fragment {
         mTodayAdapter = new EventAdapter(eventClickListener);
         mEnrolledAdapter = new EventAdapter(eventClickListener);
         mFutureAdapter = new EventAdapter(eventClickListener);
-        mUser = MainActivity.mUser;
     }
 
     private void initViews(View mainView) {
@@ -193,9 +189,10 @@ public class MainFragment extends Fragment {
     }
 
     private void enrolledEvents() {
-        RequestHelper.getJsonArray(getContext(), "users/" + String.valueOf(mUser.getUserId()) + "/events", new Response.Listener<JSONArray>() {
+        RequestHelper.getJsonArray(getContext(), "users/" + String.valueOf(MainActivity.mUser.getUserId()) + "/events", new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
+                Log.d(TAG, "entrato");
                 try {
                     for (int i = 0; i < response.length(); i++) {
                         final Event event = new Event(response.getJSONObject(i).getJSONObject("event"));
@@ -214,7 +211,7 @@ public class MainFragment extends Fragment {
                                             } catch (JSONException e) {
                                                 e.printStackTrace();
                                             }
-                                            mUser.addEvent(event);
+                                            MainActivity.mUser.addEvent(event);
                                             mEnrolledAdapter.addElement(event);
                                         }
                                     }, new Response.ErrorListener() {

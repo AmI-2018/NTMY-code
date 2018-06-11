@@ -102,7 +102,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 public void onResponse(JSONObject response) {
                     hideProgress();
                     Toast.makeText(LoginActivity.this, "Good credentials!", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();
                 }
             }, new Response.ErrorListener() {
