@@ -22,6 +22,8 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.google.android.gms.wearable.DataClient;
+import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.MessageClient;
 import com.google.android.gms.wearable.Wearable;
 
@@ -36,7 +38,9 @@ import io.ami2018.ntmy.network.PersistentCookieStore;
 import io.ami2018.ntmy.network.RequestHelper;
 import io.ami2018.ntmy.wearconnection.MessageListener;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements
+        NavigationView.OnNavigationItemSelectedListener,
+        DataClient.OnDataChangedListener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -45,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public static User mUser;
     private MessageClient mMessageClient;
+    private MessageListener mMessageListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +93,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                 MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
-
 
     }
 
@@ -141,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void initObjects() {
         mMessageClient = Wearable.getMessageClient(this);
+        mMessageListener = MessageListener.getINSTANCE();
     }
 
     private void initViews() {
@@ -151,7 +156,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void initMessageListener() {
-        mMessageClient.addListener(new MessageListener(getApplicationContext(), mUser));
+        mMessageListener.set(getApplicationContext(),mUser);
+        mMessageClient.addListener(mMessageListener);
     }
 
     private void initDrawer() {
@@ -205,5 +211,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.content_frame, fragment);
         ft.commit();
+    }
+
+    @Override
+    public void onDataChanged(@NonNull DataEventBuffer dataEventBuffer) {
+
     }
 }

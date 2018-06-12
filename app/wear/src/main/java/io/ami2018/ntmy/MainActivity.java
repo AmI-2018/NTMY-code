@@ -4,20 +4,32 @@ package io.ami2018.ntmy;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.wearable.activity.WearableActivity;
 
+import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.android.gms.wearable.Asset;
+import com.google.android.gms.wearable.DataClient;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.MessageClient;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Wearable;
@@ -25,9 +37,15 @@ import com.google.android.gms.wearable.Wearable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.InputStream;
+import java.util.concurrent.ExecutionException;
+
+import io.ami2018.ntmy.BitmapUtil;
+
 public class MainActivity extends WearableActivity implements
         SensorEventListener,
-        MessageClient.OnMessageReceivedListener{
+        MessageClient.OnMessageReceivedListener,
+        DataClient.OnDataChangedListener{
 
     // Accelerometer parameters
     private final double epsilon = 2.0;
@@ -50,6 +68,7 @@ public class MainActivity extends WearableActivity implements
     private String phoneID;
     private MessageSender mMessageSender;
     private MessageClient mWearableClient;
+    private DataClient mDataClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +91,8 @@ public class MainActivity extends WearableActivity implements
         // Set the messageclient and send a message to the phone to obtain the data
         mWearableClient = Wearable.getMessageClient(this);
         mWearableClient.addListener(this);
+        mDataClient = Wearable.getDataClient(this);
+        mDataClient.addListener(this);
         mMessageSender = new MessageSender(getApplicationContext(),REQUEST_USER_DATA_PATH,"");
         mMessageSender.start();
 
@@ -130,6 +151,7 @@ public class MainActivity extends WearableActivity implements
                 // Store the data received by the phone
                 data = new JSONObject(new String(messageEvent.getData()));
                 // Change the watch's device name according to userID
+
                 mBA.setName("NTMY"+data.getString("userID"));
                 // Set fields in layout
                 user.setText(data.getString("fullname"));
@@ -155,6 +177,7 @@ public class MainActivity extends WearableActivity implements
             toast.show();
             mvibrator.vibrate(200);
         }
+
     }
 
     @Override
@@ -162,6 +185,80 @@ public class MainActivity extends WearableActivity implements
         super.onDestroy();
         mSensorManager.unregisterListener(this);
         mWearableClient.removeListener(this);
+        mDataClient.removeListener(this);
     }
+
+    @Override
+    public void onDataChanged(DataEventBuffer dataEvents) {
+        for (DataEvent event : dataEvents) {
+            if (event.getType() == DataEvent.TYPE_CHANGED){
+                String path = event.getDataItem().getUri().getPath();
+                if (path.equals("/image/profile/picture")){
+                    DataMapItem dataMapItem = DataMapItem.fromDataItem(event.getDataItem());
+                    Asset profileAsset = dataMapItem.getDataMap().getAsset("profileImage");
+
+                    new LoadBitmapAsyncTask().execute(profileAsset);
+                }
+            }
+        }
+    }
+
+    private class LoadBitmapAsyncTask extends AsyncTask<Asset, Void, Bitmap> {
+
+        @Override
+        protected Bitmap doInBackground(Asset... params) {
+
+            if (params.length > 0) {
+
+                Asset asset = params[0];
+
+                Task<DataClient.GetFdForAssetResponse> getFdForAssetResponseTask =
+                        Wearable.getDataClient(getApplicationContext()).getFdForAsset(asset);
+
+                try {
+                    // Block on a task and get the result synchronously. This is generally done
+                    // when executing a task inside a separately managed background thread. Doing
+                    // this on the main (UI) thread can cause your application to become
+                    // unresponsive.
+                    DataClient.GetFdForAssetResponse getFdForAssetResponse =
+                            Tasks.await(getFdForAssetResponseTask);
+
+                    InputStream assetInputStream = getFdForAssetResponse.getInputStream();
+
+                    if (assetInputStream != null) {
+                        return BitmapFactory.decodeStream(assetInputStream);
+
+                    } else {
+                        Log.w("LOADASSET", "Requested an unknown Asset.");
+                        return null;
+                    }
+
+                } catch (ExecutionException exception) {
+                    Log.e("LOADASSET", "Failed retrieving asset, Task failed: " + exception);
+                    return null;
+
+                } catch (InterruptedException exception) {
+                    Log.e("LOADASSET", "Failed retrieving asset, interrupt occurred: " + exception);
+                    return null;
+                }
+
+            } else {
+                Log.e("LOADASSET", "Asset must be non-null");
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+
+            if (bitmap != null) {
+                ImageView image = findViewById(R.id.user_picture);
+                image.setImageBitmap(BitmapUtil.GetBitmapClippedCircle(bitmap));
+            }
+        }
+
+    }
+
+
 }
 
