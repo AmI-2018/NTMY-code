@@ -4,17 +4,16 @@ import math
 from .exceptions import InvalidNodeId
 
 
-def generate_direction(actual_node_id, destination_id):
+def generate_direction(actual_node_id: int, destination_id: int):
     """
     Returns the port ID from the nodes IDs
 
     :param actual_node_id: panel's node id
-    :type actual_node_id: str
+    :type actual_node_id: int
     :param destination_id: user's destination id
-    :type destination_id: str
+    :type destination_id: int
     :return: index of the direction (cardinal point)
     """
-
     """ Generate the next node """
     next_node = get_next_node(actual_node_id, destination_id)
 
