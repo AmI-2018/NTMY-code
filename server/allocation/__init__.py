@@ -25,7 +25,7 @@ def update_sched():
     rooms = database.functions.get(database.model.standard.Room)
 
     if debug_mode:
-        events = database.functions.get(database.model.standard.Event)
+        events = database.functions.filter(database.model.standard.Event, "start >= '{}'".format(datetime.datetime.today()))
     else:
         events = database.functions.filter(database.model.standard.Event, "start >= '{}' AND end < '{}'".format(start_check, end_check))
     
