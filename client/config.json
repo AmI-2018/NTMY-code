@@ -1,8 +1,9 @@
 {
-    "roomID": 3,
-    "serveruri": "http://192.168.137.1:5000",
+    "roomID": 1,
+    "serveruri": "http://127.0.0.1:5000",
     "rootmail": "root@root.com",
     "rootpwd": "ntmyroot",
-    "lightsuri": "http://192.168.137.1:8080",
-    "lightsuser": "newdeveloper"
+    "lightsuri": "http://192.168.0.201",
+    "lightsuser": "c0UMxruS4qP-dKjnuzy46vPQsAlnVhDq4GJpv3Rw",
+    "lights": ["7"]
 }
