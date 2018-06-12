@@ -1,16 +1,7 @@
 from . import graph as G
 from .graph import nx
-import matplotlib.pyplot as plt
 import math
 from .exceptions import InvalidNodeId
-
-
-def plot_graph():
-    """ plot the graph """
-    plt.figure(figsize=(8, 6))
-    G.nx.draw(G.Graph, pos=G.node_position, edge_color=G.edge_colors, node_size=10, node_color='black')
-    plt.title("Graph Representation of NTMY College's roads map ", size=15)
-    plt.show()
 
 
 def generate_direction(actual_node_id, destination_id):
