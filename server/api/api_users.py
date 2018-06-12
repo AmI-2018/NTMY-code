@@ -48,7 +48,6 @@ def handler_add_user():
 # ID indexed
 
 @users_bp.route("/users/<int:userID>", methods=["GET"])
-@is_known
 def handler_get_user_from_id(userID):
     """Get the user with the given ID.
 
@@ -112,7 +111,6 @@ def handler_delete_user_from_id(userID):
 # Photo access
 
 @users_bp.route("/users/<int:userID>/photo", methods=["GET"])
-@is_known
 def handler_get_user_photo_from_id(userID):
     """Get the photo of the user with the given ID.
 

@@ -10,7 +10,9 @@ from player import Player
 # Read config file
 
 config = {}
-with open("config.json") as f:
+config_file = "config_debug.json"
+
+with open(config_file) as f:
     config = json.loads(f.read())
 
 print("Current config:")
@@ -47,7 +49,8 @@ while True:
     print(next_event)
 
     # Set the color of the lights
-    lm.set_color_all(next_event["color"]["red"], next_event["color"]["green"], next_event["color"]["blue"], 254, 254)
+    for light in config["lights"]:
+        lm.set_color(light, next_event["color"]["red"], next_event["color"]["green"], next_event["color"]["blue"], 254, 254)
     print("Lights have been set.")
 
     # Get the facilities
@@ -67,14 +70,10 @@ while True:
     p.play()
 
     # Wait until the end of the event
-    end_time = datetime.datetime.strptime(next_event["event"]["end"], "%x %X")
+    end_time = datetime.datetime.strptime(next_event["event"]["end"], "%m/%d/%Y %H:%M")
     print("Event will end at:")
     print(end_time)
-    try:
-        pause.until(end_time.timestamp())
-    except KeyboardInterrupt:
-        p.stop()
-        break
+    pause.until(end_time.timestamp())
 
     # Stop and empty the player
     p.stop()

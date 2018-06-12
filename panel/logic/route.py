@@ -1,37 +1,24 @@
 from . import graph as G
 from .graph import nx
-import matplotlib.pyplot as plt
 import math
 from .exceptions import InvalidNodeId
 
 
-def plot_graph():
-    """ plot the graph """
-    plt.figure(figsize=(8, 6))
-    G.nx.draw(G.Graph, pos=G.node_positions, edge_color=G.edge_colors, node_size=10, node_color='black')
-    plt.title("Graph Representation of NTMY College's roads map ", size=15)
-    plt.show()
-
-
-def generate_direction(actual_node_id, destination_id):
+def generate_direction(actual_node_id: int, destination_id: int):
     """
     Returns the port ID from the nodes IDs
 
     :param actual_node_id: panel's node id
-    :type actual_node_id: str
+    :type actual_node_id: int
     :param destination_id: user's destination id
-    :type destination_id: str
+    :type destination_id: int
     :return: index of the direction (cardinal point)
     """
-    """ Obtain the Nodes objects """
-    source_node = get_node_from_id(actual_node_id)
-    dest_node = get_node_from_id(destination_id)
-
     """ Generate the next node """
-    next_node = get_next_node(source_node,dest_node)
+    next_node = get_next_node(actual_node_id, destination_id)
 
     """ Generate the exit_point """
-    port = generate_port(source_node,next_node)
+    port = generate_port(get_node_from_id(actual_node_id),next_node)
 
     return port
 
@@ -62,7 +49,7 @@ def generate_port(node, next_node):
     y = node['Y'] - next_node['Y']
 
     angle = math.degrees(math.atan2(y, x) + math.pi) + setting
-    """ I added 180° because atan2() return an angle in [-180; 180] """
+    """ I added 180 degrees because atan2() return an angle in [-180; 180] """
     """ Since the exits' ids are in [0; 3] I need an angle in [0; 360]"""
 
     port = round(angle / 90) % 4
@@ -80,29 +67,24 @@ def get_shortest_path(source, dest):
 def get_next_node(source, dest):
     """ Returns the next node receiving the shortest path to the destination."""
 
-    path = get_shortest_path(source['id'], dest['id'])
-    node = search_node(path[1])
+    path = get_shortest_path(source, dest)
+    node = get_node_from_id(path[1])
     return node
-
-
-def search_node(node_id):
-    """ Try to obtain a node by its ID """
-    result = None
-    for i,x in G.nodelist.iterrows():
-        if x['id'] == node_id:
-            result = x
-            break
-
-    if result is None:
-        raise InvalidNodeId
-    else:
-        return result
 
 
 def get_node_from_id(node_id):
     """ Provides the Node object receiving the ID """
     try:
-        node = search_node(node_id)
+        result = None
+        for node in G.nodelist:
+            if node['nodeID'] == node_id:
+                result = node
+                break
+
+        if result is None:
+            raise InvalidNodeId
+        else:
+            return result
     except InvalidNodeId:
         print("Invalid Node ID! : returned None")
         node = None

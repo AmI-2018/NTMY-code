@@ -66,6 +66,14 @@ class LightManager:
         except Exception:
             return None
     
+    def set_color(self, light: str, red: float, green: float, blue: float, sat: float, bri: float):
+        requests.put("{}/api/{}/lights/{}/state".format(self.lightsuri, self.username, light), json={
+            "on": True,
+            "hue": self.rgb_to_hue(red, green, blue),
+            "sat": sat,
+            "bri": bri
+        })
+
     def set_color_all(self, red: float, green: float, blue: float, sat: float, bri: float):
         """Set all the lights with the given RGB color, sat and bri.
         
@@ -83,9 +91,4 @@ class LightManager:
 
         if self.get_lights() is not None:
             for light in self.get_lights():
-                requests.put("{}/api/{}/lights/{}/state".format(self.lightsuri, self.username, light), json={
-                    "on": True,
-                    "hue": self.rgb_to_hue(red, green, blue),
-                    "sat": sat,
-                    "bri": bri
-                })
+                self.set_color(light, red, green, blue, sat, bri)

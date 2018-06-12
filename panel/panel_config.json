@@ -1,5 +1,5 @@
 {
-    "panelID": "great_hall_bottom_left",
+    "panelID": 5,
     "serveruri": "http://127.0.0.1:5000",
     "email": "root@root.com",
     "rootpwd": "ntmyroot"
