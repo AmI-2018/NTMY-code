@@ -5,7 +5,7 @@
     <string name="hint_email">Email</string>
     <string name="hint_password">Password</string>
     <string name="sign_in">Sign In</string>
-    <string name="sign_up">Sing Up</string>
+    <string name="sign_up">Sign Up</string>
     <string name="sign_out">Sign Out</string>
     <string name="password_forget">Forgot password?</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -19,4 +19,6 @@
     <string name="facilities">Facilities</string>
     <string name="users_met">Users Met</string>
     <string name="user_photo">User\'s Photo</string>
+    <string name="contacts">Contacts</string>
+    <string name="action_user_add_contact">Add to contacts</string>
 </resources>

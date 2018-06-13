@@ -43,4 +43,9 @@ public class RequestHelper {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url + path, jsonObject, responseListener, errorListener);
         QueueSingleton.getInstance(context).addToRequestQueue(jsonObjectRequest);
     }
+
+    public static void delete(Context context, String path, Response.Listener<String> responseListener, Response.ErrorListener errorListener) {
+        StringRequest stringRequest = new StringRequest(Request.Method.DELETE, url + path, responseListener, errorListener);
+        QueueSingleton.getInstance(context).addToRequestQueue(stringRequest);
+    }
 }

@@ -25,7 +25,13 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     public void addElement(Event event) {
         if (!this.contains(event.getEventId())) {
             this.list.add(event);
-            //TODO sort
+            /*this.list.sort(new Comparator<Event>() {
+                @Override
+                public int compare(Event event, Event t1) {
+                    //TODO Sort
+                    return 0;
+                }
+            });*/
             this.notifyDataSetChanged();
         }
     }
