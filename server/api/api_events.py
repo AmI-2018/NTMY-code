@@ -244,6 +244,7 @@ def handler_add_event_facility(eventID):
     
     :param int eventID: The ID of the event to add the facility
     :json int facilityID: The ID of the facility to add to the facilities
+    :json string options: The options for the facility
     :status 200: The facility was correctly inserted
     :status 400: The event could not be found
     :status 401: The user has not logged in
@@ -330,7 +331,7 @@ def handler_add_event_participant(eventID):
     :return: The JSON-encoded newly created participant
     """
     try:
-        if session["user"] != request.json["userID"]:
+        if session["user"] != request.json["userID"] and session["user"] != 0:
             abort(401)
         event_part = database.functions.add(database.model.relationships.EventParticipant.from_dict({**request.json, **{"eventID": eventID}}))
         return jsonify(event_part.to_dict())
