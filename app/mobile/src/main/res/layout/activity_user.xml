@@ -20,13 +20,47 @@
             android:paddingTop="32dp">
 
             <TextView
-                android:id="@+id/user_prova"
+                android:id="@+id/user_tv_contacts_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="@string/contacts"
                 android:textAllCaps="true"
                 android:textColor="@color/colorAccent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/user_ll_contacts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/user_tv_contacts_title">
+
+                <TextView
+                    android:id="@+id/user_tv_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:drawablePadding="8dp"
+                    android:drawableStart="@drawable/ic_email"
+                    android:drawableTint="@color/colorAccent"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+                <!--android:autoLink="email"-->
+
+                <TextView
+                    android:id="@+id/user_tv_phone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:drawablePadding="8dp"
+                    android:drawableStart="@drawable/ic_phone"
+                    android:drawableTint="@color/colorAccent"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+                <!--android:autoLink="phone"-->
+
+            </LinearLayout>
 
         </android.support.constraint.ConstraintLayout>
 
@@ -42,17 +76,29 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:contentScrim="@color/colorPrimary"
-            app:expandedTitleGravity="top"
+            app:expandedTitleGravity="bottom"
             app:expandedTitleMarginStart="64dp"
             app:expandedTitleMarginTop="48dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-            <ImageView
-                android:id="@+id/user_iv_user"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:contentDescription="@string/user_photo"
-                android:scaleType="centerCrop" />
+                android:layout_height="300dp">
+
+                <ImageView
+                    android:id="@+id/user_iv_user"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/user_photo"
+                    android:scaleType="centerCrop" />
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:alpha="0.4"
+                    android:background="@color/black" />
+
+            </FrameLayout>
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/user_tb"

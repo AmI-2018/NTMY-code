@@ -3,7 +3,7 @@
 from typing import Dict, Any
 
 from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import backref, relationship
 
 from .base import Base
 from ..exceptions import InvalidDictError
@@ -20,8 +20,8 @@ class EventCategory(Base):
     eventID = Column(Integer, ForeignKey("events.eventID"), primary_key=True)
     categoryID = Column(Integer, ForeignKey("categories.categoryID"), primary_key=True)
 
-    event = relationship("Event", backref="categories")
-    category = relationship("Category", backref="events")
+    event = relationship("Event", backref=backref("categories", cascade="all,delete"))
+    category = relationship("Category", backref=backref("events", cascade="all,delete"))
 
     def to_dict(self) -> Dict[str, Any]:
         """Returns a dictionary representation of the class.
@@ -67,8 +67,8 @@ class EventFacility(Base):
     facilityID = Column(Integer, ForeignKey("facilities.facilityID"), primary_key=True)
     options = Column(String, nullable=True)
 
-    event = relationship("Event", backref="facilities")
-    facility = relationship("Facility", backref="events")
+    event = relationship("Event", backref=backref("facilities", cascade="all,delete"))
+    facility = relationship("Facility", backref=backref("events", cascade="all,delete"))
 
     def to_dict(self) -> Dict[str, Any]:
         """Returns a dictionary representation of the class.
@@ -115,8 +115,8 @@ class EventParticipant(Base):
     eventID = Column(Integer, ForeignKey("events.eventID"), primary_key=True)
     userID = Column(Integer, ForeignKey("users.userID"), primary_key=True)
 
-    event = relationship("Event", backref="participants")
-    user = relationship("User", backref="events")
+    event = relationship("Event", backref=backref("participants", cascade="all,delete"))
+    user = relationship("User", backref=backref("events", cascade="all,delete"))
 
     def to_dict(self) -> Dict[str, Any]:
         """Returns a dictionary representation of the class.
@@ -161,8 +161,8 @@ class RoomFacility(Base):
     roomID = Column(Integer, ForeignKey("rooms.roomID"), primary_key=True)
     facilityID = Column(Integer, ForeignKey("facilities.facilityID"), primary_key=True)
 
-    room = relationship("Room", backref="facilities")
-    facility = relationship("Facility", backref="rooms")
+    room = relationship("Room", backref=backref("facilities", cascade="all,delete"))
+    facility = relationship("Facility", backref=backref("rooms", cascade="all,delete"))
 
     def to_dict(self) -> Dict[str, Any]:
         """Returns a dictionary representation of the class.
@@ -208,9 +208,9 @@ class UserConnection(Base):
     userID2 = Column(Integer, ForeignKey("users.userID"), primary_key=True)
     eventID = Column(Integer, ForeignKey("events.eventID"), primary_key=True)
 
-    user1 = relationship("User", backref="connections", foreign_keys=[userID1])
+    user1 = relationship("User", backref=backref("connections", cascade="all,delete"), foreign_keys=[userID1])
     user2 = relationship("User", foreign_keys=[userID2])
-    event = relationship("Event", backref="connections")
+    event = relationship("Event", backref=backref("connections", cascade="all,delete"))
 
     def to_dict(self) -> Dict[str, Any]:
         """Returns a dictionary representation of the class.
@@ -257,8 +257,8 @@ class UserInterest(Base):
     userID = Column(Integer, ForeignKey("users.userID"), primary_key=True)
     categoryID = Column(Integer, ForeignKey("categories.categoryID"), primary_key=True)
 
-    user = relationship("User", backref="interests")
-    category = relationship("Category", backref="users")
+    user = relationship("User", backref=backref("interests", cascade="all,delete"))
+    category = relationship("Category", backref=backref("users", cascade="all,delete"))
 
     def to_dict(self) -> Dict[str, Any]:
         """Returns a dictionary representation of the class.
@@ -292,4 +292,4 @@ class UserInterest(Base):
             raise InvalidDictError("The provided dictionary is missing the key {}".format(str(e)))
 
 # Remove imports so they won't be exposed
-del Column, Integer, String, ForeignKey, relationship, Base
+del Column, Integer, String, ForeignKey, backref, relationship, Base

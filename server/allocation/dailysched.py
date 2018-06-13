@@ -1,7 +1,7 @@
 """This module provides the definition of the class used to describe a daily schedule."""
 
 from typing import List, Dict
-from random import uniform
+from random import choice
 
 from database.model.standard import Room, Event
 from .exceptions import InvalidScheduleError
@@ -40,11 +40,7 @@ class DailySchedule:
             if alloc[i] != 0:
                 self.sched[rooms[alloc[i]-1]].append({
                     "event": events[i],
-                    "color": {
-                        "red": uniform(0, 1),
-                        "green": uniform(0, 1),
-                        "blue": uniform(0, 1)
-                    }
+                    "color": choice(colors)
                 })
         
         # Check fits and overlaps

@@ -25,7 +25,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     public void addElement(User user) {
         if (!this.contains(user.getUserId())) {
             this.list.add(user);
-            //TODO sort
             this.notifyDataSetChanged();
         }
     }

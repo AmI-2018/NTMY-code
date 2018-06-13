@@ -40,7 +40,7 @@ update_sched()
 def allocation_thread_fun():
     global sched
     while True:
-        pause.seconds(30)
+        pause.minutes(30)
         print("Allocator is running...")
         update_sched()
         print("Allocator has generated today's schedule.")

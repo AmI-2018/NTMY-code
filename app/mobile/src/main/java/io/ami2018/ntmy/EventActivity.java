@@ -10,11 +10,14 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SnapHelper;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -61,6 +64,26 @@ public class EventActivity extends AppCompatActivity {
         loadUsersMet();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.event_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_add_user_contact:
+                if (creatorId.intValue() != MainActivity.mUser.getUserId().intValue()) {
+                    Toast.makeText(this, "You can't delete this event.", Toast.LENGTH_LONG).show();
+                } else {
+                    deleteEvent();
+                }
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void initObjects() {
         eventId = getIntent().getIntExtra("EVENT ID", 0);
         name = getIntent().getStringExtra("NAME");
@@ -74,8 +97,10 @@ public class EventActivity extends AppCompatActivity {
             @Override
             public void onClick(View view, User user) {
                 Intent intent = new Intent(EventActivity.this, UserActivity.class);
-                intent.putExtra("NAME", user.getName() + " " + user.getSurname());
                 intent.putExtra("USER ID", user.getUserId());
+                intent.putExtra("NAME", user.getName() + " " + user.getSurname());
+                intent.putExtra("EMAIL", user.getEmail());
+                intent.putExtra("PHONE", user.getPhone());
                 startActivity(intent);
             }
         });
@@ -197,6 +222,20 @@ public class EventActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+    }
+
+    private void deleteEvent() {
+        RequestHelper.delete(EventActivity.this, "events/" + eventId, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                finish();
             }
         }, new Response.ErrorListener() {
             @Override

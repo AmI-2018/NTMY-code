@@ -4,7 +4,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "io.ami2018.ntmy"
-        minSdkVersion 23
+        minSdkVersion 24
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
@@ -31,4 +31,5 @@ dependencies {
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.android.volley:volley:1.1.0'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
+    implementation 'jp.wasabeef:blurry:2.1.1'
 }

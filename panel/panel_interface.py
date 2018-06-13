@@ -56,7 +56,7 @@ def light_arrow(direction: int, red: float, green: float, blue: float):
     # Shut down every LED and set color
     for led in leds:
         led.off()
-
+    rgb_driver.off()
     #set the correct arrow configuration
     if direction == 0:
         # East direction
@@ -82,4 +82,4 @@ def light_arrow(direction: int, red: float, green: float, blue: float):
     rgb_driver.blink(on_color=(scale["R"]*red, scale["G"]*green, scale["B"]*blue), off_color=(0,0,0), n=5)
 
     # Sleep to watch Led's blink
-    sleep(5)
+    sleep(10)
