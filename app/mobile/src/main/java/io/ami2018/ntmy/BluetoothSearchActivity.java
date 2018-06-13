@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -30,7 +31,7 @@ import io.ami2018.ntmy.wearconnection.MessageListener;
 
 public class BluetoothSearchActivity extends AppCompatActivity {
 
-    private int RSSI_THRESHOLD_VALUE = 50;
+    private static final int RSSI_THRESHOLD_VALUE = 50;
 
     private BluetoothHeadset mBluetoothHeadset;
     BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -92,9 +93,9 @@ public class BluetoothSearchActivity extends AppCompatActivity {
                 String deviceHardwareAddress = device.getAddress(); // MAC address
                 int  rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI,Short.MIN_VALUE); // rssi value
 
-                // If it finds a device that match with regex "^NTMY[0-9]$" ,that isn't the connected watch
+                // If it finds a device that match with regex "^NTMY[0-9]+$" ,that isn't the connected watch
                 // and which rssi is under RSSI_THRESHOLD_VALUE
-                if(Math.abs(rssi) < RSSI_THRESHOLD_VALUE && deviceName.matches("^NTMY[0-9]$") && !deviceName.equals("NTMY"+userID)) {
+                if(Math.abs(rssi) < RSSI_THRESHOLD_VALUE && deviceName.matches("^NTMY[0-9]+$") && !deviceName.equals("NTMY"+userID)) {
                     // Obtain from the server the user's fullname
                     tryGetUserFullname(deviceName);
                     mBluetoothAdapter.cancelDiscovery();
@@ -134,6 +135,17 @@ public class BluetoothSearchActivity extends AppCompatActivity {
                     catch (JSONException e) {
                         e.printStackTrace();
                     }
+                    RequestHelper.getImage(BluetoothSearchActivity.this, "users/" + userID2 + "/photo", new Response.Listener<Bitmap>() {
+                        @Override
+                        public void onResponse(Bitmap response) {
+                            MessageListener.getINSTANCE().sendPhoto(response, MessageListener.USER_FOUND_IMAGE);
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+
+                        }
+                    });
                 }
             }, new Response.ErrorListener() {
                 @Override

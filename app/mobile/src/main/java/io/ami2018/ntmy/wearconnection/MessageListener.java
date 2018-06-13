@@ -43,6 +43,8 @@ public final class MessageListener extends Activity implements
     public static final String HANDSHAKE_HAPPENED = "/handshake_happened";
     public static final String HANDSHAKE_VERIFIED = "/handshake_verified";
     public static final String RESPONSE_USER_DATA_PATH = "/response_user_data";
+        public static final String USER_FOUND_IMAGE = "/image/user/found";
+        public static final String USER_PIC_IMAGE = "/image/profile/picture";
 
     private Context context;
     private User mUser;
@@ -100,7 +102,7 @@ public final class MessageListener extends Activity implements
                             try {
                                 // On positive response send to the watch all the needed data
                                 JSONObject result = new JSONObject();
-                                sendPhoto();
+                                sendPhoto(photo,USER_PIC_IMAGE);
                                 result.put("fullname", userFullName);
                                 result.put("userID", mUser.getUserId());
                                 result.put("color", response.getJSONObject(0).getJSONObject("color"));
@@ -149,7 +151,7 @@ public final class MessageListener extends Activity implements
             result.put("fullname", mUser.getName()+" "+mUser.getSurname());
             result.put("userID", mUser.getUserId());
             Wearable.getMessageClient(context).sendMessage(sNode, RESPONSE_USER_DATA_PATH, result.toString().getBytes());
-            sendPhoto();
+            sendPhoto(photo,USER_PIC_IMAGE);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -162,10 +164,13 @@ public final class MessageListener extends Activity implements
         return Asset.createFromBytes(byteStream.toByteArray());
     }
 
-    private void sendPhoto() {
-        Asset asset = createAssetFromBitmap(photo);
-        PutDataMapRequest dataMap = PutDataMapRequest.create("/image/profile/picture");
-        dataMap.getDataMap().putAsset("profileImage", asset);
+    public void sendPhoto(Bitmap bitmap, String path) {
+        Asset asset = createAssetFromBitmap(bitmap);
+        PutDataMapRequest dataMap = PutDataMapRequest.create(path);
+        if (path.equals(USER_PIC_IMAGE))
+            dataMap.getDataMap().putAsset("profileImage", asset);
+        else if(path.equals(USER_FOUND_IMAGE))
+            dataMap.getDataMap().putAsset("userFoundPicture",asset);
         dataMap.getDataMap().putLong("time", new Date().getTime());
         PutDataRequest request = dataMap.asPutDataRequest();
         request.setUrgent();
