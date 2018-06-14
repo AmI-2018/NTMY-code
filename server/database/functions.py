@@ -52,7 +52,7 @@ def add(add_object: Base) -> Base:
 
     try:
         session.add(add_object)
-        session.commit()
+        session.flush()
     except Exception:
         session.rollback()
         raise DatabaseError("The provided object can not be inserted.")
@@ -67,7 +67,7 @@ def rem(del_object: Base):
 
     try:
         session.delete(del_object)
-        session.commit()
+        session.flush()
     except Exception:
         session.rollback()
         raise DatabaseError("The provided object can not be removed.")
@@ -84,5 +84,5 @@ def upd(upd_object: Base, upd_dict: Dict[str, Any]) -> Base:
     for (key, value) in upd_dict.items():
         if hasattr(upd_object, key):
             setattr(upd_object, key, value)
-    session.commit()
+    session.flush()
     return upd_object

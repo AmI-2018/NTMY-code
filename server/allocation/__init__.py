@@ -31,18 +31,14 @@ def update_sched():
     
     sched = allocator.allocate(rooms, events)
 
-# Get the first schedule
-
-update_sched()
-
 # Generate the allocator thread object
 
 def allocation_thread_fun():
     global sched
     while True:
-        pause.minutes(30)
         print("Allocator is running...")
         update_sched()
         print("Allocator has generated today's schedule.")
+        pause.minutes(30)
 
 allocation_thread = Thread(target=allocation_thread_fun, daemon=True)
