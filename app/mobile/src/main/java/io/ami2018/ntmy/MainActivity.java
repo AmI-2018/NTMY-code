@@ -21,8 +21,6 @@ import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.google.android.gms.wearable.DataClient;
-import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.MessageClient;
 import com.google.android.gms.wearable.Wearable;
 
@@ -39,8 +37,7 @@ import io.ami2018.ntmy.network.RequestHelper;
 import io.ami2018.ntmy.wearconnection.MessageListener;
 
 public class MainActivity extends AppCompatActivity implements
-        NavigationView.OnNavigationItemSelectedListener,
-        DataClient.OnDataChangedListener{
+        NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -230,11 +227,6 @@ public class MainActivity extends AppCompatActivity implements
         ((TextView) findViewById(R.id.nav_tv_name)).setText(fullName);
         ((TextView) findViewById(R.id.nav_tv_email)).setText(email);
         Log.d(TAG, "Navigation Header info updated.");
-    }
-
-    @Override
-    public void onDataChanged(@NonNull DataEventBuffer dataEventBuffer) {
-
     }
 
     /**
