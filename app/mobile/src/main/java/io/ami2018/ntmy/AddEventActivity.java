@@ -29,6 +29,8 @@ import io.ami2018.ntmy.network.RequestHelper;
 
 public class AddEventActivity extends AppCompatActivity {
 
+    // TODO back arrow toolbar with parent activity in the manifest set to MainActivity - priority 1
+
     private TextInputEditText mName;
     private TextInputEditText mDescription;
     private TextInputEditText mStart;
@@ -43,7 +45,6 @@ public class AddEventActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_event);
-        setTitle("Add event");
 
         initObjects();
         initViews();
@@ -158,7 +159,7 @@ public class AddEventActivity extends AppCompatActivity {
                                 JSONObject jsonObject = new JSONObject();
                                 try {
                                     jsonObject.put("facilityID", (int) (mFacilities.getChildAt(i).getId()) - 2000);
-                                    jsonObject.put("options", null);
+                                    jsonObject.put("options", "");
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }

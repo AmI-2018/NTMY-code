@@ -40,7 +40,6 @@ public class EventActivity extends AppCompatActivity {
     private String name;
     private String description;
     private String start;
-    private String end;
     private String room;
     private Integer creatorId;
     private String creator;
@@ -74,11 +73,10 @@ public class EventActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add_user_contact:
-                if (creatorId.intValue() != MainActivity.mUser.getUserId().intValue()) {
+                if (creatorId != MainActivity.mUser.getUserId().intValue() && creatorId != 0)
                     Toast.makeText(this, "You can't delete this event.", Toast.LENGTH_LONG).show();
-                } else {
+                else
                     deleteEvent();
-                }
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -89,7 +87,6 @@ public class EventActivity extends AppCompatActivity {
         name = getIntent().getStringExtra("NAME");
         description = getIntent().getStringExtra("DESCRIPTION");
         start = getIntent().getStringExtra("START");
-        end = getIntent().getStringExtra("END");
         room = getIntent().getStringExtra("ROOM");
         creatorId = getIntent().getIntExtra("CREATOR ID", 0);
         creator = getIntent().getStringExtra("CREATOR NAME");

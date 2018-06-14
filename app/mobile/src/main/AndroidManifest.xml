@@ -32,6 +32,7 @@
         </activity>
         <activity
             android:name=".LoginActivity"
+            android:label="Login"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
@@ -44,9 +45,13 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".AddEventActivity"
+            android:label="New Event"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+        <activity
             android:name=".BluetoothSearchActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".AddEventActivity"></activity>
     </application>
 
 </manifest>

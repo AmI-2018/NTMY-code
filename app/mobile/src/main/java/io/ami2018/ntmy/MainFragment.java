@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,6 +20,9 @@ import com.android.volley.VolleyError;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import io.ami2018.ntmy.model.Category;
 import io.ami2018.ntmy.model.Event;
 import io.ami2018.ntmy.model.Room;
@@ -33,18 +35,23 @@ public class MainFragment extends Fragment {
 
     private static final String TAG = MainFragment.class.getSimpleName();
 
+    private static AtomicInteger progressCounter;
+
     private EventAdapter mTodayAdapter;
     private EventAdapter mEnrolledAdapter;
     private EventAdapter mFutureAdapter;
+    private View mProgress;
+    private EventClickListener mEventClickListener;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
+        // Init
+        initListeners(view);
         initObjects();
         initViews(view);
-        initSwipe(view);
 
         return view;
     }
@@ -52,40 +59,35 @@ public class MainFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        getActivity().setTitle("Events");
+        ((MainActivity) Objects.requireNonNull(getActivity())).setActionBarTitle("Events");
 
-        todayEvents();
-        enrolledEvents();
-        futureEvents();
+        // Load data
+        showProgress();
+        loadTodayEvents();
+        loadEnrolledEvents();
+        loadFutureEvents();
+        //TODO Need event colors! - priority 1
     }
 
+    /**
+     * Void method that initializes all the objects.
+     */
     private void initObjects() {
-        EventClickListener eventClickListener = new EventClickListener() {
-            @Override
-            public void onClick(View view, Event event) {
-                String fullName = event.getCreator().getName() + " " + event.getCreator().getSurname();
-                Intent intent = new Intent(getContext(), EventActivity.class);
-                intent.putExtra("EVENT ID", event.getEventId());
-                intent.putExtra("NAME", event.getName());
-                intent.putExtra("DESCRIPTION", event.getDescription());
-                intent.putExtra("START", event.getStart());
-                intent.putExtra("END", event.getEnd());
-                if (event.getRoom() != null)
-                    intent.putExtra("ROOM", event.getRoom().getName());
-                else
-                    intent.putExtra("ROOM", "Not Assigned");
-                intent.putExtra("CREATOR ID", event.getCreator().getUserId());
-                intent.putExtra("CREATOR NAME", fullName);
-                startActivity(intent);
-            }
-        };
-
-        mTodayAdapter = new EventAdapter(eventClickListener);
-        mEnrolledAdapter = new EventAdapter(eventClickListener);
-        mFutureAdapter = new EventAdapter(eventClickListener);
+        mTodayAdapter = new EventAdapter(mEventClickListener);
+        mEnrolledAdapter = new EventAdapter(mEventClickListener);
+        mFutureAdapter = new EventAdapter(mEventClickListener);
+        progressCounter = new AtomicInteger(0);
+        Log.d(TAG, "Objects initialized.");
     }
 
+    /**
+     * Void method that initializes all the views.
+     * The three RecyclerViews are initialized with their corresponding adapter.
+     *
+     * @param mainView, view needed as reference.
+     */
     private void initViews(View mainView) {
+        // RecyclerViews
         RecyclerView mTodayRv = mainView.findViewById(R.id.mainfrag_rv_todays_events);
         RecyclerView mEnrolledRv = mainView.findViewById(R.id.mainfrag_rv_enrolled_events);
         RecyclerView mFutureRv = mainView.findViewById(R.id.mainfrag_rv_all_events);
@@ -114,40 +116,84 @@ public class MainFragment extends Fragment {
         mFutureRv.setAdapter(mFutureAdapter);
         futureSnapHelper.attachToRecyclerView(mFutureRv);
 
-        ((FloatingActionButton) mainView.findViewById(R.id.mainfrag_fab)).setOnClickListener(new View.OnClickListener() {
+        // Other views
+        mProgress = mainView.findViewById(R.id.progress_overlay_white);
+
+        Log.d(TAG, "Views initialized.");
+    }
+
+    /**
+     * Void method that initializes all the listeners.
+     *
+     * @param mainView, view needed as reference.
+     */
+    private void initListeners(View mainView) {
+        // Event Click Listeners that starts the EventActivity
+        mEventClickListener = new EventClickListener() {
+            @Override
+            public void onClick(View view, Event event) {
+                String fullName = event.getCreator().getName() + " " + event.getCreator().getSurname();
+                Intent intent = new Intent(getContext(), EventActivity.class);
+                intent.putExtra("EVENT ID", event.getEventId());
+                intent.putExtra("NAME", event.getName());
+                intent.putExtra("DESCRIPTION", event.getDescription());
+                intent.putExtra("START", event.getStart());
+                if (event.getRoom() != null)
+                    intent.putExtra("ROOM", event.getRoom().getName());
+                else
+                    intent.putExtra("ROOM", "Not Assigned");
+                intent.putExtra("CREATOR ID", event.getCreator().getUserId());
+                intent.putExtra("CREATOR NAME", fullName);
+                startActivity(intent);
+            }
+        };
+
+        // FloatingActionButton click listener that starts the AddEventActivity
+        mainView.findViewById(R.id.mainfrag_fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), AddEventActivity.class);
                 startActivity(intent);
             }
         });
-    }
 
-    private void initSwipe(View mainView) {
-        final SwipeRefreshLayout swipeRefreshLayout = mainView.findViewById(R.id.mainfrag_srl);
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        // SwipeRefreshLayout listener that clears the adapters and reloads all the data
+        final SwipeRefreshLayout mSwipeRefreshLayout = mainView.findViewById(R.id.mainfrag_srl);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                // Adapters cleaning
                 mTodayAdapter.clear();
                 mEnrolledAdapter.clear();
                 mFutureAdapter.clear();
 
-                todayEvents();
-                enrolledEvents();
-                futureEvents();
+                // Reload content
+                showProgress();
+                loadTodayEvents();
+                loadEnrolledEvents();
+                loadFutureEvents();
 
-                swipeRefreshLayout.setRefreshing(false);
+                // TODO Our overlay covers refreshing, we should manage setRefresh(false) with atomic integer instead of using our overlay - priority 5
+                mSwipeRefreshLayout.setRefreshing(false);
             }
         });
+
+        Log.d(TAG, "Listeners initialized.");
     }
 
-    private void todayEvents() {
+    /**
+     * Void method that loads from the API today's events.
+     */
+    private void loadTodayEvents() {
+        // Today's events are in a JSONArray that is GET from the API
         RequestHelper.getJsonArray(getContext(), "events/today", new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 try {
                     for (int i = 0; i < response.length(); i++) {
                         final Event event = new Event(response.getJSONObject(i));
+                        progressCounter.incrementAndGet();
+                        // For each event we load its categories contained in a JSONArray
                         RequestHelper.getJsonArray(getContext(), "events/" + event.getEventId() + "/categories", new Response.Listener<JSONArray>() {
                             @Override
                             public void onResponse(JSONArray response) {
@@ -155,6 +201,7 @@ public class MainFragment extends Fragment {
                                     for (int i = 0; i < response.length(); i++) {
                                         event.addCategory(new Category(response.getJSONObject(i).getJSONObject("category")));
                                     }
+                                    // After loading categories, we check if the event is scheduled or not
                                     RequestHelper.getJsonArray(getContext(), "schedule/event/" + event.getEventId(), new Response.Listener<JSONArray>() {
                                         @Override
                                         public void onResponse(JSONArray response) {
@@ -163,13 +210,22 @@ public class MainFragment extends Fragment {
                                             } catch (JSONException e) {
                                                 e.printStackTrace();
                                             }
+                                            // Finally we add the event to the adapter
                                             mTodayAdapter.addElement(event);
+                                            Log.d(TAG, "(Today) Event " + event.getEventId() + " has been loaded and added to the Adapter.");
+                                            if (progressCounter.decrementAndGet() == 0) {
+                                                hideProgress();
+                                            }
                                         }
                                     }, new Response.ErrorListener() {
                                         @Override
                                         public void onErrorResponse(VolleyError error) {
-                                            Log.d(TAG, "no room");
+                                            // If the event is not scheduled we add it to the adapter anyway
                                             mTodayAdapter.addElement(event);
+                                            Log.d(TAG, "(Today - No Room) Event " + event.getEventId() + " has been loaded and added to the Adapter.");
+                                            if (progressCounter.decrementAndGet() == 0) {
+                                                hideProgress();
+                                            }
                                         }
                                     });
                                 } catch (JSONException e) {
@@ -179,8 +235,8 @@ public class MainFragment extends Fragment {
                         }, new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                //TODO manage no categories
-                                Log.d(TAG, "no categories");
+                                hideProgress();
+                                Log.d(TAG, "(Today) Error while loading categories.");
                             }
                         });
                     }
@@ -191,20 +247,25 @@ public class MainFragment extends Fragment {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                //TODO manage no events
-                Log.d(TAG, "no today events");
+                hideProgress();
+                Log.d(TAG, "(Today) Error while loading events.");
             }
         });
     }
 
-    private void enrolledEvents() {
+    /**
+     * Void method that loads from the API user's enrolled events.
+     */
+    private void loadEnrolledEvents() {
+        // Users's enrolled events are in a JSONArray that is GET from the API
         RequestHelper.getJsonArray(getContext(), "users/" + String.valueOf(MainActivity.mUser.getUserId()) + "/events", new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                Log.d(TAG, "entrato");
                 try {
                     for (int i = 0; i < response.length(); i++) {
                         final Event event = new Event(response.getJSONObject(i).getJSONObject("event"));
+                        progressCounter.incrementAndGet();
+                        // For each event we load its categories contained in a JSONArray
                         RequestHelper.getJsonArray(getContext(), "events/" + event.getEventId() + "/categories", new Response.Listener<JSONArray>() {
                             @Override
                             public void onResponse(JSONArray response) {
@@ -212,6 +273,7 @@ public class MainFragment extends Fragment {
                                     for (int i = 0; i < response.length(); i++) {
                                         event.addCategory(new Category(response.getJSONObject(i).getJSONObject("category")));
                                     }
+                                    // After loading categories, we check if the event is scheduled or not
                                     RequestHelper.getJsonArray(getContext(), "schedule/event/" + event.getEventId(), new Response.Listener<JSONArray>() {
                                         @Override
                                         public void onResponse(JSONArray response) {
@@ -220,14 +282,23 @@ public class MainFragment extends Fragment {
                                             } catch (JSONException e) {
                                                 e.printStackTrace();
                                             }
+                                            // Finally we add the event to the adapter
                                             MainActivity.mUser.addEvent(event);
                                             mEnrolledAdapter.addElement(event);
+                                            Log.d(TAG, "(Enrolled) Event " + event.getEventId() + " has been loaded and added to the Adapter.");
+                                            if (progressCounter.decrementAndGet() == 0) {
+                                                hideProgress();
+                                            }
                                         }
                                     }, new Response.ErrorListener() {
                                         @Override
                                         public void onErrorResponse(VolleyError error) {
-                                            Log.d(TAG, "no room");
+                                            // If the event is not scheduled we add it to the adapter anyway
                                             mEnrolledAdapter.addElement(event);
+                                            Log.d(TAG, "(Enrolled - No Room) Event " + event.getEventId() + " has been loaded and added to the Adapter.");
+                                            if (progressCounter.decrementAndGet() == 0) {
+                                                hideProgress();
+                                            }
                                         }
                                     });
                                 } catch (JSONException e) {
@@ -237,8 +308,8 @@ public class MainFragment extends Fragment {
                         }, new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                //TODO manage no categories
-                                Log.d(TAG, "no categories");
+                                hideProgress();
+                                Log.d(TAG, "(Enrolled) Error while loading categories.");
                             }
                         });
                     }
@@ -249,19 +320,25 @@ public class MainFragment extends Fragment {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                //TODO manage no events
-                Log.d(TAG, "no user events");
+                hideProgress();
+                Log.d(TAG, "(Enrolled) Error while loading events.");
             }
         });
     }
 
-    private void futureEvents() {
+    /**
+     * Void method that loads from the API future events.
+     */
+    private void loadFutureEvents() {
+        // Future events are in a JSONArray that is GET from the API
         RequestHelper.getJsonArray(getContext(), "events/next", new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 try {
                     for (int i = 0; i < response.length(); i++) {
                         final Event event = new Event(response.getJSONObject(i));
+                        progressCounter.incrementAndGet();
+                        // For each event we load its categories contained in a JSONArray
                         RequestHelper.getJsonArray(getContext(), "events/" + event.getEventId() + "/categories", new Response.Listener<JSONArray>() {
                             @Override
                             public void onResponse(JSONArray response) {
@@ -269,6 +346,7 @@ public class MainFragment extends Fragment {
                                     for (int i = 0; i < response.length(); i++) {
                                         event.addCategory(new Category(response.getJSONObject(i).getJSONObject("category")));
                                     }
+                                    // After loading categories, we check if the event is scheduled or not
                                     RequestHelper.getJsonArray(getContext(), "schedule/event/" + event.getEventId(), new Response.Listener<JSONArray>() {
                                         @Override
                                         public void onResponse(JSONArray response) {
@@ -277,13 +355,22 @@ public class MainFragment extends Fragment {
                                             } catch (JSONException e) {
                                                 e.printStackTrace();
                                             }
+                                            // Finally we add the event to the adapter
                                             mFutureAdapter.addElement(event);
+                                            Log.d(TAG, "(Future) Event " + event.getEventId() + " has been loaded and added to the Adapter.");
+                                            if (progressCounter.decrementAndGet() == 0) {
+                                                hideProgress();
+                                            }
                                         }
                                     }, new Response.ErrorListener() {
                                         @Override
                                         public void onErrorResponse(VolleyError error) {
-                                            Log.d(TAG, "no room");
+                                            // If the event is not scheduled we add it to the adapter anyway
                                             mFutureAdapter.addElement(event);
+                                            Log.d(TAG, "(Future - No Room) Event " + event.getEventId() + " has been loaded and added to the Adapter.");
+                                            if (progressCounter.decrementAndGet() == 0) {
+                                                hideProgress();
+                                            }
                                         }
                                     });
                                 } catch (JSONException e) {
@@ -293,8 +380,8 @@ public class MainFragment extends Fragment {
                         }, new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                //TODO manage no categories
-                                Log.d(TAG, "no categories");
+                                hideProgress();
+                                Log.d(TAG, "(Future) Error while loading categories.");
                             }
                         });
                     }
@@ -305,9 +392,25 @@ public class MainFragment extends Fragment {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                //TODO manage no events
-                Log.d(TAG, "no events");
+                hideProgress();
+                Log.d(TAG, "(Future) Error while loading events.");
             }
         });
+    }
+
+    /**
+     * Method used for displaying the progress.
+     */
+    private void showProgress() {
+        mProgress.setVisibility(View.VISIBLE);
+        Log.d(TAG, "Progress shown");
+    }
+
+    /**
+     * Method used for hiding the progress.
+     */
+    private void hideProgress() {
+        mProgress.setVisibility(View.GONE);
+        Log.d(TAG, "Progress hidden");
     }
 }

@@ -18,7 +18,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -32,6 +31,7 @@ import org.json.JSONObject;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.util.Objects;
 
 import io.ami2018.ntmy.model.User;
 import io.ami2018.ntmy.network.PersistentCookieStore;
@@ -56,44 +56,17 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Load cookies used for http requests
+        CookieManager cookieManager = new CookieManager(new PersistentCookieStore(MainActivity.this), CookiePolicy.ACCEPT_ALL);
+        CookieHandler.setDefault(cookieManager);
+
+        // Init
         initObjects();
         initViews();
         initDrawer();
-        //initListeners();
 
-        showProgress();
-
-        CookieManager cookieManager = new CookieManager(new PersistentCookieStore(getApplicationContext()), CookiePolicy.ACCEPT_ALL);
-        CookieHandler.setDefault(cookieManager);
-
-        Log.d(TAG, "Log In Starting");
-        RequestHelper.getJson(this, "login", new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                Log.d(TAG, "Log In OK");
-                mUser = new User(response);
-                String fullName = mUser.getName() + " " + mUser.getSurname();
-                ((TextView) findViewById(R.id.nav_tv_name)).setText(fullName);
-                ((TextView) findViewById(R.id.nav_tv_email)).setText(mUser.getEmail());
-                initMessageListener();
-                displayMainFragment();
-                hideProgress();
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d(TAG, "Log In Error");
-                hideProgress();
-                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-                finish();
-            }
-        });
-
-        int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
-
+        // Load login status
+        loadLoginStatus();
     }
 
     @Override
@@ -115,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_signout:
-                signOut();
+                handleSignOut();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -124,97 +97,159 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        Fragment fragment = null;
 
+        // Switching fragment when the user clicks an item in the NavigationView
         switch (id) {
             case R.id.nav_events:
-                Log.d(TAG, "Events Navigation Clicked");
-                fragment = new MainFragment();
+                displayMainFragment();
                 break;
-        }
-
-        if (fragment != null) {
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.content_frame, fragment);
-            ft.commit();
         }
 
         mDrawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
+    /**
+     * Void method that initializes all the objects.
+     */
     private void initObjects() {
         mMessageClient = Wearable.getMessageClient(this);
         mMessageListener = MessageListener.getINSTANCE();
+        Log.d(TAG, "Objects initialized.");
     }
 
+    /**
+     * Void method that initialize all the views.
+     */
     private void initViews() {
-        Log.d(TAG, "Views Init");
-
         mDrawer = findViewById(R.id.main_dl);
-        mProgress = findViewById(R.id.progress_overlay);
+        mProgress = findViewById(R.id.progress_overlay_white);
+        Log.d(TAG, "Views initialized.");
     }
 
-    private void initMessageListener() {
-        mMessageListener.set(getApplicationContext(),mUser);
-        mMessageClient.addListener(mMessageListener);
-    }
-
+    /**
+     * Void method that initializes the Toolbar and the Navigation Drawer.
+     */
     private void initDrawer() {
-        Log.d(TAG, "Drawer Init");
-
-        //Toolbar
         Toolbar mToolbar = findViewById(R.id.main_tb);
         setSupportActionBar(mToolbar);
-
-        //Drawer and navigation
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mDrawer, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         mDrawer.addDrawerListener(toggle);
         toggle.syncState();
         NavigationView mNav = findViewById(R.id.main_nv);
         mNav.setNavigationItemSelectedListener(this);
         mNav.setCheckedItem(R.id.nav_events);
+        Log.d(TAG, "Drawer initialized.");
     }
 
-    private void signOut() {
-        Log.d(TAG, "Sign Out Starting");
-        RequestHelper.get(getApplicationContext(), "logout", new Response.Listener<String>() {
+    /**
+     * Void method that initializes the message listener.
+     */
+    private void initMessageListener() {
+        mMessageListener.set(MainActivity.this, mUser);
+        mMessageClient.addListener(mMessageListener);
+        Log.d(TAG, "MessageListener initialized.");
+    }
+
+    /**
+     * Void method that handles the sign out.
+     * The sign out corresponds to a simple POST request on the logout API.
+     */
+    private void handleSignOut() {
+        RequestHelper.get(MainActivity.this, "logout", new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Log.d(TAG, "Sign Out OK");
-                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                Log.d(TAG, "Signed Out");
+                startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 finish();
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d(TAG, "Sign Out Error");
-                Toast.makeText(MainActivity.this, "Error logging out", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "An error occurred while signing out");
             }
         });
     }
 
-    private void showProgress() {
-        Log.d(TAG, "Showing Progress");
-        mProgress.setVisibility(View.VISIBLE);
+    /**
+     * Void method that loads the login status.
+     * If the user is not logged in, LoginActivity will be launched.
+     * The status is checked by a GET request on the login API.
+     */
+    private void loadLoginStatus() {
+        showProgress();
+        RequestHelper.getJson(this, "login", new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.d(TAG, "The user is logged in.");
+                mUser = new User(response);
+                updateNavHeader(mUser.getName() + " " + mUser.getSurname(), mUser.getEmail());
+                initMessageListener();
+                displayMainFragment();
+                hideProgress();
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(TAG, "The user is not logged in.");
+                hideProgress();
+                startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                finish();
+            }
+        });
     }
 
-    private void hideProgress() {
-        Log.d(TAG, "Hiding Progress");
-        mProgress.setVisibility(View.GONE);
+    /**
+     * Void method that sets the action bar title.
+     *
+     * @param title, the title
+     */
+    public void setActionBarTitle(String title) {
+        Objects.requireNonNull(getSupportActionBar()).setTitle(title);
     }
 
+    /**
+     * Void method that replace the fragment stack with the MainFragment.
+     */
     private void displayMainFragment() {
-        //Fragment
-        Log.d(TAG, "Injecting Main Fragment");
         Fragment fragment = new MainFragment();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.content_frame, fragment);
         ft.commit();
+        Log.d(TAG, "Switched to MainFragment.");
+    }
+
+    /**
+     * Void method that updates user info in the Navigation Header.
+     *
+     * @param fullName, is the fullName of the user.
+     * @param email,    is the email of the user.
+     */
+    private void updateNavHeader(String fullName, String email) {
+        ((TextView) findViewById(R.id.nav_tv_name)).setText(fullName);
+        ((TextView) findViewById(R.id.nav_tv_email)).setText(email);
+        Log.d(TAG, "Navigation Header info updated.");
     }
 
     @Override
     public void onDataChanged(@NonNull DataEventBuffer dataEventBuffer) {
 
+    }
+
+    /**
+     * Method used for displaying the progress.
+     */
+    private void showProgress() {
+        mProgress.setVisibility(View.VISIBLE);
+        Log.d(TAG, "Progress shown");
+    }
+
+    /**
+     * Method used for hiding the progress.
+     */
+    private void hideProgress() {
+        mProgress.setVisibility(View.GONE);
+        Log.d(TAG, "Progress hidden");
     }
 }
