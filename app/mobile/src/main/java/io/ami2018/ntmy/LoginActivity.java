@@ -130,7 +130,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.d(TAG, "Bad credentials.");
+                    Log.d(TAG, "Bad credentials.\n" + error.getMessage());
                     hideProgress();
                 }
             });

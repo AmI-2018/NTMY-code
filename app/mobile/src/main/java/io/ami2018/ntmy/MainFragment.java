@@ -222,7 +222,7 @@ public class MainFragment extends Fragment {
                                         public void onErrorResponse(VolleyError error) {
                                             // If the event is not scheduled we add it to the adapter anyway
                                             mTodayAdapter.addElement(event);
-                                            Log.d(TAG, "(Today - No Room) Event " + event.getEventId() + " has been loaded and added to the Adapter.");
+                                            Log.d(TAG, "(Today - No Room) Event " + event.getEventId() + " has been loaded and added to the Adapter.\n" + error.getMessage());
                                             if (progressCounter.decrementAndGet() == 0) {
                                                 hideProgress();
                                             }
@@ -236,7 +236,7 @@ public class MainFragment extends Fragment {
                             @Override
                             public void onErrorResponse(VolleyError error) {
                                 hideProgress();
-                                Log.d(TAG, "(Today) Error while loading categories.");
+                                Log.d(TAG, "(Today) Error while loading categories.\n" + error.getMessage());
                             }
                         });
                     }
@@ -248,7 +248,7 @@ public class MainFragment extends Fragment {
             @Override
             public void onErrorResponse(VolleyError error) {
                 hideProgress();
-                Log.d(TAG, "(Today) Error while loading events.");
+                Log.d(TAG, "(Today) Error while loading events.\n" + error.getMessage());
             }
         });
     }
@@ -295,7 +295,7 @@ public class MainFragment extends Fragment {
                                         public void onErrorResponse(VolleyError error) {
                                             // If the event is not scheduled we add it to the adapter anyway
                                             mEnrolledAdapter.addElement(event);
-                                            Log.d(TAG, "(Enrolled - No Room) Event " + event.getEventId() + " has been loaded and added to the Adapter.");
+                                            Log.d(TAG, "(Enrolled - No Room) Event " + event.getEventId() + " has been loaded and added to the Adapter.\n" + error.getMessage());
                                             if (progressCounter.decrementAndGet() == 0) {
                                                 hideProgress();
                                             }
@@ -309,7 +309,7 @@ public class MainFragment extends Fragment {
                             @Override
                             public void onErrorResponse(VolleyError error) {
                                 hideProgress();
-                                Log.d(TAG, "(Enrolled) Error while loading categories.");
+                                Log.d(TAG, "(Enrolled) Error while loading categories.\n" + error.getMessage());
                             }
                         });
                     }
@@ -321,7 +321,7 @@ public class MainFragment extends Fragment {
             @Override
             public void onErrorResponse(VolleyError error) {
                 hideProgress();
-                Log.d(TAG, "(Enrolled) Error while loading events.");
+                Log.d(TAG, "(Enrolled) Error while loading events.\n" + error.getMessage());
             }
         });
     }
@@ -367,7 +367,7 @@ public class MainFragment extends Fragment {
                                         public void onErrorResponse(VolleyError error) {
                                             // If the event is not scheduled we add it to the adapter anyway
                                             mFutureAdapter.addElement(event);
-                                            Log.d(TAG, "(Future - No Room) Event " + event.getEventId() + " has been loaded and added to the Adapter.");
+                                            Log.d(TAG, "(Future - No Room) Event " + event.getEventId() + " has been loaded and added to the Adapter.\n" + error.getMessage());
                                             if (progressCounter.decrementAndGet() == 0) {
                                                 hideProgress();
                                             }
@@ -381,7 +381,7 @@ public class MainFragment extends Fragment {
                             @Override
                             public void onErrorResponse(VolleyError error) {
                                 hideProgress();
-                                Log.d(TAG, "(Future) Error while loading categories.");
+                                Log.d(TAG, "(Future) Error while loading categories.\n" + error.getMessage());
                             }
                         });
                     }
@@ -393,7 +393,7 @@ public class MainFragment extends Fragment {
             @Override
             public void onErrorResponse(VolleyError error) {
                 hideProgress();
-                Log.d(TAG, "(Future) Error while loading events.");
+                Log.d(TAG, "(Future) Error while loading events.\n" + error.getMessage());
             }
         });
     }

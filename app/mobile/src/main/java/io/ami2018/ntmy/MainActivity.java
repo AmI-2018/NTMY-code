@@ -156,14 +156,14 @@ public class MainActivity extends AppCompatActivity implements
         RequestHelper.get(MainActivity.this, "logout", new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Log.d(TAG, "Signed Out");
+                Log.d(TAG, "Signed Out.");
                 startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 finish();
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d(TAG, "An error occurred while signing out");
+                Log.d(TAG, "An error occurred while signing out.\n" + error.getMessage());
             }
         });
     }
@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d(TAG, "The user is not logged in.");
+                Log.d(TAG, "The user is not logged in.\n" + error.getMessage());
                 hideProgress();
                 startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 finish();
