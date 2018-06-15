@@ -103,7 +103,6 @@ public class MainActivity extends WearableActivity implements
         mWearableClient.addListener(this);
         mDataClient = Wearable.getDataClient(this);
         mDataClient.addListener(this);
-        mBA.setName("NTMY Smartwatch 2");
         mMessageSender = new MessageSender(getApplicationContext(),REQUEST_USER_DATA_PATH,"");
         mMessageSender.start();
         setAmbientEnabled();
