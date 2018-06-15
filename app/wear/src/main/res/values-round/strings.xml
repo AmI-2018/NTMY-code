@@ -5,9 +5,9 @@
     values-round/strings.xml for round devices.
     -->
     <string name="user_name">Open App</string>
-    <string name="event_name">AmI Exam</string>
-    <string name="event_time">29/06/2018 08:30</string>
-    <string name="event_room">Room #5</string>
+    <string name="event_name">No event</string>
+    <string name="event_time">up for an event</string>
+    <string name="event_room">Open app to sign</string>
     <string name="user">User:</string>
     <string name="next_event">Next Event:</string>
     <string name="you_just_met">You just met:</string>

@@ -5,7 +5,7 @@
     android:id="@+id/main_background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dark_blue"
+    android:background="@color/light_grey"
     tools:context=".MainActivity"
     tools:deviceIds="wear">
 
@@ -18,7 +18,8 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:text="@string/user"
-        android:textColor="@color/white"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:textColor="@color/black"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,10 +27,10 @@
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/constraintLayout3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_width="152dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginStart="24dp"
         android:background="@drawable/background"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -37,20 +38,21 @@
 
         <TextView
             android:id="@+id/uName"
-            android:layout_width="wrap_content"
+            android:layout_width="112dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:text="@string/user_name"
+            android:textAlignment="center"
             android:textColor="@color/black"
             android:textSize="16dp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/user_picture"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.466" />
 
         <ImageView
             android:id="@+id/user_picture"
@@ -73,7 +75,7 @@
         android:layout_marginStart="8dp"
         android:text="@string/next_event"
         android:textAppearance="@style/TextAppearance.AppCompat"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -81,8 +83,10 @@
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/eventBackground"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="160dp"
+        android:layout_height="72dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginStart="24dp"
         android:background="@drawable/background_event"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -92,9 +96,9 @@
 
         <ImageView
             android:id="@+id/imageView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="4dp"
             android:layout_weight="1"
             android:src="@drawable/round_group_add_black_48"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -110,15 +114,19 @@
 
             <TextView
                 android:id="@+id/eName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="104dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="8dp"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="4dp"
                 android:text="@string/event_name"
+                android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.AppCompat.Light.SearchResult.Subtitle"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -126,46 +134,45 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:layout_marginEnd="4dp"
+                android:layout_marginEnd="8dp"
                 android:layout_marginStart="4dp"
                 android:background="@drawable/background"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/eName">
+                app:layout_constraintTop_toBottomOf="@+id/eName"
+                app:layout_constraintVertical_bias="0.0">
 
                 <TextView
                     android:id="@+id/rName"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="92dp"
+                    android:layout_height="18dp"
                     android:layout_marginEnd="4dp"
                     android:layout_marginStart="4dp"
                     android:text="@string/event_room"
+                    android:textAlignment="center"
                     android:textColor="@color/black"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="20dp"
-                    android:layout_marginEnd="8dp"
+                <TextView
+                    android:id="@+id/eTime"
+                    android:layout_width="92dp"
+                    android:layout_height="18dp"
+                    android:layout_marginEnd="4dp"
                     android:layout_marginStart="4dp"
-                    android:orientation="horizontal"
+                    android:text="@string/event_time"
+                    android:textAlignment="center"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/rName">
+                    app:layout_constraintTop_toBottomOf="@+id/rName" />
 
-                    <TextView
-                        android:id="@+id/eTime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
-                        android:layout_marginStart="4dp"
-                        android:text="@string/event_time"
-                        android:textColor="@color/black"
-                        android:textSize="12sp" />
-
-                </LinearLayout>
             </android.support.constraint.ConstraintLayout>
 
         </android.support.constraint.ConstraintLayout>
@@ -179,6 +186,8 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:text="NTMY"
+        android:textColor="@color/black"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"

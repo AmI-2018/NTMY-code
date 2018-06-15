@@ -20,6 +20,7 @@ import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -49,6 +50,7 @@ public class MainActivity extends WearableActivity implements
     private SensorManager mSensorManager;
     private Sensor mSensor;
     private Vibrator mvibrator;
+    private BluetoothAdapter mBA;
 
     // Handshake flags & counters
     private long lastHandshakeTime;
@@ -75,6 +77,7 @@ public class MainActivity extends WearableActivity implements
     private static final float EPSILON_L = 2;
     private static final float EPSILON_M = 3;
     private String lastFoundUser;
+    private String deviceName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +94,7 @@ public class MainActivity extends WearableActivity implements
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
+        mBA = BluetoothAdapter.getDefaultAdapter();
         mvibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_GAME);
 
@@ -99,9 +103,9 @@ public class MainActivity extends WearableActivity implements
         mWearableClient.addListener(this);
         mDataClient = Wearable.getDataClient(this);
         mDataClient.addListener(this);
+        mBA.setName("NTMY Smartwatch 2");
         mMessageSender = new MessageSender(getApplicationContext(),REQUEST_USER_DATA_PATH,"");
         mMessageSender.start();
-
         setAmbientEnabled();
 
     }
@@ -163,10 +167,10 @@ public class MainActivity extends WearableActivity implements
             JSONObject data;
             try {
                 // Get the bluetooth adapter
-                BluetoothAdapter mBA = BluetoothAdapter.getDefaultAdapter();
                 // Store the data received by the phone
                 data = new JSONObject(new String(messageEvent.getData()));
                 // Change the watch's device name according to userID
+                deviceName = mBA.getName();
 
                 mBA.setName("NTMY"+data.getString("userID"));
                 // Set fields in layout
@@ -194,6 +198,7 @@ public class MainActivity extends WearableActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mBA.setName(deviceName);
         mSensorManager.unregisterListener(this);
         mWearableClient.removeListener(this);
         mDataClient.removeListener(this);
