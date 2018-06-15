@@ -29,12 +29,13 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.ami2018.ntmy.network.RequestHelper;
 
 public class AddEventActivity extends AppCompatActivity {
 
-    // TODO progress view - priority 1
+    // TODO hide and progress on post
 
     private static final String TAG = AddEventActivity.class.getSimpleName();
 
@@ -44,8 +45,10 @@ public class AddEventActivity extends AppCompatActivity {
     private TextInputEditText mEnd;
     private LinearLayout mCategories;
     private LinearLayout mFacilities;
+    private static AtomicInteger progressCounter;
 
     private Calendar calendar;
+    private View mProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +80,7 @@ public class AddEventActivity extends AppCompatActivity {
      */
     private void initObjects() {
         calendar = Calendar.getInstance();
+        progressCounter = new AtomicInteger(0);
         Log.d(TAG, "Objects initialized.");
     }
 
@@ -90,6 +94,7 @@ public class AddEventActivity extends AppCompatActivity {
         mEnd = findViewById(R.id.add_event_tiet_date_end);
         mCategories = findViewById(R.id.add_event_ll_categories);
         mFacilities = findViewById(R.id.add_event_ll_facilities);
+        mProgress = findViewById(R.id.progress_overlay_white);
         Log.d(TAG, "Views initialized.");
     }
 
@@ -196,6 +201,7 @@ public class AddEventActivity extends AppCompatActivity {
      * These categories are then injected in the view as CheckBoxes.
      */
     private void loadCategories() {
+        showProgress();
         // GET request for the categories
         RequestHelper.getJsonArray(AddEventActivity.this, "categories", new Response.Listener<JSONArray>() {
             @Override
@@ -214,11 +220,13 @@ public class AddEventActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                hideProgress();
                 Log.d(TAG, "All the categories were successfully loaded.");
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                hideProgress();
                 Log.d(TAG, "Error while loading categories.\n" + error.getMessage());
             }
         });
@@ -229,6 +237,7 @@ public class AddEventActivity extends AppCompatActivity {
      * These facilities are then injected in the view as CheckBoxes.
      */
     private void loadFacilities() {
+        showProgress();
         // GET request for the facilities
         RequestHelper.getJsonArray(AddEventActivity.this, "facilities", new Response.Listener<JSONArray>() {
             @Override
@@ -247,11 +256,13 @@ public class AddEventActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                hideProgress();
                 Log.d(TAG, "All the facilities were successfully loaded.");
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                hideProgress();
                 Log.d(TAG, "Error while loading facilities.\n" + error.getMessage());
             }
         });
@@ -349,6 +360,26 @@ public class AddEventActivity extends AppCompatActivity {
             View view = getCurrentFocus();
             if (view != null)
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
+    /**
+     * Method used for displaying the progress.
+     */
+    private void showProgress() {
+        if (progressCounter.incrementAndGet() == 1) {
+            mProgress.setVisibility(View.VISIBLE);
+            Log.d(TAG, "Progress shown");
+        }
+    }
+
+    /**
+     * Method used for hiding the progress.
+     */
+    private void hideProgress() {
+        if (progressCounter.decrementAndGet() == 0) {
+            mProgress.setVisibility(View.GONE);
+            Log.d(TAG, "Progress hidden");
         }
     }
 }

@@ -35,13 +35,13 @@ public class MainFragment extends Fragment {
 
     private static final String TAG = MainFragment.class.getSimpleName();
 
-    private static AtomicInteger progressCounter;
-
     private EventAdapter mTodayAdapter;
     private EventAdapter mEnrolledAdapter;
     private EventAdapter mFutureAdapter;
     private View mProgress;
     private EventClickListener mEventClickListener;
+
+    private static AtomicInteger progressCounter;
 
     @Nullable
     @Override
@@ -62,7 +62,6 @@ public class MainFragment extends Fragment {
         ((MainActivity) Objects.requireNonNull(getActivity())).setActionBarTitle("Events");
 
         // Load data
-        showProgress();
         loadTodayEvents();
         loadEnrolledEvents();
         loadFutureEvents();
@@ -168,7 +167,6 @@ public class MainFragment extends Fragment {
                 mFutureAdapter.clear();
 
                 // Reload content
-                showProgress();
                 loadTodayEvents();
                 loadEnrolledEvents();
                 loadFutureEvents();
@@ -185,6 +183,7 @@ public class MainFragment extends Fragment {
      * Void method that loads from the API today's events.
      */
     private void loadTodayEvents() {
+        showProgress();
         // Today's events are in a JSONArray that is GET from the API
         RequestHelper.getJsonArray(getContext(), "events/today", new Response.Listener<JSONArray>() {
             @Override
@@ -192,7 +191,7 @@ public class MainFragment extends Fragment {
                 try {
                     for (int i = 0; i < response.length(); i++) {
                         final Event event = new Event(response.getJSONObject(i));
-                        progressCounter.incrementAndGet();
+                        showProgress();
                         // For each event we load its categories contained in a JSONArray
                         RequestHelper.getJsonArray(getContext(), "events/" + event.getEventId() + "/categories", new Response.Listener<JSONArray>() {
                             @Override
@@ -212,20 +211,16 @@ public class MainFragment extends Fragment {
                                             }
                                             // Finally we add the event to the adapter
                                             mTodayAdapter.addElement(event);
+                                            hideProgress();
                                             Log.d(TAG, "(Today) Event " + event.getEventId() + " has been loaded and added to the Adapter.");
-                                            if (progressCounter.decrementAndGet() == 0) {
-                                                hideProgress();
-                                            }
                                         }
                                     }, new Response.ErrorListener() {
                                         @Override
                                         public void onErrorResponse(VolleyError error) {
                                             // If the event is not scheduled we add it to the adapter anyway
                                             mTodayAdapter.addElement(event);
+                                            hideProgress();
                                             Log.d(TAG, "(Today - No Room) Event " + event.getEventId() + " has been loaded and added to the Adapter.\n" + error.getMessage());
-                                            if (progressCounter.decrementAndGet() == 0) {
-                                                hideProgress();
-                                            }
                                         }
                                     });
                                 } catch (JSONException e) {
@@ -243,6 +238,7 @@ public class MainFragment extends Fragment {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                hideProgress();
             }
         }, new Response.ErrorListener() {
             @Override
@@ -257,6 +253,7 @@ public class MainFragment extends Fragment {
      * Void method that loads from the API user's enrolled events.
      */
     private void loadEnrolledEvents() {
+        showProgress();
         // Users's enrolled events are in a JSONArray that is GET from the API
         RequestHelper.getJsonArray(getContext(), "users/" + String.valueOf(MainActivity.mUser.getUserId()) + "/events", new Response.Listener<JSONArray>() {
             @Override
@@ -264,7 +261,7 @@ public class MainFragment extends Fragment {
                 try {
                     for (int i = 0; i < response.length(); i++) {
                         final Event event = new Event(response.getJSONObject(i).getJSONObject("event"));
-                        progressCounter.incrementAndGet();
+                        showProgress();
                         // For each event we load its categories contained in a JSONArray
                         RequestHelper.getJsonArray(getContext(), "events/" + event.getEventId() + "/categories", new Response.Listener<JSONArray>() {
                             @Override
@@ -285,20 +282,16 @@ public class MainFragment extends Fragment {
                                             // Finally we add the event to the adapter
                                             MainActivity.mUser.addEvent(event);
                                             mEnrolledAdapter.addElement(event);
+                                            hideProgress();
                                             Log.d(TAG, "(Enrolled) Event " + event.getEventId() + " has been loaded and added to the Adapter.");
-                                            if (progressCounter.decrementAndGet() == 0) {
-                                                hideProgress();
-                                            }
                                         }
                                     }, new Response.ErrorListener() {
                                         @Override
                                         public void onErrorResponse(VolleyError error) {
                                             // If the event is not scheduled we add it to the adapter anyway
                                             mEnrolledAdapter.addElement(event);
+                                            hideProgress();
                                             Log.d(TAG, "(Enrolled - No Room) Event " + event.getEventId() + " has been loaded and added to the Adapter.\n" + error.getMessage());
-                                            if (progressCounter.decrementAndGet() == 0) {
-                                                hideProgress();
-                                            }
                                         }
                                     });
                                 } catch (JSONException e) {
@@ -316,6 +309,7 @@ public class MainFragment extends Fragment {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                hideProgress();
             }
         }, new Response.ErrorListener() {
             @Override
@@ -330,6 +324,7 @@ public class MainFragment extends Fragment {
      * Void method that loads from the API future events.
      */
     private void loadFutureEvents() {
+        showProgress();
         // Future events are in a JSONArray that is GET from the API
         RequestHelper.getJsonArray(getContext(), "events/next", new Response.Listener<JSONArray>() {
             @Override
@@ -337,7 +332,7 @@ public class MainFragment extends Fragment {
                 try {
                     for (int i = 0; i < response.length(); i++) {
                         final Event event = new Event(response.getJSONObject(i));
-                        progressCounter.incrementAndGet();
+                        showProgress();
                         // For each event we load its categories contained in a JSONArray
                         RequestHelper.getJsonArray(getContext(), "events/" + event.getEventId() + "/categories", new Response.Listener<JSONArray>() {
                             @Override
@@ -357,20 +352,16 @@ public class MainFragment extends Fragment {
                                             }
                                             // Finally we add the event to the adapter
                                             mFutureAdapter.addElement(event);
+                                            hideProgress();
                                             Log.d(TAG, "(Future) Event " + event.getEventId() + " has been loaded and added to the Adapter.");
-                                            if (progressCounter.decrementAndGet() == 0) {
-                                                hideProgress();
-                                            }
                                         }
                                     }, new Response.ErrorListener() {
                                         @Override
                                         public void onErrorResponse(VolleyError error) {
                                             // If the event is not scheduled we add it to the adapter anyway
                                             mFutureAdapter.addElement(event);
+                                            hideProgress();
                                             Log.d(TAG, "(Future - No Room) Event " + event.getEventId() + " has been loaded and added to the Adapter.\n" + error.getMessage());
-                                            if (progressCounter.decrementAndGet() == 0) {
-                                                hideProgress();
-                                            }
                                         }
                                     });
                                 } catch (JSONException e) {
@@ -388,6 +379,7 @@ public class MainFragment extends Fragment {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+                hideProgress();
             }
         }, new Response.ErrorListener() {
             @Override
@@ -402,15 +394,19 @@ public class MainFragment extends Fragment {
      * Method used for displaying the progress.
      */
     private void showProgress() {
-        mProgress.setVisibility(View.VISIBLE);
-        Log.d(TAG, "Progress shown");
+        if (progressCounter.incrementAndGet() == 1) {
+            mProgress.setVisibility(View.VISIBLE);
+            Log.d(TAG, "Progress shown");
+        }
     }
 
     /**
      * Method used for hiding the progress.
      */
     private void hideProgress() {
-        mProgress.setVisibility(View.GONE);
-        Log.d(TAG, "Progress hidden");
+        if (progressCounter.decrementAndGet() == 0) {
+            mProgress.setVisibility(View.GONE);
+            Log.d(TAG, "Progress hidden");
+        }
     }
 }
