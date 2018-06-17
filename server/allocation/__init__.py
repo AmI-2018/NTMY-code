@@ -39,6 +39,7 @@ def allocation_thread_fun():
         print("Allocator is running...")
         update_sched()
         print("Allocator has generated today's schedule.")
+        print("Allocated events: {}".format(sched))
         pause.minutes(30)
 
 allocation_thread = Thread(target=allocation_thread_fun, daemon=True)
