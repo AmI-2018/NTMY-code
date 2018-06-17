@@ -61,6 +61,7 @@ def get_shortest_path(source, dest):
     """Compute shortest path between pair of nodes in a graph."""
 
     path = nx.dijkstra_path(G.Graph, source, dest, weight=G.edge_weight_name)
+    print(path)
     return path
 
 
