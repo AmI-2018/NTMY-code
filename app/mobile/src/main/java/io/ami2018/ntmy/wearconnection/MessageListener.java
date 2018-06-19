@@ -37,12 +37,17 @@ public final class MessageListener extends Activity implements
         MessageClient.OnMessageReceivedListener,
         DataClient.OnDataChangedListener {
 
+    // MessageClient paths
     public static final String REQUEST_USER_DATA_PATH = "/request_user_data";
     public static final String HANDSHAKE_HAPPENED = "/handshake_happened";
     public static final String HANDSHAKE_VERIFIED = "/handshake_verified";
     public static final String RESPONSE_USER_DATA_PATH = "/response_user_data";
+
+    // DataClient paths
     public static final String USER_FOUND_IMAGE = "/image/user/found";
     public static final String USER_PIC_IMAGE = "/image/profile/picture";
+
+
     private static final MessageListener INSTANCE = new MessageListener();
     private Context context;
     private User mUser;
@@ -65,6 +70,7 @@ public final class MessageListener extends Activity implements
     }
 
     public void set(Context context, User mUser) {
+        // Update the logged user's data
         this.context = context;
         this.mUser = mUser;
         RequestHelper.getImage(context, "users/" + mUser.getUserId() + "/photo", new Response.Listener<Bitmap>() {
@@ -149,6 +155,7 @@ public final class MessageListener extends Activity implements
     }
 
     private void userPutBasics(String sNode) {
+        // Send a message with all user's data except event data
         try {
             JSONObject result = new JSONObject();
             result.put("fullname", mUser.getName() + " " + mUser.getSurname());
@@ -162,6 +169,8 @@ public final class MessageListener extends Activity implements
     }
 
     public void sendPhoto(Bitmap bitmap, String path) {
+        // Create an asset from a bitmap and send it to the watch
+
         Asset asset = createAssetFromBitmap(bitmap);
         PutDataMapRequest dataMap = PutDataMapRequest.create(path);
         if (path.equals(USER_PIC_IMAGE))

@@ -32,40 +32,18 @@ public class BluetoothSearchActivity extends AppCompatActivity {
 
     private static final int RSSI_THRESHOLD_VALUE = 50;
     private static final int REQUEST_ENABLE_BT = 1;
-    BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-    private BluetoothHeadset mBluetoothHeadset;
+    private BluetoothAdapter mBluetoothAdapter ;
     private String sNode;
     private int userID;
     private int eventID;
     private JSONObject json;
-    // Create a BroadcastReceiver for ACTION_FOUND.
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                // Discovery has found a device. Get the BluetoothDevice
-                // object and its info from the Intent.
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                String deviceName = device.getName(); // device name
-                String deviceHardwareAddress = device.getAddress(); // MAC address
-                int rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE); // rssi value
-
-                // If it finds a device that match with regex "^NTMY[0-9]+$" ,that isn't the connected watch
-                // and which rssi is under RSSI_THRESHOLD_VALUE
-                if (Math.abs(rssi) < RSSI_THRESHOLD_VALUE && deviceName.matches("^NTMY[0-9]+$") && !deviceName.equals("NTMY" + userID)) {
-                    // Obtain from the server the user's fullname
-                    tryGetUserFullname(deviceName);
-                    mBluetoothAdapter.cancelDiscovery();
-                    finish();
-                }
-            }
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth_search);
+
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         // Asks the user to enable the bluetooth if not already enabled
         if (!mBluetoothAdapter.isEnabled()) {
@@ -98,8 +76,32 @@ public class BluetoothSearchActivity extends AppCompatActivity {
                 mBluetoothAdapter.cancelDiscovery();
                 finish();
             }
-        }, 10000);
+        }, 5000);
     }
+
+
+    // Create a BroadcastReceiver for ACTION_FOUND.
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                // Discovery has found a device. Get the BluetoothDevice
+                // object and its info from the Intent.
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                String deviceName = device.getName(); // device name
+                int rssi = intent.getShortExtra(BluetoothDevice.EXTRA_RSSI, Short.MIN_VALUE); // rssi value
+
+                // If it finds a device that match with regex "^NTMY[0-9]+$" ,that isn't the connected watch
+                // and which rssi is under RSSI_THRESHOLD_VALUE
+                if (Math.abs(rssi) < RSSI_THRESHOLD_VALUE && deviceName.matches("^NTMY[0-9]+$") && !deviceName.equals("NTMY" + userID)) {
+                    // Obtain from the server the user's fullname
+                    tryGetUserFullname(deviceName);
+                    mBluetoothAdapter.cancelDiscovery();
+                    finish();
+                }
+            }
+        }
+    };
 
     private void tryGetUserFullname(String deviceName) {
         // Obtain the userID2 from the device Name
@@ -117,22 +119,29 @@ public class BluetoothSearchActivity extends AppCompatActivity {
         RequestHelper.postJson(this, "users/" + userID + "/connections", json, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                // If the post get a positive response, start the GET request to obtain user's fullname
+                // If the post get a positive response
                 try {
                     String fullname = response.getJSONObject("user2").getString("name") + " ";
                     fullname += response.getJSONObject("user2").getString("surname");
+
+                    // Show user's fullname with a toast
                     Toast toast = Toast.makeText(
                             getApplicationContext(),
                             "+ " + fullname,
                             Toast.LENGTH_SHORT);
                     toast.show();
+
+                    // send the fullname to the watch
                     Wearable.getMessageClient(getApplicationContext()).sendMessage(sNode, MessageListener.HANDSHAKE_VERIFIED, fullname.getBytes());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
+                // Perform a GET request to obtain found user's pic
                 RequestHelper.getImage(BluetoothSearchActivity.this, "users/" + userID2 + "/photo", new Response.Listener<Bitmap>() {
                     @Override
                     public void onResponse(Bitmap response) {
+                        // Send the asset to the watch
                         MessageListener.getINSTANCE().sendPhoto(response, MessageListener.USER_FOUND_IMAGE);
                     }
                 }, new Response.ErrorListener() {

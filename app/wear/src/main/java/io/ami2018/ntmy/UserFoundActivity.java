@@ -11,16 +11,20 @@ import android.widget.TextView;
 
 
 public class UserFoundActivity extends WearableActivity {
+    // Activity used to show found user's pic and fullname
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_found);
 
+        // Get the data from parent activity
         Intent intent = getIntent();
         byte[] bytes = intent.getByteArrayExtra("photo");
         Bitmap bitmap = (Bitmap) BitmapFactory.decodeByteArray(bytes,0,bytes.length);
         String username = intent.getStringExtra("username");
+
+        // Set the layout
         ImageView image = findViewById(R.id.imageView);
         TextView text = findViewById(R.id.textView);
         text.setText(username);
@@ -29,6 +33,7 @@ public class UserFoundActivity extends WearableActivity {
         // Enables Always-on
         setAmbientEnabled();
 
+        // Disappear after 5 sec
         Handler handler = new Handler();
 
         handler.postDelayed(new Runnable() {

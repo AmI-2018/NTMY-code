@@ -20,7 +20,6 @@ import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -45,96 +44,131 @@ public class MainActivity extends WearableActivity implements
         MessageClient.OnMessageReceivedListener,
         DataClient.OnDataChangedListener{
 
-    // Accelerometer parameters
-
+    // Sensors
     private SensorManager mSensorManager;
     private Sensor mSensor;
-    private Vibrator mvibrator;
+    private Vibrator mVibrator;
     private BluetoothAdapter mBA;
 
-    // Handshake flags & counters
-    private long lastHandshakeTime;
-    private static final long HANDSHAKE_DELAY = 1500;
-
-    private int n = 0;
+    // Messages objects
+    private MessageSender mMessageSender;
+    private MessageClient mWearableClient;
+    private DataClient mDataClient;
 
     // MessageClient paths
     private static final String REQUEST_USER_DATA_PATH = "/request_user_data";
     private static final String RESPONSE_USER_DATA_PATH = "/response_user_data";
     private static final String HANDSHAKE_HAPPENED = "/handshake_happened";
     private static final String HANDSHAKE_VERIFIED = "/handshake_verified";
+
+    // DataClient paths
     private static final String USER_FOUND_IMAGE = "/image/user/found";
     private static final String USER_PIC_IMAGE = "/image/profile/picture";
+
+    // Useful identities
     private String phoneID;
-    private MessageSender mMessageSender;
-    private MessageClient mWearableClient;
-    private DataClient mDataClient;
+    private String lastFoundUser;
+    private String deviceName;
+
+    // Handshake parameters
     private static final float ACCELERATION_THRESHOLD = SensorManager.GRAVITY_EARTH + 5;
-    private int handshakeCounter = 0;
-    private int idleCounter = 0;
     private static final int IDLE_COUNTER_THRESHOLD = 100 ;
     private static final int HANDSHAKE_COUNTER_THRESHOLD = 2;
     private static final float EPSILON_L = 2;
     private static final float EPSILON_M = 3;
-    private String lastFoundUser;
-    private String deviceName;
+    private static final long HANDSHAKE_DELAY = 1500;
+
+    // Handshake counters
+    private int handshakeCounter = 0;
+    private int idleCounter = 0;
+
+    // Last handshake time
+    private long lastHandshakeTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Make the device discoverable
+        // Ask the user to make device discoverable
         Intent discoverableIntent =
                 new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 3600);
         startActivity(discoverableIntent);
 
-        // Set the sensors
+        // Get accelerometer
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
+        // Get Bluetooth Adapter
         mBA = BluetoothAdapter.getDefaultAdapter();
-        mvibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+
+        // Get Vibrator service
+        mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+
+        // Register a listener to Sensors events
         mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_GAME);
 
-        // Set the messageclient and send a message to the phone to obtain the data
+        // Get MessageClient & DataClient
         mWearableClient = Wearable.getMessageClient(this);
-        mWearableClient.addListener(this);
         mDataClient = Wearable.getDataClient(this);
+
+        // Set the listener to MessageClient & DataClient events
+        mWearableClient.addListener(this);
         mDataClient.addListener(this);
+
+        //Create a new MessageSender object that will sends the data_request message
         mMessageSender = new MessageSender(getApplicationContext(),REQUEST_USER_DATA_PATH,"");
         mMessageSender.start();
+
         setAmbientEnabled();
 
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        // We need accelerometer event only
+        // We need accelerometer events only
         if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER )
             return;
 
         // The handshake is detected as an acceleration in the Y axis (excluding gravity)
+
+        // Set the three detected accelerations
         float accX = Math.abs(event.values[0]);
         float accY = Math.abs(event.values[1]);
         float accZ = Math.abs(event.values[2]);
 
         // If there is a signifier acceleration in the Y axis only
         if (accY > ACCELERATION_THRESHOLD && accX < EPSILON_M && accZ < EPSILON_L){
+                // Start sample the handshake
                 handshakeCounter++;
+                // Avoid the idle reset
                 idleCounter = 0;
-                // And it's been enough time since last handshake
-                if (handshakeCounter > HANDSHAKE_COUNTER_THRESHOLD && System.currentTimeMillis() - lastHandshakeTime > HANDSHAKE_DELAY) {
 
-                    // Handshake
+                // If there are enough samples
+                if (handshakeCounter > HANDSHAKE_COUNTER_THRESHOLD &&
+                        // And if it's been enough time since last handshake
+                        System.currentTimeMillis() - lastHandshakeTime > HANDSHAKE_DELAY) {
+
+                    // Handshake Happened!
+                    handshakeCounter=0;
+                    mVibrator.vibrate(200);
+
+                    // Update lastHandshakeTime
                     lastHandshakeTime = System.currentTimeMillis();
-                    mvibrator.vibrate(200);
+
+                    // Send an <HANDSHAKE_HAPPENED> message to the phone
                     Wearable.getMessageClient(getApplicationContext()).sendMessage(phoneID, HANDSHAKE_HAPPENED, null);
                 }
         }else{
+                // Periodically reset handshake counter in order to remove old samples:
+
+                // Sampling the idle events
                 idleCounter++;
+
+                // If there are enough samples
                 if (idleCounter > IDLE_COUNTER_THRESHOLD){
+                    // reset all counters
                     idleCounter=0;
                     handshakeCounter = 0;
                 }
@@ -156,7 +190,7 @@ public class MainActivity extends WearableActivity implements
         if (messageEvent.getPath().equals(RESPONSE_USER_DATA_PATH)) {
             // Store the phone's node ID for future message
             phoneID = messageEvent.getSourceNodeId();
-            // Set the content to be changed
+            // Set the contents to be changed
             TextView user = findViewById(R.id.uName);
             TextView rName = findViewById(R.id.rName);
             TextView eName = findViewById(R.id.eName);
@@ -165,21 +199,25 @@ public class MainActivity extends WearableActivity implements
 
             JSONObject data;
             try {
-                // Get the bluetooth adapter
                 // Store the data received by the phone
                 data = new JSONObject(new String(messageEvent.getData()));
-                // Change the watch's device name according to userID
+
+                // Store previously device's name
                 deviceName = mBA.getName();
 
+                // Change the device's name according to userID
                 mBA.setName("NTMY"+data.getString("userID"));
+
                 // Set fields in layout
                 user.setText(data.getString("fullname"));
                 rName.setText(data.getString("rName"));
                 eName.setText(data.getString("eName"));
                 eTime.setText(data.getString("eTime"));
-                // change the background color according to event color
+
+                // Create a new ColorUtil object
                 ColorUtil color = new ColorUtil(data.getJSONObject("color"));
-                //eBackground.setBackgroundColor(Color.rgb(color.getRed(),color.getGreen(),color.getBlue()));
+
+                // Change the background color according to event color
                 eBackground.setBackgroundColor(color.getIntColor());
 
             } catch (JSONException e) {
@@ -187,9 +225,9 @@ public class MainActivity extends WearableActivity implements
             }
         } else if (messageEvent.getPath().equals(HANDSHAKE_VERIFIED)) {
             // Once the phone verified the handshake detected by the watch
-            // shows a message with detected user's fullname obtained from the server
+            // Store hie/her fullname and give a feedback to the user
             lastFoundUser = new String (messageEvent.getData());
-            mvibrator.vibrate(200);
+            mVibrator.vibrate(200);
         }
 
     }
@@ -197,7 +235,10 @@ public class MainActivity extends WearableActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // reset device's name
         mBA.setName(deviceName);
+
+        // unregister all the listeners
         mSensorManager.unregisterListener(this);
         mWearableClient.removeListener(this);
         mDataClient.removeListener(this);
@@ -206,14 +247,20 @@ public class MainActivity extends WearableActivity implements
     @Override
     public void onDataChanged(DataEventBuffer dataEvents) {
         for (DataEvent event : dataEvents) {
+            // When a data_changed event happens
             if (event.getType() == DataEvent.TYPE_CHANGED){
+                // Get its path
                 String path = event.getDataItem().getUri().getPath();
+
+                // User pic sent
                 if (path.equals(USER_PIC_IMAGE)){
                     DataMapItem dataMapItem = DataMapItem.fromDataItem(event.getDataItem());
                     Asset profileAsset = dataMapItem.getDataMap().getAsset("profileImage");
 
                     new LoadBitmapAsyncTask(USER_PIC_IMAGE).execute(profileAsset);
-                }else if(path.equals(USER_FOUND_IMAGE)){
+                }else
+                    // Found user pic
+                    if(path.equals(USER_FOUND_IMAGE)){
                     DataMapItem dataMapItem = DataMapItem.fromDataItem(event.getDataItem());
                     Asset profileAsset = dataMapItem.getDataMap().getAsset("userFoundPicture");
 
@@ -224,9 +271,10 @@ public class MainActivity extends WearableActivity implements
     }
 
     private class LoadBitmapAsyncTask extends AsyncTask<Asset, Void, Bitmap> {
-
+        // Class used to receive assets in an AsyncTask
         private String path;
 
+        // Constructor
         public LoadBitmapAsyncTask(String path) {
             this.path = path;
         }
@@ -242,10 +290,6 @@ public class MainActivity extends WearableActivity implements
                         Wearable.getDataClient(getApplicationContext()).getFdForAsset(asset);
 
                 try {
-                    // Block on a task and get the result synchronously. This is generally done
-                    // when executing a task inside a separately managed background thread. Doing
-                    // this on the main (UI) thread can cause your application to become
-                    // unresponsive.
                     DataClient.GetFdForAssetResponse getFdForAssetResponse =
                             Tasks.await(getFdForAssetResponseTask);
 
@@ -276,13 +320,17 @@ public class MainActivity extends WearableActivity implements
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-
+            // When a bitmap is received
             if (bitmap != null) {
+                // User profile picture
                 if (path.equals(USER_PIC_IMAGE)) {
+                    // Set the layout
                     ImageView image = findViewById(R.id.user_picture);
                     image.setImageBitmap(BitmapUtil.GetBitmapClippedCircle(bitmap));
 
-                } else if (path.equals(USER_FOUND_IMAGE)) {
+                } else
+                    // found user
+                    if (path.equals(USER_FOUND_IMAGE)) {
                     startUserFoundActivity(bitmap);
                 }
             }
@@ -290,9 +338,13 @@ public class MainActivity extends WearableActivity implements
     }
 
     public void startUserFoundActivity(Bitmap bitmap){
+        // Start the user found activity
+
         Intent intent = new Intent(MainActivity.this, UserFoundActivity.class);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG,100,out);
+
+        // passing to it pic and fullname
         intent.putExtra("photo", out.toByteArray());
         intent.putExtra("username", lastFoundUser);
         startActivity(intent);

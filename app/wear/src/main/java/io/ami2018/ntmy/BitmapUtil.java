@@ -9,7 +9,7 @@ import android.util.Base64;
 public class BitmapUtil {
 
     public static Bitmap GetBitmapClippedCircle(Bitmap bitmap) {
-
+    // Returns a circular bitmap from a bitmap object
         final int width = bitmap.getWidth();
         final int height = bitmap.getHeight();
         final Bitmap outputBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
@@ -28,6 +28,7 @@ public class BitmapUtil {
     }
 
     public static Bitmap StringToBitmap(String photo) {
+        // convert a string to Bitmap
         try {
             byte [] encodeByte= Base64.decode(photo,Base64.DEFAULT);
             Bitmap bitmap= BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.length);

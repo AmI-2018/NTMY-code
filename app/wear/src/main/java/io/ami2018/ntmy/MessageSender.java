@@ -28,8 +28,10 @@ public class MessageSender extends Thread {
 
     //sends the message via the thread.  this will send to all wearables connected, but
     //since there is (should only?) be one, so no problem.
+
+    // This will be used only to establish a connection to the phone (get the node id)
     public void run() {
-        //first get all the nodes, ie connected wearable devices.
+        //first get all the nodes.
         Task<List<Node>> nodeListTask =
                 Wearable.getNodeClient(context).getConnectedNodes();
         try {

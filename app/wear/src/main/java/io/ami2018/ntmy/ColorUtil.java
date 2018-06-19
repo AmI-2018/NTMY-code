@@ -33,12 +33,14 @@ public class ColorUtil {
     }
 
     public ColorUtil(int red, int green, int blue) {
+        // Constuctor with integers value
         this.red = red;
         this.green = green;
         this.blue = blue;
     }
 
     public ColorUtil(JSONObject color){
+        // constuctor with json object
         try{
         red = Math.round(Float.valueOf(color.getString("red")) * 255);
         green = Math.round(Float.valueOf(color.getString("green"))* 255);
@@ -55,6 +57,7 @@ public class ColorUtil {
     }
 
     public String genHexString(int red, int green, int blue){
+        // return color's Hexadecimal string from the rgb values
         String id ="#";
         id = id + Integer.toHexString(red);
         id = id + Integer.toHexString(green);
@@ -63,6 +66,7 @@ public class ColorUtil {
     }
 
     public int getIntFromColor(int Red, int Green, int Blue){
+        // return an integer that corresponds to the color from rgb values
         Red = (Red << 16) & 0x00FF0000; //Shift red 16-bits and mask out other stuff
         Green = (Green << 8) & 0x0000FF00; //Shift Green 8-bits and mask out other stuff
         Blue = Blue & 0x000000FF; //Mask out anything not blue.
