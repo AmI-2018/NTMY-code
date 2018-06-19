@@ -17,10 +17,6 @@ public class User {
 
     private SparseArray<Event> events;
 
-    public User() {
-        this.events = new SparseArray<>();
-    }
-
     public User(JSONObject jsonObject) {
         try {
             this.name = jsonObject.getString("name");

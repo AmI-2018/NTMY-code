@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.ami2018.ntmy.model.Category;
+import io.ami2018.ntmy.model.Color;
 import io.ami2018.ntmy.model.Event;
 import io.ami2018.ntmy.model.Room;
 import io.ami2018.ntmy.network.RequestHelper;
@@ -34,14 +35,14 @@ import io.ami2018.ntmy.recyclerviews.StartSnapHelper;
 public class MainFragment extends Fragment {
 
     private static final String TAG = MainFragment.class.getSimpleName();
+    private static AtomicInteger progressCounter;
 
     private EventAdapter mTodayAdapter;
     private EventAdapter mEnrolledAdapter;
     private EventAdapter mFutureAdapter;
-    private View mProgress;
     private EventClickListener mEventClickListener;
 
-    private static AtomicInteger progressCounter;
+    private View mProgress;
 
     @Nullable
     @Override
@@ -65,7 +66,6 @@ public class MainFragment extends Fragment {
         loadTodayEvents();
         loadEnrolledEvents();
         loadFutureEvents();
-        //TODO Need event colors! - priority 1
     }
 
     /**
@@ -143,6 +143,10 @@ public class MainFragment extends Fragment {
                     intent.putExtra("ROOM", "Not Assigned");
                 intent.putExtra("CREATOR ID", event.getCreator().getUserId());
                 intent.putExtra("CREATOR NAME", fullName);
+                if (event.getColor() != null)
+                    intent.putExtra("COLOR", event.getColor().getColor());
+                else
+                    intent.putExtra("COLOR", -1);
                 startActivity(intent);
             }
         };
@@ -206,6 +210,7 @@ public class MainFragment extends Fragment {
                                         public void onResponse(JSONArray response) {
                                             try {
                                                 event.setRoom(new Room(response.getJSONObject(0).getJSONObject("room")));
+                                                event.setColor(new Color(response.getJSONObject(0).getJSONObject("color")));
                                             } catch (JSONException e) {
                                                 e.printStackTrace();
                                             }
@@ -276,6 +281,7 @@ public class MainFragment extends Fragment {
                                         public void onResponse(JSONArray response) {
                                             try {
                                                 event.setRoom(new Room(response.getJSONObject(0).getJSONObject("room")));
+                                                event.setColor(new Color(response.getJSONObject(0).getJSONObject("color")));
                                             } catch (JSONException e) {
                                                 e.printStackTrace();
                                             }
@@ -347,6 +353,7 @@ public class MainFragment extends Fragment {
                                         public void onResponse(JSONArray response) {
                                             try {
                                                 event.setRoom(new Room(response.getJSONObject(0).getJSONObject("room")));
+                                                event.setColor(new Color(response.getJSONObject(0).getJSONObject("color")));
                                             } catch (JSONException e) {
                                                 e.printStackTrace();
                                             }

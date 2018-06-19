@@ -21,5 +21,7 @@
     <string name="user_photo">User\'s Photo</string>
     <string name="contacts">Contacts</string>
     <string name="action_user_add_contact">Add to contacts</string>
-    <string name="progress_overlay">Content Loading...</string>
+    <string name="progress_overlay">Content Loading</string>
+    <string name="favourite">Favourite</string>
+    <string name="delete">Delete</string>
 </resources>

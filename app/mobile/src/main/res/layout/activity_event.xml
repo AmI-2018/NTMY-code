@@ -19,6 +19,8 @@
             android:paddingTop="32dp"
             android:paddingBottom="32dp">
 
+            <include layout="@layout/progress_overlay_white" />
+
             <TextView
                 android:id="@+id/event_tv_creator_title"
                 android:layout_width="match_parent"
@@ -122,6 +124,7 @@
     </android.support.v4.widget.NestedScrollView>
 
     <android.support.design.widget.AppBarLayout
+        android:id="@+id/event_abl"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
@@ -191,7 +194,5 @@
         </android.support.design.widget.CollapsingToolbarLayout>
 
     </android.support.design.widget.AppBarLayout>
-
-    <include layout="@layout/progress_overlay" />
 
 </android.support.design.widget.CoordinatorLayout>

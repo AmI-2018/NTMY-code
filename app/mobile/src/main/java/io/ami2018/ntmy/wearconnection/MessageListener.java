@@ -35,24 +35,22 @@ import io.ami2018.ntmy.network.RequestHelper;
 
 public final class MessageListener extends Activity implements
         MessageClient.OnMessageReceivedListener,
-        DataClient.OnDataChangedListener{
-
-    private static final MessageListener INSTANCE = new MessageListener();
+        DataClient.OnDataChangedListener {
 
     public static final String REQUEST_USER_DATA_PATH = "/request_user_data";
     public static final String HANDSHAKE_HAPPENED = "/handshake_happened";
     public static final String HANDSHAKE_VERIFIED = "/handshake_verified";
     public static final String RESPONSE_USER_DATA_PATH = "/response_user_data";
-        public static final String USER_FOUND_IMAGE = "/image/user/found";
-        public static final String USER_PIC_IMAGE = "/image/profile/picture";
-
+    public static final String USER_FOUND_IMAGE = "/image/user/found";
+    public static final String USER_PIC_IMAGE = "/image/profile/picture";
+    private static final MessageListener INSTANCE = new MessageListener();
     private Context context;
     private User mUser;
     private int eventID;
 
     private Bitmap photo;
 
-    private MessageListener(){
+    private MessageListener() {
 
     }
 
@@ -60,8 +58,14 @@ public final class MessageListener extends Activity implements
         return INSTANCE;
     }
 
-    public void set(Context context, User mUser){
-        this.context=context;
+    public static Asset createAssetFromBitmap(Bitmap bitmap) {
+        final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
+        return Asset.createFromBytes(byteStream.toByteArray());
+    }
+
+    public void set(Context context, User mUser) {
+        this.context = context;
         this.mUser = mUser;
         RequestHelper.getImage(context, "users/" + mUser.getUserId() + "/photo", new Response.Listener<Bitmap>() {
             @Override
@@ -79,9 +83,9 @@ public final class MessageListener extends Activity implements
     @Override
     public void onMessageReceived(@NonNull MessageEvent messageEvent) {
         // If receives a data request from the watch
-        if (messageEvent.getPath().equals(REQUEST_USER_DATA_PATH)){
+        if (messageEvent.getPath().equals(REQUEST_USER_DATA_PATH)) {
             final String sNode = messageEvent.getSourceNodeId();
-            final String userFullName = mUser.getName()+ " " +mUser.getSurname();
+            final String userFullName = mUser.getName() + " " + mUser.getSurname();
 
 
             // Perform a get request to the server to obtain user's next event
@@ -102,7 +106,7 @@ public final class MessageListener extends Activity implements
                             try {
                                 // On positive response send to the watch all the needed data
                                 JSONObject result = new JSONObject();
-                                sendPhoto(photo,USER_PIC_IMAGE);
+                                sendPhoto(photo, USER_PIC_IMAGE);
                                 result.put("fullname", userFullName);
                                 result.put("userID", mUser.getUserId());
                                 result.put("color", response.getJSONObject(0).getJSONObject("color"));
@@ -118,7 +122,7 @@ public final class MessageListener extends Activity implements
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            Log.d("Error_response 2:",error.networkResponse.toString());
+                            Log.d("Error_response 2:", error.networkResponse.toString());
                             userPutBasics(sNode);
                         }
                     });
@@ -127,41 +131,34 @@ public final class MessageListener extends Activity implements
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.d("Error_response 1:",error.networkResponse.toString());
+                    Log.d("Error_response 1:", error.networkResponse.toString());
                     userPutBasics(sNode);
                 }
             });
-        }else
-        if (messageEvent.getPath().equals(HANDSHAKE_HAPPENED)){
+        } else if (messageEvent.getPath().equals(HANDSHAKE_HAPPENED)) {
             // If the watch signal to the phone that an handshake happened
             String sNode = messageEvent.getSourceNodeId();
             // start the bluetooth search activity
             Intent intent = new Intent(this.context, BluetoothSearchActivity.class);
-            intent.putExtra("sNode",sNode);
-            intent.putExtra("userID",mUser.getUserId());
-            intent.putExtra("eventID",eventID);
+            intent.putExtra("sNode", sNode);
+            intent.putExtra("userID", mUser.getUserId());
+            intent.putExtra("eventID", eventID);
             context.startActivity(intent);
         }
 
     }
 
-    private void userPutBasics(String sNode){
+    private void userPutBasics(String sNode) {
         try {
             JSONObject result = new JSONObject();
-            result.put("fullname", mUser.getName()+" "+mUser.getSurname());
+            result.put("fullname", mUser.getName() + " " + mUser.getSurname());
             result.put("userID", mUser.getUserId());
             Wearable.getMessageClient(context).sendMessage(sNode, RESPONSE_USER_DATA_PATH, result.toString().getBytes());
-            sendPhoto(photo,USER_PIC_IMAGE);
+            sendPhoto(photo, USER_PIC_IMAGE);
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
-
-    public static Asset createAssetFromBitmap(Bitmap bitmap) {
-        final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
-        return Asset.createFromBytes(byteStream.toByteArray());
     }
 
     public void sendPhoto(Bitmap bitmap, String path) {
@@ -169,8 +166,8 @@ public final class MessageListener extends Activity implements
         PutDataMapRequest dataMap = PutDataMapRequest.create(path);
         if (path.equals(USER_PIC_IMAGE))
             dataMap.getDataMap().putAsset("profileImage", asset);
-        else if(path.equals(USER_FOUND_IMAGE))
-            dataMap.getDataMap().putAsset("userFoundPicture",asset);
+        else if (path.equals(USER_FOUND_IMAGE))
+            dataMap.getDataMap().putAsset("userFoundPicture", asset);
         dataMap.getDataMap().putLong("time", new Date().getTime());
         PutDataRequest request = dataMap.asPutDataRequest();
         request.setUrgent();

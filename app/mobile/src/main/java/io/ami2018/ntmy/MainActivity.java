@@ -40,11 +40,10 @@ public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    public static User mUser;
 
     private DrawerLayout mDrawer;
     private View mProgress;
-
-    public static User mUser;
     private MessageClient mMessageClient;
     private MessageListener mMessageListener;
 

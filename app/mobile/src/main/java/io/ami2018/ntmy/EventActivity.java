@@ -3,6 +3,7 @@ package io.ami2018.ntmy;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,6 +25,9 @@ import com.android.volley.VolleyError;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.ami2018.ntmy.model.Facility;
 import io.ami2018.ntmy.model.User;
@@ -35,29 +39,38 @@ import io.ami2018.ntmy.recyclerviews.UserClickListener;
 public class EventActivity extends AppCompatActivity {
 
     private static final String TAG = EventActivity.class.getSimpleName();
+    private static AtomicInteger progressCounter;
+    private static boolean colorActivated = false;
 
     private Integer eventId;
     private String name;
     private String description;
     private String start;
     private String room;
+    private Integer color;
     private Integer creatorId;
     private String creator;
+    private UserClickListener mUserClickListener;
+    private UserAdapter mUserAdapter;
+    private boolean userIsParticipating;
 
     private View mProgress;
     private LinearLayout mFacilitiesContainer;
     private ImageView mCreator;
-    private UserAdapter mUserAdapter;
+    private MenuItem mFavourite;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
 
+        // Init
+        initListeners();
         initObjects();
         initViews();
-        initToolbar();
 
+        // Load data
+        loadParticipation();
         loadCreatorImage();
         loadFacilities();
         loadUsersMet();
@@ -66,13 +79,17 @@ public class EventActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.event_menu, menu);
+        mFavourite = menu.findItem(R.id.action_toggle_participate);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_add_user_contact:
+            case R.id.action_toggle_participate:
+                toggleParticipation();
+                return true;
+            case R.id.action_delete_event:
                 if (creatorId != MainActivity.mUser.getUserId().intValue() && creatorId != 0)
                     Toast.makeText(this, "You can't delete this event.", Toast.LENGTH_LONG).show();
                 else
@@ -82,6 +99,9 @@ public class EventActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Void method that initializes all the objects.
+     */
     private void initObjects() {
         eventId = getIntent().getIntExtra("EVENT ID", 0);
         name = getIntent().getStringExtra("NAME");
@@ -90,19 +110,15 @@ public class EventActivity extends AppCompatActivity {
         room = getIntent().getStringExtra("ROOM");
         creatorId = getIntent().getIntExtra("CREATOR ID", 0);
         creator = getIntent().getStringExtra("CREATOR NAME");
-        mUserAdapter = new UserAdapter(new UserClickListener() {
-            @Override
-            public void onClick(View view, User user) {
-                Intent intent = new Intent(EventActivity.this, UserActivity.class);
-                intent.putExtra("USER ID", user.getUserId());
-                intent.putExtra("NAME", user.getName() + " " + user.getSurname());
-                intent.putExtra("EMAIL", user.getEmail());
-                intent.putExtra("PHONE", user.getPhone());
-                startActivity(intent);
-            }
-        });
+        color = getIntent().getIntExtra("COLOR", 0);
+        mUserAdapter = new UserAdapter(mUserClickListener);
+        progressCounter = new AtomicInteger(0);
+        Log.d(TAG, "Objects initialized.");
     }
 
+    /**
+     * Void method that initializes all the views.
+     */
     private void initViews() {
         ((CollapsingToolbarLayout) findViewById(R.id.event_ctl)).setTitle(name);
         ((TextView) findViewById(R.id.event_tv_date)).setText(start.split(" ")[0]);
@@ -110,9 +126,13 @@ public class EventActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.event_tv_room)).setText(room);
         ((TextView) findViewById(R.id.event_tv_description)).setText(description);
         ((TextView) findViewById(R.id.event_tv_creator)).setText(creator);
-        mProgress = findViewById(R.id.progress_overlay);
+        mProgress = findViewById(R.id.progress_overlay_white);
         mFacilitiesContainer = findViewById(R.id.event_ll_facilities);
         mCreator = findViewById(R.id.event_civ_creator);
+        if (color != -1 && colorActivated)
+            ((AppBarLayout) findViewById(R.id.event_abl)).setBackgroundColor(color);
+
+        setSupportActionBar((Toolbar) findViewById(R.id.event_tb));
 
         RecyclerView mUserRv = findViewById(R.id.event_rv_users);
 
@@ -123,40 +143,77 @@ public class EventActivity extends AppCompatActivity {
         mUserRv.setLayoutManager(userLinearLayoutManager);
         mUserRv.setAdapter(mUserAdapter);
         userSnapHelper.attachToRecyclerView(mUserRv);
+        Log.d(TAG, "Views initialized.");
     }
 
-    private void initToolbar() {
-        Toolbar toolbar = findViewById(R.id.event_tb);
-        setSupportActionBar(toolbar);
-        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    }
-
-    private void showProgress() {
-        Log.d(TAG, "Showing Progress");
-        mProgress.setVisibility(View.VISIBLE);
-    }
-
-    private void hideProgress() {
-        Log.d(TAG, "Hiding Progress");
-        mProgress.setVisibility(View.GONE);
-    }
-
-    private void loadCreatorImage() {
-        RequestHelper.getImage(getApplicationContext(), "users/" + creatorId + "/photo", new Response.Listener<Bitmap>() {
+    /**
+     * Void method that initializes all the listeners.
+     */
+    private void initListeners() {
+        mUserClickListener = new UserClickListener() {
             @Override
-            public void onResponse(Bitmap response) {
-                mCreator.setImageBitmap(response);
+            public void onClick(View view, User user) {
+                Intent intent = new Intent(EventActivity.this, UserActivity.class);
+                intent.putExtra("USER ID", user.getUserId());
+                intent.putExtra("NAME", user.getName() + " " + user.getSurname());
+                intent.putExtra("EMAIL", user.getEmail());
+                intent.putExtra("PHONE", user.getPhone());
+                startActivity(intent);
+            }
+        };
+        Log.d(TAG, "Listeners initialized.");
+    }
+
+    /**
+     * Void method that checks whether the user is participating or not to the event.
+     */
+    private void loadParticipation() {
+        showProgress();
+        RequestHelper.getJson(EventActivity.this, "events/" + eventId + "/participants/" + MainActivity.mUser.getUserId(), new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                mFavourite.setIcon(R.drawable.ic_favorite);
+                userIsParticipating = true;
+                hideProgress();
+                Log.d(TAG, "The user is participating to this event.");
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                userIsParticipating = false;
+                hideProgress();
+                Log.d(TAG, "The user is not participating to this event.");
             }
         });
     }
 
+    /**
+     * Void method that loads the creator's image by a simple GET request to the API.
+     */
+    private void loadCreatorImage() {
+        showProgress();
+        RequestHelper.getImage(EventActivity.this, "users/" + creatorId + "/photo", new Response.Listener<Bitmap>() {
+            @Override
+            public void onResponse(Bitmap response) {
+                mCreator.setImageBitmap(response);
+                hideProgress();
+                Log.d(TAG, "Creator's image loaded.");
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                hideProgress();
+                Log.d(TAG, "Error loading creator's photo.");
+            }
+        });
+    }
+
+    /**
+     * Void method that loads all the event's facilities.
+     */
     private void loadFacilities() {
-        RequestHelper.getJsonArray(getApplicationContext(), "events/" + eventId + "/facilities", new Response.Listener<JSONArray>() {
+        showProgress();
+        RequestHelper.getJsonArray(EventActivity.this, "events/" + eventId + "/facilities", new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 if (response.length() > 0) {
@@ -185,33 +242,44 @@ public class EventActivity extends AppCompatActivity {
                     textView.setLayoutParams(llp);
                     mFacilitiesContainer.addView(textView);
                 }
+                hideProgress();
+                Log.d(TAG, "Event's facilities loaded.");
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                hideProgress();
+                Log.d(TAG, "Error loading event's facilities.");
             }
         });
     }
 
+    /**
+     * Void method that loads all the users met at the event.
+     */
     private void loadUsersMet() {
-        RequestHelper.getJsonArray(getApplicationContext(), "users/" + MainActivity.mUser.getUserId() + "/connections/event/" + eventId, new Response.Listener<JSONArray>() {
+        showProgress();
+        RequestHelper.getJsonArray(EventActivity.this, "users/" + MainActivity.mUser.getUserId() + "/connections/event/" + eventId, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
                 if (response.length() > 0) {
                     try {
                         for (int i = 0; i < response.length(); i++) {
+                            showProgress();
                             final User user = new User(response.getJSONObject(i).getJSONObject("user2"));
                             RequestHelper.getImage(getApplicationContext(), "users/" + user.getUserId() + "/photo", new Response.Listener<Bitmap>() {
                                 @Override
                                 public void onResponse(Bitmap response) {
                                     user.setPhoto(response);
                                     mUserAdapter.addElement(user);
+                                    hideProgress();
+                                    Log.d(TAG, "User's photo loaded.");
                                 }
                             }, new Response.ErrorListener() {
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
-
+                                    hideProgress();
+                                    Log.d(TAG, "Error loading user's photo.");
                                 }
                             });
                         }
@@ -219,26 +287,97 @@ public class EventActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
+                hideProgress();
+                Log.d(TAG, "Users met loaded.");
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                hideProgress();
+                Log.d(TAG, "Error loading users met.");
             }
         });
     }
 
+    /**
+     * Void method that handles the user participation to the event.
+     */
+    private void toggleParticipation() {
+        if (!userIsParticipating) {
+            userIsParticipating = true;
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("userID", MainActivity.mUser.getUserId());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            RequestHelper.postJson(EventActivity.this, "events/" + eventId + "/participants", jsonObject, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    mFavourite.setIcon(R.drawable.ic_favorite);
+                    Log.d(TAG, "User added to the event's participants.");
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.d(TAG, "Error adding the user to the event's participants.");
+                }
+            });
+        } else {
+            userIsParticipating = false;
+            RequestHelper.delete(EventActivity.this, "events/" + eventId + "/participants/" + MainActivity.mUser.getUserId(), new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    mFavourite.setIcon(R.drawable.ic_favorite_border);
+                    Log.d(TAG, "User removed from the event's participants.");
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.d(TAG, "Error removing the user from the event's participants.");
+                }
+            });
+        }
+    }
+
+    /**
+     * Void method that deletes the event by sending a DELETE request to the event API.
+     */
     private void deleteEvent() {
+        showProgress();
         RequestHelper.delete(EventActivity.this, "events/" + eventId, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
+                hideProgress();
+                Log.d(TAG, "Event deleted.");
                 finish();
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                hideProgress();
+                Log.d(TAG, "Error deleting the event.");
             }
         });
+    }
+
+    /**
+     * Method used for displaying the progress.
+     */
+    private void showProgress() {
+        if (progressCounter.incrementAndGet() == 1) {
+            mProgress.setVisibility(View.VISIBLE);
+            Log.d(TAG, "Progress shown");
+        }
+    }
+
+    /**
+     * Method used for hiding the progress.
+     */
+    private void hideProgress() {
+        if (progressCounter.decrementAndGet() == 0) {
+            mProgress.setVisibility(View.GONE);
+            Log.d(TAG, "Progress hidden");
+        }
     }
 }

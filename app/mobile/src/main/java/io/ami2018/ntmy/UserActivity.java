@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,6 +31,7 @@ public class UserActivity extends AppCompatActivity {
     private String email;
     private String phone;
     private Integer id;
+
     private View mProgress;
 
     /**
@@ -52,6 +54,19 @@ public class UserActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_user);
+
+        // Init
+        initObjects();
+        initViews();
+
+        // Load data
+        loadImage();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.user_menu, menu);
         return true;
@@ -65,19 +80,6 @@ public class UserActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user);
-
-        // Init
-        initObjects();
-        initViews();
-
-        // Load data
-        loadImage();
     }
 
     /**
@@ -101,11 +103,12 @@ public class UserActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.user_tv_email)).setText(email);
         ((TextView) findViewById(R.id.user_tv_phone)).setText(phone);
         mProgress = findViewById(R.id.progress_overlay_white);
+        setSupportActionBar((Toolbar) findViewById(R.id.user_tb));
         Log.d(TAG, "Views initialized.");
     }
 
     /**
-     * Void method that loads the user image by a simple GET request to the API.
+     * Void method that loads the user's image by a simple GET request to the API.
      */
     private void loadImage() {
         showProgress();

@@ -38,6 +38,7 @@ public class AddEventActivity extends AppCompatActivity {
     // TODO hide and progress on post
 
     private static final String TAG = AddEventActivity.class.getSimpleName();
+    private static AtomicInteger progressCounter;
 
     private TextInputEditText mName;
     private TextInputEditText mDescription;
@@ -45,10 +46,9 @@ public class AddEventActivity extends AppCompatActivity {
     private TextInputEditText mEnd;
     private LinearLayout mCategories;
     private LinearLayout mFacilities;
-    private static AtomicInteger progressCounter;
+    private View mProgress;
 
     private Calendar calendar;
-    private View mProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

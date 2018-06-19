@@ -16,6 +16,7 @@ public class Event {
 
     private Room room;
     private SparseArray<Category> categories;
+    private Color color;
 
     public Event(String name, String description, String start, String end, Integer eventId, User creator) {
         this.name = name;
@@ -25,6 +26,7 @@ public class Event {
         this.eventId = eventId;
         this.creator = creator;
         this.room = null;
+        this.color = null;
         this.categories = new SparseArray<>();
     }
 
@@ -40,6 +42,7 @@ public class Event {
             e.printStackTrace();
         }
         this.room = null;
+        this.color = null;
         this.categories = new SparseArray<>();
     }
 
@@ -105,6 +108,14 @@ public class Event {
 
     public void setRoom(Room room) {
         this.room = room;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
     }
 
     public void addCategory(Category category) {
