@@ -17,6 +17,8 @@ colors = [
 ]
 """List of the available colors for the events"""
 
+ass_colors = {}
+
 class DailySchedule:
     """Represents daily events' schedule for the residence.
 
@@ -35,12 +37,14 @@ class DailySchedule:
         for r in rooms:
             self.sched[r] = []
 
-        # Populate lists
         for i in range(0, len(alloc)):
             if alloc[i] != 0:
+                # Use last color or select a new one
+                ass_colors[events[i]] = ass_colors[events[i]] if events[i] in ass_colors else choice(colors)
+                # Populate lists
                 self.sched[rooms[alloc[i]-1]].append({
                     "event": events[i],
-                    "color": choice(colors)
+                    "color": ass_colors[events[i]]
                 })
         
         # Check fits and overlaps

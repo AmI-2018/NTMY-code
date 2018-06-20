@@ -4,9 +4,15 @@ from flask import jsonify, request, Blueprint, abort, session
 from datetime import datetime
 
 from .decorators import require_root, is_me, is_mine
+import allocation
 import database
 
 events_bp = Blueprint("events_bp", __name__)
+
+@events_bp.after_request
+def update_schedule_after_request(resp):
+    allocation.sem_alloc.release()
+    return resp
 
 # Basic usage
 

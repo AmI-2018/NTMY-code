@@ -1,7 +1,7 @@
 """This module provides all the functions and classes to smartly allocate rooms for the events in the residence."""
 
 import pause
-from threading import Thread
+from threading import Thread, Semaphore
 
 # Import and expose allocation modules
 
@@ -33,13 +33,15 @@ def update_sched():
 
 # Generate the allocator thread object
 
+sem_alloc = Semaphore(1)
+
 def allocation_thread_fun():
     global sched
     while True:
+        sem_alloc.acquire()
         print("Allocator is running...")
         update_sched()
         print("Allocator has generated today's schedule.")
         print("Allocated events: {}".format(sched))
-        pause.minutes(30)
 
 allocation_thread = Thread(target=allocation_thread_fun, daemon=True)
