@@ -123,7 +123,7 @@ public class UserActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 hideProgress();
-                Log.d(TAG, "Error loading user's photo.");
+                Log.d(TAG, "Error loading user's photo.\n" + error.getMessage());
             }
         });
     }

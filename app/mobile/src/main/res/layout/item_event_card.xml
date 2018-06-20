@@ -21,7 +21,6 @@
             android:id="@+id/item_event_card_tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Prova Titolo"
             android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
         <TextView
@@ -29,7 +28,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/item_event_card_tv_title"
-            android:text="Categorie"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
         <TextView
@@ -42,7 +40,6 @@
             android:drawableStart="@drawable/ic_event"
             android:drawableTint="@color/colorAccent"
             android:gravity="center"
-            android:text="01/01/1990"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
         <TextView
@@ -55,7 +52,6 @@
             android:drawableStart="@drawable/ic_access_time"
             android:drawableTint="@color/colorAccent"
             android:gravity="center"
-            android:text="09:00:00 - 10:00:00"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1" />
 
         <TextView
@@ -68,7 +64,6 @@
             android:drawableStart="@drawable/ic_location"
             android:drawableTint="@color/colorAccent"
             android:gravity="center"
-            android:text="Aula 10"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1" />
 
     </RelativeLayout>

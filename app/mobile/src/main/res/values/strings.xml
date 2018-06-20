@@ -24,4 +24,6 @@
     <string name="progress_overlay">Content Loading</string>
     <string name="favourite">Favourite</string>
     <string name="delete">Delete</string>
+    <string name="no_users">You haven\'t met any users yet.</string>
+    <string name="overlay">Overlay</string>
 </resources>

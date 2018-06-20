@@ -182,7 +182,7 @@ public class EventActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 userIsParticipating = false;
                 hideProgress();
-                Log.d(TAG, "The user is not participating to this event.");
+                Log.d(TAG, "The user is not participating to this event.\n" + error.getMessage());
             }
         });
     }
@@ -203,7 +203,7 @@ public class EventActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 hideProgress();
-                Log.d(TAG, "Error loading creator's photo.");
+                Log.d(TAG, "Error loading creator's photo.\n" + error.getMessage());
             }
         });
     }
@@ -217,22 +217,22 @@ public class EventActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONArray response) {
                 if (response.length() > 0) {
-                    try {
-                        for (int i = 0; i < response.length(); i++) {
-                            //TODO Drawable if a set of facilities is predefined
-                            //TODO Description of Options
-                            Facility facility = new Facility(response.getJSONObject(i).getJSONObject("facility"));
-                            TextView textView = new TextView(getApplicationContext());
-                            textView.setText(facility.getName());
-                            textView.setTextAppearance(R.style.TextAppearance_AppCompat_Body1);
-                            LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                            llp.setMargins(0, (int) (8 * getResources().getDisplayMetrics().density), 0, 0);
-                            textView.setLayoutParams(llp);
-                            mFacilitiesContainer.addView(textView);
+                    for (int i = 0; i < response.length(); i++) {
+                        //TODO Drawable if a set of facilities is predefined
+                        //TODO Description of Options
+                        TextView textView = new TextView(getApplicationContext());
+                        try {
+                            textView.setText(new Facility(response.getJSONObject(i).getJSONObject("facility")).getName());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        textView.setTextAppearance(R.style.TextAppearance_AppCompat_Body1);
+                        LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                        llp.setMargins(0, (int) (8 * getResources().getDisplayMetrics().density), 0, 0);
+                        textView.setLayoutParams(llp);
+                        mFacilitiesContainer.addView(textView);
                     }
+
                 } else {
                     TextView textView = new TextView(getApplicationContext());
                     textView.setText("No Facilities");
@@ -249,7 +249,7 @@ public class EventActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 hideProgress();
-                Log.d(TAG, "Error loading event's facilities.");
+                Log.d(TAG, "Error loading event's facilities.\n" + error.getMessage());
             }
         });
     }
@@ -263,29 +263,34 @@ public class EventActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONArray response) {
                 if (response.length() > 0) {
-                    try {
-                        for (int i = 0; i < response.length(); i++) {
-                            showProgress();
-                            final User user = new User(response.getJSONObject(i).getJSONObject("user2"));
-                            RequestHelper.getImage(getApplicationContext(), "users/" + user.getUserId() + "/photo", new Response.Listener<Bitmap>() {
-                                @Override
-                                public void onResponse(Bitmap response) {
-                                    user.setPhoto(response);
-                                    mUserAdapter.addElement(user);
-                                    hideProgress();
-                                    Log.d(TAG, "User's photo loaded.");
-                                }
-                            }, new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    hideProgress();
-                                    Log.d(TAG, "Error loading user's photo.");
-                                }
-                            });
+                    findViewById(R.id.event_tv_no_users).setVisibility(View.GONE);
+                    for (int i = 0; i < response.length(); i++) {
+                        showProgress();
+                        JSONObject jsonObject = new JSONObject();
+                        try {
+                            jsonObject = response.getJSONObject(i).getJSONObject("user2");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        final User user = new User(jsonObject);
+                        RequestHelper.getImage(getApplicationContext(), "users/" + user.getUserId() + "/photo", new Response.Listener<Bitmap>() {
+                            @Override
+                            public void onResponse(Bitmap response) {
+                                user.setPhoto(response);
+                                mUserAdapter.addElement(user);
+                                hideProgress();
+                                Log.d(TAG, "User's photo loaded.");
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                hideProgress();
+                                Log.d(TAG, "Error loading user's photo.\n" + error.getMessage());
+                            }
+                        });
                     }
+                } else {
+                    findViewById(R.id.event_rv_users).setVisibility(View.GONE);
                 }
                 hideProgress();
                 Log.d(TAG, "Users met loaded.");
@@ -294,7 +299,7 @@ public class EventActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 hideProgress();
-                Log.d(TAG, "Error loading users met.");
+                Log.d(TAG, "Error loading users met.\n" + error.getMessage());
             }
         });
     }
@@ -320,7 +325,7 @@ public class EventActivity extends AppCompatActivity {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.d(TAG, "Error adding the user to the event's participants.");
+                    Log.d(TAG, "Error adding the user to the event's participants.\n" + error.getMessage());
                 }
             });
         } else {
@@ -334,7 +339,7 @@ public class EventActivity extends AppCompatActivity {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.d(TAG, "Error removing the user from the event's participants.");
+                    Log.d(TAG, "Error removing the user from the event's participants.\n" + error.getMessage());
                 }
             });
         }
@@ -356,7 +361,7 @@ public class EventActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 hideProgress();
-                Log.d(TAG, "Error deleting the event.");
+                Log.d(TAG, "Error deleting the event.\n" + error.getMessage());
             }
         });
     }

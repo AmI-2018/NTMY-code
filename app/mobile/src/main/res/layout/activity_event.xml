@@ -45,16 +45,16 @@
                     android:id="@+id/event_civ_creator"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
+                    android:layout_marginEnd="16dp"
                     android:contentDescription="@string/creator"
                     android:scaleType="centerCrop"
                     app:civ_border_color="#FF000000"
-                    app:civ_border_width="0dp" />
+                    app:civ_border_width="0dp"  />
 
                 <TextView
                     android:id="@+id/event_tv_creator"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
                     android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
 
             </LinearLayout>
@@ -118,6 +118,16 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/event_tv_users_title"
                 tools:listitem="@layout/item_user_photo" />
+
+            <TextView
+                android:id="@+id/event_tv_no_users"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/no_users"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/event_tv_users_title"/>
 
         </android.support.constraint.ConstraintLayout>
 

@@ -19,6 +19,7 @@ import com.android.volley.VolleyError;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -192,56 +193,58 @@ public class MainFragment extends Fragment {
         RequestHelper.getJsonArray(getContext(), "events/today", new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                try {
-                    for (int i = 0; i < response.length(); i++) {
-                        final Event event = new Event(response.getJSONObject(i));
-                        showProgress();
-                        // For each event we load its categories contained in a JSONArray
-                        RequestHelper.getJsonArray(getContext(), "events/" + event.getEventId() + "/categories", new Response.Listener<JSONArray>() {
-                            @Override
-                            public void onResponse(JSONArray response) {
+                for (int i = 0; i < response.length(); i++) {
+                    JSONObject jsonObject = new JSONObject();
+                    try {
+                        jsonObject = response.getJSONObject(i);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    final Event event = new Event(jsonObject);
+                    showProgress();
+                    // For each event we load its categories contained in a JSONArray
+                    RequestHelper.getJsonArray(getContext(), "events/" + event.getEventId() + "/categories", new Response.Listener<JSONArray>() {
+                        @Override
+                        public void onResponse(JSONArray response) {
+                            for (int i = 0; i < response.length(); i++) {
                                 try {
-                                    for (int i = 0; i < response.length(); i++) {
-                                        event.addCategory(new Category(response.getJSONObject(i).getJSONObject("category")));
-                                    }
-                                    // After loading categories, we check if the event is scheduled or not
-                                    RequestHelper.getJsonArray(getContext(), "schedule/event/" + event.getEventId(), new Response.Listener<JSONArray>() {
-                                        @Override
-                                        public void onResponse(JSONArray response) {
-                                            try {
-                                                event.setRoom(new Room(response.getJSONObject(0).getJSONObject("room")));
-                                                event.setColor(new Color(response.getJSONObject(0).getJSONObject("color")));
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                            // Finally we add the event to the adapter
-                                            mTodayAdapter.addElement(event);
-                                            hideProgress();
-                                            Log.d(TAG, "(Today) Event " + event.getEventId() + " has been loaded and added to the Adapter.");
-                                        }
-                                    }, new Response.ErrorListener() {
-                                        @Override
-                                        public void onErrorResponse(VolleyError error) {
-                                            // If the event is not scheduled we add it to the adapter anyway
-                                            mTodayAdapter.addElement(event);
-                                            hideProgress();
-                                            Log.d(TAG, "(Today - No Room) Event " + event.getEventId() + " has been loaded and added to the Adapter.\n" + error.getMessage());
-                                        }
-                                    });
+                                    event.addCategory(new Category(response.getJSONObject(i).getJSONObject("category")));
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
                             }
-                        }, new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                hideProgress();
-                                Log.d(TAG, "(Today) Error while loading categories.\n" + error.getMessage());
-                            }
-                        });
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                            // After loading categories, we check if the event is scheduled or not
+                            RequestHelper.getJsonArray(getContext(), "schedule/event/" + event.getEventId(), new Response.Listener<JSONArray>() {
+                                @Override
+                                public void onResponse(JSONArray response) {
+                                    try {
+                                        event.setRoom(new Room(response.getJSONObject(0).getJSONObject("room")));
+                                        event.setColor(new Color(response.getJSONObject(0).getJSONObject("color")));
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                    // Finally we add the event to the adapter
+                                    mTodayAdapter.addElement(event);
+                                    hideProgress();
+                                    Log.d(TAG, "(Today) Event " + event.getEventId() + " has been loaded and added to the Adapter.");
+                                }
+                            }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    // If the event is not scheduled we add it to the adapter anyway
+                                    mTodayAdapter.addElement(event);
+                                    hideProgress();
+                                    Log.d(TAG, "(Today - No Room) Event " + event.getEventId() + " has been loaded and added to the Adapter.\n" + error.getMessage());
+                                }
+                            });
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            hideProgress();
+                            Log.d(TAG, "(Today) Error while loading categories.\n" + error.getMessage());
+                        }
+                    });
                 }
                 hideProgress();
             }
@@ -263,57 +266,59 @@ public class MainFragment extends Fragment {
         RequestHelper.getJsonArray(getContext(), "users/" + String.valueOf(MainActivity.mUser.getUserId()) + "/events", new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                try {
-                    for (int i = 0; i < response.length(); i++) {
-                        final Event event = new Event(response.getJSONObject(i).getJSONObject("event"));
-                        showProgress();
-                        // For each event we load its categories contained in a JSONArray
-                        RequestHelper.getJsonArray(getContext(), "events/" + event.getEventId() + "/categories", new Response.Listener<JSONArray>() {
-                            @Override
-                            public void onResponse(JSONArray response) {
+                for (int i = 0; i < response.length(); i++) {
+                    JSONObject jsonObject = new JSONObject();
+                    try {
+                        jsonObject = response.getJSONObject(i).getJSONObject("event");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    final Event event = new Event(jsonObject);
+                    showProgress();
+                    // For each event we load its categories contained in a JSONArray
+                    RequestHelper.getJsonArray(getContext(), "events/" + event.getEventId() + "/categories", new Response.Listener<JSONArray>() {
+                        @Override
+                        public void onResponse(JSONArray response) {
+                            for (int i = 0; i < response.length(); i++) {
                                 try {
-                                    for (int i = 0; i < response.length(); i++) {
-                                        event.addCategory(new Category(response.getJSONObject(i).getJSONObject("category")));
-                                    }
-                                    // After loading categories, we check if the event is scheduled or not
-                                    RequestHelper.getJsonArray(getContext(), "schedule/event/" + event.getEventId(), new Response.Listener<JSONArray>() {
-                                        @Override
-                                        public void onResponse(JSONArray response) {
-                                            try {
-                                                event.setRoom(new Room(response.getJSONObject(0).getJSONObject("room")));
-                                                event.setColor(new Color(response.getJSONObject(0).getJSONObject("color")));
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                            // Finally we add the event to the adapter
-                                            MainActivity.mUser.addEvent(event);
-                                            mEnrolledAdapter.addElement(event);
-                                            hideProgress();
-                                            Log.d(TAG, "(Enrolled) Event " + event.getEventId() + " has been loaded and added to the Adapter.");
-                                        }
-                                    }, new Response.ErrorListener() {
-                                        @Override
-                                        public void onErrorResponse(VolleyError error) {
-                                            // If the event is not scheduled we add it to the adapter anyway
-                                            mEnrolledAdapter.addElement(event);
-                                            hideProgress();
-                                            Log.d(TAG, "(Enrolled - No Room) Event " + event.getEventId() + " has been loaded and added to the Adapter.\n" + error.getMessage());
-                                        }
-                                    });
+                                    event.addCategory(new Category(response.getJSONObject(i).getJSONObject("category")));
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
                             }
-                        }, new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                hideProgress();
-                                Log.d(TAG, "(Enrolled) Error while loading categories.\n" + error.getMessage());
-                            }
-                        });
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                            // After loading categories, we check if the event is scheduled or not
+                            RequestHelper.getJsonArray(getContext(), "schedule/event/" + event.getEventId(), new Response.Listener<JSONArray>() {
+                                @Override
+                                public void onResponse(JSONArray response) {
+                                    try {
+                                        event.setRoom(new Room(response.getJSONObject(0).getJSONObject("room")));
+                                        event.setColor(new Color(response.getJSONObject(0).getJSONObject("color")));
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                    // Finally we add the event to the adapter
+                                    MainActivity.mUser.addEvent(event);
+                                    mEnrolledAdapter.addElement(event);
+                                    hideProgress();
+                                    Log.d(TAG, "(Enrolled) Event " + event.getEventId() + " has been loaded and added to the Adapter.");
+                                }
+                            }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    // If the event is not scheduled we add it to the adapter anyway
+                                    mEnrolledAdapter.addElement(event);
+                                    hideProgress();
+                                    Log.d(TAG, "(Enrolled - No Room) Event " + event.getEventId() + " has been loaded and added to the Adapter.\n" + error.getMessage());
+                                }
+                            });
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            hideProgress();
+                            Log.d(TAG, "(Enrolled) Error while loading categories.\n" + error.getMessage());
+                        }
+                    });
                 }
                 hideProgress();
             }
@@ -335,56 +340,58 @@ public class MainFragment extends Fragment {
         RequestHelper.getJsonArray(getContext(), "events/next", new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                try {
-                    for (int i = 0; i < response.length(); i++) {
-                        final Event event = new Event(response.getJSONObject(i));
-                        showProgress();
-                        // For each event we load its categories contained in a JSONArray
-                        RequestHelper.getJsonArray(getContext(), "events/" + event.getEventId() + "/categories", new Response.Listener<JSONArray>() {
-                            @Override
-                            public void onResponse(JSONArray response) {
+                for (int i = 0; i < response.length(); i++) {
+                    JSONObject jsonObject = new JSONObject();
+                    try {
+                        jsonObject = response.getJSONObject(i);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    final Event event = new Event(jsonObject);
+                    showProgress();
+                    // For each event we load its categories contained in a JSONArray
+                    RequestHelper.getJsonArray(getContext(), "events/" + event.getEventId() + "/categories", new Response.Listener<JSONArray>() {
+                        @Override
+                        public void onResponse(JSONArray response) {
+                            for (int i = 0; i < response.length(); i++) {
                                 try {
-                                    for (int i = 0; i < response.length(); i++) {
-                                        event.addCategory(new Category(response.getJSONObject(i).getJSONObject("category")));
-                                    }
-                                    // After loading categories, we check if the event is scheduled or not
-                                    RequestHelper.getJsonArray(getContext(), "schedule/event/" + event.getEventId(), new Response.Listener<JSONArray>() {
-                                        @Override
-                                        public void onResponse(JSONArray response) {
-                                            try {
-                                                event.setRoom(new Room(response.getJSONObject(0).getJSONObject("room")));
-                                                event.setColor(new Color(response.getJSONObject(0).getJSONObject("color")));
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                            // Finally we add the event to the adapter
-                                            mFutureAdapter.addElement(event);
-                                            hideProgress();
-                                            Log.d(TAG, "(Future) Event " + event.getEventId() + " has been loaded and added to the Adapter.");
-                                        }
-                                    }, new Response.ErrorListener() {
-                                        @Override
-                                        public void onErrorResponse(VolleyError error) {
-                                            // If the event is not scheduled we add it to the adapter anyway
-                                            mFutureAdapter.addElement(event);
-                                            hideProgress();
-                                            Log.d(TAG, "(Future - No Room) Event " + event.getEventId() + " has been loaded and added to the Adapter.\n" + error.getMessage());
-                                        }
-                                    });
+                                    event.addCategory(new Category(response.getJSONObject(i).getJSONObject("category")));
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
                             }
-                        }, new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                hideProgress();
-                                Log.d(TAG, "(Future) Error while loading categories.\n" + error.getMessage());
-                            }
-                        });
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                            // After loading categories, we check if the event is scheduled or not
+                            RequestHelper.getJsonArray(getContext(), "schedule/event/" + event.getEventId(), new Response.Listener<JSONArray>() {
+                                @Override
+                                public void onResponse(JSONArray response) {
+                                    try {
+                                        event.setRoom(new Room(response.getJSONObject(0).getJSONObject("room")));
+                                        event.setColor(new Color(response.getJSONObject(0).getJSONObject("color")));
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                    // Finally we add the event to the adapter
+                                    mFutureAdapter.addElement(event);
+                                    hideProgress();
+                                    Log.d(TAG, "(Future) Event " + event.getEventId() + " has been loaded and added to the Adapter.");
+                                }
+                            }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    // If the event is not scheduled we add it to the adapter anyway
+                                    mFutureAdapter.addElement(event);
+                                    hideProgress();
+                                    Log.d(TAG, "(Future - No Room) Event " + event.getEventId() + " has been loaded and added to the Adapter.\n" + error.getMessage());
+                                }
+                            });
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            hideProgress();
+                            Log.d(TAG, "(Future) Error while loading categories.\n" + error.getMessage());
+                        }
+                    });
                 }
                 hideProgress();
             }

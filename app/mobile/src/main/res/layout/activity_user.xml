@@ -97,6 +97,7 @@
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:contentDescription="@string/overlay"
                     android:alpha="0.4"
                     android:background="@color/black" />
 

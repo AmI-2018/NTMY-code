@@ -206,19 +206,23 @@ public class AddEventActivity extends AppCompatActivity {
         RequestHelper.getJsonArray(AddEventActivity.this, "categories", new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                try {
-                    // Injection of all the categories to the view
-                    for (int i = 0; i < response.length(); i++) {
-                        CheckBox cb = new CheckBox(AddEventActivity.this);
-                        cb.setText(response.getJSONObject(i).getString("name"));
-                        cb.setId(1000 + response.getJSONObject(i).getInt("categoryID"));
-                        LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                        llp.setMargins(0, (int) (8 * getResources().getDisplayMetrics().density), 0, 0);
-                        cb.setLayoutParams(llp);
-                        mCategories.addView(cb);
+                // Injection of all the categories to the view
+                for (int i = 0; i < response.length(); i++) {
+                    String name = "";
+                    int id = 0;
+                    try {
+                        name = response.getJSONObject(i).getString("name");
+                        id = 1000 + response.getJSONObject(i).getInt("categoryID");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    CheckBox cb = new CheckBox(AddEventActivity.this);
+                    cb.setText(name);
+                    cb.setId(id);
+                    LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    llp.setMargins(0, (int) (8 * getResources().getDisplayMetrics().density), 0, 0);
+                    cb.setLayoutParams(llp);
+                    mCategories.addView(cb);
                 }
                 hideProgress();
                 Log.d(TAG, "All the categories were successfully loaded.");
@@ -242,19 +246,23 @@ public class AddEventActivity extends AppCompatActivity {
         RequestHelper.getJsonArray(AddEventActivity.this, "facilities", new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                try {
-                    // Injection of all the facilities to the view
-                    for (int i = 0; i < response.length(); i++) {
-                        CheckBox cb = new CheckBox(AddEventActivity.this);
-                        cb.setText(response.getJSONObject(i).getString("name"));
-                        cb.setId(2000 + response.getJSONObject(i).getInt("facilityID"));
-                        LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                        llp.setMargins(0, (int) (8 * getResources().getDisplayMetrics().density), 0, 0);
-                        cb.setLayoutParams(llp);
-                        mFacilities.addView(cb);
+                // Injection of all the facilities to the view
+                for (int i = 0; i < response.length(); i++) {
+                    String name = "";
+                    int id = 0;
+                    try {
+                        name = response.getJSONObject(i).getString("name");
+                        id = 2000 + response.getJSONObject(i).getInt("facilityID");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    CheckBox cb = new CheckBox(AddEventActivity.this);
+                    cb.setText(name);
+                    cb.setId(id);
+                    LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    llp.setMargins(0, (int) (8 * getResources().getDisplayMetrics().density), 0, 0);
+                    cb.setLayoutParams(llp);
+                    mFacilities.addView(cb);
                 }
                 hideProgress();
                 Log.d(TAG, "All the facilities were successfully loaded.");
