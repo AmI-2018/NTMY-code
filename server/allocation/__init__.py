@@ -12,22 +12,28 @@ __all__ = ["allocator", "dailysched", "exceptions", "targetfun"]
 # Define the functions for the schedule
 
 sched = None
+db_session = None
 debug_mode = True
 
 def update_sched():
     import datetime
     import database
+
     global sched
+    global db_session
+
+    if db_session is None:
+        db_session = database.session.DatabaseSession()
 
     start_check = datetime.date.today()
     end_check = datetime.date.today() + datetime.timedelta(days=1)
 
-    rooms = database.functions.get(database.model.standard.Room)
+    rooms = db_session.get(database.model.standard.Room)
 
     if debug_mode:
-        events = database.functions.filter(database.model.standard.Event, "start >= '{}'".format(datetime.datetime.today()))
+        events = db_session.filter(database.model.standard.Event, "start >= '{}'".format(datetime.datetime.today()))
     else:
-        events = database.functions.filter(database.model.standard.Event, "start >= '{}' AND end < '{}'".format(start_check, end_check))
+        events = db_session.filter(database.model.standard.Event, "start >= '{}' AND end < '{}'".format(start_check, end_check))
     
     sched = allocator.allocate(rooms, events)
 

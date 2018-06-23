@@ -16,4 +16,5 @@ def handler_get_categories():
     :return: The JSON-encoded list
     """
 
-    return jsonify([c.to_dict() for c in database.functions.get(database.model.standard.Category)])
+    with database.session.DatabaseSession() as db_session:
+        return jsonify([c.to_dict() for c in db_session.get(database.model.standard.Category)])

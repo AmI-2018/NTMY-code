@@ -21,7 +21,9 @@ def handler_get_users():
     :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
-    return jsonify([u.to_dict() for u in database.functions.get(database.model.standard.User)])
+    
+    with database.session.DatabaseSession() as db_session:
+        return jsonify([u.to_dict() for u in db_session.get(database.model.standard.User)])
 
 @users_bp.route("/users", methods=["POST"])
 def handler_add_user():
@@ -39,11 +41,13 @@ def handler_add_user():
     :status 401: The user has not logged in
     :return: The JSON-encoded newly created user
     """
-    try:
-        new_user = database.functions.add(database.model.standard.User.from_dict(request.json))
-        return jsonify(new_user.to_dict())
-    except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            new_user = db_session.add(database.model.standard.User.from_dict(request.json))
+            return jsonify(new_user.to_dict())
+        except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
+            return abort(400, str(e))
 
 # ID indexed
 
@@ -59,10 +63,12 @@ def handler_get_user_from_id(userID):
     :status 401: The user has not logged in
     :return: The JSON-encoded user
     """
-    try:
-        return jsonify(database.functions.get(database.model.standard.User, userID)[0].to_dict())
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            return jsonify(db_session.get(database.model.standard.User, userID)[0].to_dict())
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>", methods=["PUT"])
 @is_me
@@ -82,11 +88,13 @@ def handler_patch_user_from_id(userID):
     :status 401: The user has not logged in
     :return: The JSON-encoded user
     """
-    try:
-        upd_user = database.functions.get(database.model.standard.User, userID)[0]
-        return jsonify(database.functions.upd(upd_user, request.json).to_dict())
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            upd_user = db_session.get(database.model.standard.User, userID)[0]
+            return jsonify(db_session.upd(upd_user, request.json).to_dict())
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>", methods=["DELETE"])
 @is_me
@@ -101,12 +109,14 @@ def handler_delete_user_from_id(userID):
     :status 401: The user has not logged in
     :return: Empty response
     """
-    try:
-        del_user = database.functions.get(database.model.standard.User, userID)[0]
-        database.functions.rem(del_user)
-        return ""
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            del_user = db_session.get(database.model.standard.User, userID)[0]
+            db_session.rem(del_user)
+            return ""
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 # Photo access
 
@@ -122,11 +132,13 @@ def handler_get_user_photo_from_id(userID):
     :status 401: The user has not logged in
     :return: The jpeg photo of the user
     """
-    try:
-        user = database.functions.get(database.model.standard.User, userID)[0]
-        return user.photo, {"Content-Type": "image/jpeg"} if user.photo is not None else abort(400)
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            user = db_session.get(database.model.standard.User, userID)[0]
+            return user.photo, {"Content-Type": "image/jpeg"} if user.photo is not None else abort(400)
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>/photo", methods=["POST"])
 @is_me
@@ -141,12 +153,14 @@ def handler_set_user_photo_from_id(userID):
     :status 401: The user has not logged in
     :return: The jpeg photo of the user
     """
-    try:
-        user = database.functions.get(database.model.standard.User, userID)[0]
-        database.functions.upd(user, {"photo": request.data})
-        return user.photo, {"Content-Type": "image/jpeg"}
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            user = db_session.get(database.model.standard.User, userID)[0]
+            db_session.upd(user, {"photo": request.data})
+            return user.photo, {"Content-Type": "image/jpeg"}
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 # Connections subcollection
 
@@ -163,11 +177,13 @@ def handler_get_user_connections_from_id(userID):
     :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
-    try:
-        connections = database.functions.filter(database.model.relationships.UserConnection, "userID1 = '{}'".format(userID))
-        return jsonify([c.to_dict() for c in connections])
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            connections = db_session.filter(database.model.relationships.UserConnection, "userID1 = '{}'".format(userID))
+            return jsonify([c.to_dict() for c in connections])
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>/connections/user/<int:otherID>", methods=["GET"])
 @is_me
@@ -183,11 +199,13 @@ def handler_get_user_connections_from_id_from_user_id(userID, otherID):
     :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
-    try:
-        connections = database.functions.filter(database.model.relationships.UserConnection, "userID1 = '{}' AND userID2 = '{}'".format(userID, otherID))
-        return jsonify([c.to_dict() for c in connections])
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            connections = db_session.filter(database.model.relationships.UserConnection, "userID1 = '{}' AND userID2 = '{}'".format(userID, otherID))
+            return jsonify([c.to_dict() for c in connections])
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>/connections/event/<int:eventID>", methods=["GET"])
 @is_me
@@ -203,11 +221,13 @@ def handler_get_user_connections_from_id_from_event_id(userID, eventID):
     :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
-    try:
-        connections = database.functions.filter(database.model.relationships.UserConnection, "userID1 = '{}' AND eventID = '{}'".format(userID, eventID))
-        return jsonify([c.to_dict() for c in connections])
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            connections = db_session.filter(database.model.relationships.UserConnection, "userID1 = '{}' AND eventID = '{}'".format(userID, eventID))
+            return jsonify([c.to_dict() for c in connections])
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>/connections", methods=["POST"])
 @is_me
@@ -224,11 +244,13 @@ def handler_add_user_connection_from_id(userID):
     :status 401: The user has not logged in
     :return: The JSON-encoded newly created connection
     """
-    try:
-        new_connection = database.functions.add(database.model.relationships.UserConnection.from_dict({**request.json, **{"userID1": userID}}))
-        return jsonify(new_connection.to_dict())
-    except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            new_connection = db_session.add(database.model.relationships.UserConnection.from_dict({**request.json, **{"userID1": userID}}))
+            return jsonify(new_connection.to_dict())
+        except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
+            return abort(400, str(e))
 
 # Events subcollection
 
@@ -245,12 +267,14 @@ def handler_get_user_events_from_id(userID):
     :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
-    try:
-        user = database.functions.get(database.model.standard.User, userID)[0]
-        events = [e.to_dict() for e in user.events]
-        return jsonify(events)
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            user = db_session.get(database.model.standard.User, userID)[0]
+            events = [e.to_dict() for e in user.events]
+            return jsonify(events)
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>/events/created", methods=["GET"])
 @is_me
@@ -265,12 +289,14 @@ def handler_get_user_created_events_from_id(userID):
     :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
-    try:
-        user = database.functions.get(database.model.standard.User, userID)[0]
-        events = [e.to_dict() for e in user.created_events]
-        return jsonify(events)
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            user = db_session.get(database.model.standard.User, userID)[0]
+            events = [e.to_dict() for e in user.created_events]
+            return jsonify(events)
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>/events/next", methods=["GET"])
 @is_me
@@ -285,12 +311,14 @@ def handler_get_user_next_events_from_id(userID):
     :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
-    try:
-        user = database.functions.get(database.model.standard.User, userID)[0]
-        events = [e.to_dict() for e in sorted(user.events, key=(lambda e: e.event.start)) if e.event.end > datetime.now()]
-        return jsonify(events)
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            user = db_session.get(database.model.standard.User, userID)[0]
+            events = [e.to_dict() for e in sorted(user.events, key=(lambda e: e.event.start)) if e.event.end > datetime.now()]
+            return jsonify(events)
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 # Interests subcollection
 
@@ -307,12 +335,14 @@ def handler_get_user_interests_from_id(userID):
     :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
-    try:
-        user = database.functions.get(database.model.standard.User, userID)[0]
-        interests = [c.to_dict() for c in user.interests]
-        return jsonify(interests)
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            user = db_session.get(database.model.standard.User, userID)[0]
+            interests = [c.to_dict() for c in user.interests]
+            return jsonify(interests)
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>/interests", methods=["POST"])
 @is_me
@@ -328,11 +358,13 @@ def handler_add_user_interest_from_id(userID):
     :status 401: The user has not logged in
     :return: The JSON-encoded newly created interest
     """
-    try:
-        new_int = database.functions.add(database.model.relationships.UserInterest.from_dict({**request.json, **{"userID": userID}}))
-        return jsonify(new_int.to_dict())
-    except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            new_int = db_session.add(database.model.relationships.UserInterest.from_dict({**request.json, **{"userID": userID}}))
+            return jsonify(new_int.to_dict())
+        except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
+            return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>/interests/<int:categoryID>", methods=["GET"])
 @is_me
@@ -348,11 +380,13 @@ def handler_get_user_interest_from_id_from_id(userID, categoryID):
     :status 401: The user has not logged in
     :return: The JSON-encoded interest
     """
-    try:
-        user_int = database.functions.get(database.model.relationships.UserInterest, (userID, categoryID))[0]
-        return jsonify(user_int.to_dict())
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            user_int = db_session.get(database.model.relationships.UserInterest, (userID, categoryID))[0]
+            return jsonify(user_int.to_dict())
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @users_bp.route("/users/<int:userID>/interests/<int:categoryID>", methods=["DELETE"])
 @is_me
@@ -368,9 +402,11 @@ def handler_delete_user_interest_from_id_from_id(userID, categoryID):
     :status 401: The user has not logged in
     :return: Empty response
     """
-    try:
-        user_int = database.functions.get(database.model.relationships.UserInterest, (userID, categoryID))[0]
-        database.functions.rem(user_int)
-        return ""
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            user_int = db_session.get(database.model.relationships.UserInterest, (userID, categoryID))[0]
+            db_session.rem(user_int)
+            return ""
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))

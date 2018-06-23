@@ -17,10 +17,12 @@ def handler_get_map():
     :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
-    return jsonify({
-        "nodes": [n.to_dict() for n in database.functions.get(database.model.map.Node)],
-        "edges": [e.to_dict() for e in database.functions.get(database.model.map.Edge)]
-    })
+
+    with database.session.DatabaseSession() as db_session:
+        return jsonify({
+            "nodes": [n.to_dict() for n in db_session.get(database.model.map.Node)],
+            "edges": [e.to_dict() for e in db_session.get(database.model.map.Edge)]
+        })
 
 # Nodes API
 
@@ -34,7 +36,9 @@ def handler_get_nodes():
     :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
-    return jsonify([n.to_dict() for n in database.functions.get(database.model.map.Node)])
+
+    with database.session.DatabaseSession() as db_session:
+        return jsonify([n.to_dict() for n in db_session.get(database.model.map.Node)])
 
 @map_bp.route("/map/nodes", methods=["POST"])
 @require_root
@@ -53,11 +57,13 @@ def handler_add_node():
     :status 401: The user has not logged in
     :return: The JSON-encoded newly created node
     """
-    try:
-        new_node = database.functions.add(database.model.map.Node.from_dict(request.json))
-        return jsonify(new_node.to_dict())
-    except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            new_node = db_session.add(database.model.map.Node.from_dict(request.json))
+            return jsonify(new_node.to_dict())
+        except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
+            return abort(400, str(e))
 
 @map_bp.route("/map/nodes/<int:nodeID>", methods=["GET"])
 def handler_get_node_from_id(nodeID):
@@ -71,10 +77,12 @@ def handler_get_node_from_id(nodeID):
     :status 401: The user has not logged in
     :return: The JSON-encoded node
     """
-    try:
-        return jsonify(database.functions.get(database.model.map.Node, nodeID)[0].to_dict())
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            return jsonify(db_session.get(database.model.map.Node, nodeID)[0].to_dict())
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @map_bp.route("/map/nodes/<int:nodeID>", methods=["PUT"])
 @require_root
@@ -94,11 +102,13 @@ def handler_patch_node_from_id(nodeID):
     :status 401: The user has not logged in
     :return: The JSON-encoded node
     """
-    try:
-        upd_node = database.functions.get(database.model.map.Node, nodeID)[0]
-        return jsonify(database.functions.upd(upd_node, request.json).to_dict())
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            upd_node = db_session.get(database.model.map.Node, nodeID)[0]
+            return jsonify(db_session.upd(upd_node, request.json).to_dict())
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @map_bp.route("/map/nodes/<int:nodeID>", methods=["DELETE"])
 @require_root
@@ -113,12 +123,14 @@ def handler_delete_node_from_id(nodeID):
     :status 401: The user has not logged in
     :return: Empty response
     """
-    try:
-        del_node = database.functions.get(database.model.map.Node, nodeID)[0]
-        database.functions.rem(del_node)
-        return ""
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            del_node = db_session.get(database.model.map.Node, nodeID)[0]
+            db_session.rem(del_node)
+            return ""
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 # Edges API
 
@@ -132,7 +144,9 @@ def handler_get_edges():
     :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
-    return jsonify([e.to_dict() for e in database.functions.get(database.model.map.Edge)])
+
+    with database.session.DatabaseSession() as db_session:
+        return jsonify([e.to_dict() for e in db_session.get(database.model.map.Edge)])
 
 @map_bp.route("/map/edges", methods=["POST"])
 @require_root
@@ -150,11 +164,13 @@ def handler_add_edge():
     :status 401: The user has not logged in
     :return: The JSON-encoded newly created edge
     """
-    try:
-        new_edge = database.functions.add(database.model.map.Edge.from_dict(request.json))
-        return jsonify(new_edge.to_dict())
-    except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
-        return abort(400, str(e))
+    
+    with database.session.DatabaseSession() as db_session:
+        try:
+            new_edge = db_session.add(database.model.map.Edge.from_dict(request.json))
+            return jsonify(new_edge.to_dict())
+        except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
+            return abort(400, str(e))
 
 @map_bp.route("/map/edges/<int:nodeID1>/<int:nodeID2>", methods=["GET"])
 def handler_get_edge_from_id(nodeID1, nodeID2):
@@ -169,10 +185,12 @@ def handler_get_edge_from_id(nodeID1, nodeID2):
     :status 401: The user has not logged in
     :return: The JSON-encoded edge
     """
-    try:
-        return jsonify(database.functions.get(database.model.map.Edge, (nodeID1, nodeID2))[0].to_dict())
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            return jsonify(db_session.get(database.model.map.Edge, (nodeID1, nodeID2))[0].to_dict())
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @map_bp.route("/map/edges/<int:nodeID1>/<int:nodeID2>", methods=["PUT"])
 @require_root
@@ -190,11 +208,13 @@ def handler_patch_edge_from_id(nodeID1, nodeID2):
     :status 401: The user has not logged in
     :return: The JSON-encoded edge
     """
-    try:
-        upd_edge = database.functions.get(database.model.map.Node, (nodeID1, nodeID2))[0]
-        return jsonify(database.functions.upd(upd_edge, request.json).to_dict())
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            upd_edge = db_session.get(database.model.map.Node, (nodeID1, nodeID2))[0]
+            return jsonify(db_session.upd(upd_edge, request.json).to_dict())
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @map_bp.route("/map/edges/<int:nodeID1>/<int:nodeID2>", methods=["DELETE"])
 @require_root
@@ -210,9 +230,11 @@ def handler_delete_edge_from_id(nodeID1, nodeID2):
     :status 401: The user has not logged in
     :return: Empty response
     """
-    try:
-        del_edge = database.functions.get(database.model.map.Node, (nodeID1, nodeID2))[0]
-        database.functions.rem(del_edge)
-        return ""
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            del_edge = db_session.get(database.model.map.Node, (nodeID1, nodeID2))[0]
+            db_session.rem(del_edge)
+            return ""
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))

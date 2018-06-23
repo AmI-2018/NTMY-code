@@ -16,4 +16,5 @@ def handler_get_facilities():
     :return: The JSON-encoded list
     """
 
-    return jsonify([f.to_dict() for f in database.functions.get(database.model.standard.Facility)])
+    with database.session.DatabaseSession() as db_session:
+        return jsonify([f.to_dict() for f in db_session.get(database.model.standard.Facility)])

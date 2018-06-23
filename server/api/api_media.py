@@ -17,7 +17,9 @@ def handler_get_channels():
     :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
-    return jsonify([c.to_dict() for c in database.functions.get(database.model.media.Channel)])
+
+    with database.session.DatabaseSession() as db_session:
+        return jsonify([c.to_dict() for c in db_session.get(database.model.media.Channel)])
 
 @media_bp.route("/media/channels/<int:channelID>", methods=["GET"])
 def handler_get_channel_from_id(channelID):
@@ -31,10 +33,12 @@ def handler_get_channel_from_id(channelID):
     :status 401: The user has not logged in
     :return: The JSON-encoded channel
     """
-    try:
-        return jsonify(database.functions.get(database.model.media.Channel, channelID)[0].to_dict())
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            return jsonify(db_session.get(database.model.media.Channel, channelID)[0].to_dict())
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 # Playlists API
 
@@ -48,7 +52,9 @@ def handler_get_playlists():
     :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
-    return jsonify([p.to_dict() for p in database.functions.get(database.model.media.Playlist)])
+
+    with database.session.DatabaseSession() as db_session:
+        return jsonify([p.to_dict() for p in db_session.get(database.model.media.Playlist)])
 
 @media_bp.route("/media/playlists/<int:playlistID>", methods=["GET"])
 def handler_get_playlist_from_id(playlistID):
@@ -62,7 +68,9 @@ def handler_get_playlist_from_id(playlistID):
     :status 401: The user has not logged in
     :return: The JSON-encoded playlist
     """
-    try:
-        return jsonify(database.functions.get(database.model.media.Playlist, playlistID)[0].to_dict())
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            return jsonify(db_session.get(database.model.media.Playlist, playlistID)[0].to_dict())
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))

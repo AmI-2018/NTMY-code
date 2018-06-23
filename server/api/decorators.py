@@ -31,14 +31,15 @@ def is_me(func: Callable) -> Callable:
 
     @wraps(func)
     def wrapped(*args, **kwargs):
-        userID = kwargs["userID"]
-        try:
-            if session["user"] == 0 or session["user"] == userID:
-                return func(*args, **kwargs)
-            elif database.functions.get(database.model.standard.User, userID)[0]:
-                return abort(401)
-        except (database.exceptions.DatabaseError, database.exceptions.InvalidDictError) as e:
-            return abort(400, str(e))
+        with database.session.DatabaseSession() as db_session:
+            userID = kwargs["userID"]
+            try:
+                if session["user"] == 0 or session["user"] == userID:
+                    return func(*args, **kwargs)
+                elif db_session.get(database.model.standard.User, userID)[0]:
+                    return abort(401)
+            except (database.exceptions.DatabaseError, database.exceptions.InvalidDictError) as e:
+                return abort(400, str(e))
     return wrapped
 
 def is_known(func: Callable) -> Callable:
@@ -53,15 +54,16 @@ def is_known(func: Callable) -> Callable:
     @wraps(func)
     def wrapped(*args, **kwargs):
         userID = kwargs["userID"]
-        try:
-            user = database.functions.get(database.model.standard.User, session["user"])[0]
-            connections_ids = [c.userID2 for c in user.connections]
-            if session["user"] == 0 or session["user"] == userID or userID in connections_ids:
-                return func(*args, **kwargs)
-            elif database.functions.get(database.model.standard.User, userID)[0]:
-                return abort(401)
-        except (database.exceptions.DatabaseError, database.exceptions.InvalidDictError) as e:
-            return abort(400, str(e))
+        with database.session.DatabaseSession() as db_session:
+            try:
+                user = db_session.get(database.model.standard.User, session["user"])[0]
+                connections_ids = [c.userID2 for c in user.connections]
+                if session["user"] == 0 or session["user"] == userID or userID in connections_ids:
+                    return func(*args, **kwargs)
+                elif db_session.get(database.model.standard.User, userID)[0]:
+                    return abort(401)
+            except (database.exceptions.DatabaseError, database.exceptions.InvalidDictError) as e:
+                return abort(400, str(e))
     return wrapped
 
 def is_mine(func: Callable) -> Callable:
@@ -76,12 +78,13 @@ def is_mine(func: Callable) -> Callable:
     @wraps(func)
     def wrapped(*args, **kwargs):
         eventID = kwargs["eventID"]
-        try:
-            event = database.functions.get(database.model.standard.Event, eventID)[0]
-            if session["user"] == 0 or event.creator.userID == session["user"]:
-                return func(*args, **kwargs)
-            else:
-                return abort(401)
-        except (database.exceptions.DatabaseError, database.exceptions.InvalidDictError) as e:
-            return abort(400, str(e))
+        with database.session.DatabaseSession() as db_session:
+            try:
+                event = db_session.get(database.model.standard.Event, eventID)[0]
+                if session["user"] == 0 or event.creator.userID == session["user"]:
+                    return func(*args, **kwargs)
+                else:
+                    return abort(401)
+            except (database.exceptions.DatabaseError, database.exceptions.InvalidDictError) as e:
+                return abort(400, str(e))
     return wrapped

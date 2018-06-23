@@ -27,7 +27,9 @@ def handler_get_events():
     :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
-    return jsonify([e.to_dict() for e in database.functions.get(database.model.standard.Event)])
+
+    with database.session.DatabaseSession() as db_session:
+        return jsonify([e.to_dict() for e in db_session.get(database.model.standard.Event)])
 
 @events_bp.route("/events/next", methods=["GET"])
 def handler_get_next_events():
@@ -39,7 +41,9 @@ def handler_get_next_events():
     :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
-    return jsonify([e.to_dict() for e in sorted(database.functions.get(database.model.standard.Event), key=(lambda e: e.start)) if e.end > datetime.now()])
+
+    with database.session.DatabaseSession() as db_session:
+        return jsonify([e.to_dict() for e in sorted(db_session.get(database.model.standard.Event), key=(lambda e: e.start)) if e.end > datetime.now()])
 
 @events_bp.route("/events/today", methods=["GET"])
 def handler_get_today_events():
@@ -51,7 +55,9 @@ def handler_get_today_events():
     :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
-    return jsonify([e.to_dict() for e in sorted(database.functions.get(database.model.standard.Event), key=(lambda e: e.start)) if e.start.date() == datetime.today().date()])
+
+    with database.session.DatabaseSession() as db_session:
+        return jsonify([e.to_dict() for e in sorted(db_session.get(database.model.standard.Event), key=(lambda e: e.start)) if e.start.date() == datetime.today().date()])
 
 @events_bp.route("/events", methods=["POST"])
 def handler_add_event():
@@ -68,12 +74,14 @@ def handler_add_event():
     :status 401: The user has not logged in
     :return: The JSON-encoded newly created event
     """
-    try:
-        new_event = database.functions.add(database.model.standard.Event.from_dict({**request.json, **{"creatorID": session["user"]}}))
-        database.functions.add(database.model.relationships.EventParticipant(eventID=new_event.eventID, userID=session["user"]))
-        return jsonify(new_event.to_dict())
-    except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError, ValueError) as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            new_event = db_session.add(database.model.standard.Event.from_dict({**request.json, **{"creatorID": session["user"]}}))
+            db_session.add(database.model.relationships.EventParticipant(eventID=new_event.eventID, userID=session["user"]))
+            return jsonify(new_event.to_dict())
+        except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError, ValueError) as e:
+            return abort(400, str(e))
 
 # ID indexed
 
@@ -89,10 +97,12 @@ def handler_get_event_from_id(eventID):
     :status 401: The user has not logged in
     :return: The JSON-encoded event
     """
-    try:
-        return jsonify(database.functions.get(database.model.standard.Event, eventID)[0].to_dict())
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            return jsonify(db_session.get(database.model.standard.Event, eventID)[0].to_dict())
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>", methods=["PUT"])
 @is_mine
@@ -111,15 +121,17 @@ def handler_patch_event_from_id(eventID):
     :status 401: The user has not logged in
     :return: The JSON-encoded event
     """
-    try:
-        upd_event = database.functions.get(database.model.standard.Event, eventID)[0]
-        if "start" in request.json:
-            request.json["start"] = datetime.strptime(request.json["start"], "%m/%d/%Y %H:%M")
-        if "end" in request.json:
-            request.json["end"] = datetime.strptime(request.json["end"], "%m/%d/%Y %H:%M")
-        return jsonify(database.functions.upd(upd_event, request.json).to_dict())
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            upd_event = db_session.get(database.model.standard.Event, eventID)[0]
+            if "start" in request.json:
+                request.json["start"] = datetime.strptime(request.json["start"], "%m/%d/%Y %H:%M")
+            if "end" in request.json:
+                request.json["end"] = datetime.strptime(request.json["end"], "%m/%d/%Y %H:%M")
+            return jsonify(db_session.upd(upd_event, request.json).to_dict())
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>", methods=["DELETE"])
 @is_mine
@@ -134,12 +146,14 @@ def handler_delete_event_from_id(eventID):
     :status 401: The user has not logged in
     :return: Empty response
     """
-    try:
-        del_event = database.functions.get(database.model.standard.Event, eventID)[0]
-        database.functions.rem(del_event)
-        return ""
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            del_event = db_session.get(database.model.standard.Event, eventID)[0]
+            db_session.rem(del_event)
+            return ""
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 # Categories subcollection
 
@@ -155,12 +169,14 @@ def handler_get_event_categories_from_id(eventID):
     :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
-    try:
-        event = database.functions.get(database.model.standard.Event, eventID)[0]
-        categories = [c.to_dict() for c in event.categories]
-        return jsonify(categories)
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            event = db_session.get(database.model.standard.Event, eventID)[0]
+            categories = [c.to_dict() for c in event.categories]
+            return jsonify(categories)
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/categories", methods=["POST"])
 @is_mine
@@ -176,11 +192,13 @@ def handler_add_event_category_from_id(eventID):
     :status 401: The user has not logged in
     :return: The JSON-encoded newly created category
     """
-    try:
-        new_cat = database.functions.add(database.model.relationships.EventCategory.from_dict({**request.json, **{"eventID": eventID}}))
-        return jsonify(new_cat.to_dict())
-    except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            new_cat = db_session.add(database.model.relationships.EventCategory.from_dict({**request.json, **{"eventID": eventID}}))
+            return jsonify(new_cat.to_dict())
+        except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
+            return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/categories/<int:categoryID>", methods=["GET"])
 def handler_get_event_category_from_id_from_id(eventID, categoryID):
@@ -195,11 +213,13 @@ def handler_get_event_category_from_id_from_id(eventID, categoryID):
     :status 401: The user has not logged in
     :return: The JSON-encoded category
     """
-    try:
-        event_cat = database.functions.get(database.model.relationships.EventCategory, (eventID, categoryID))[0]
-        return jsonify(event_cat.to_dict())
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            event_cat = db_session.get(database.model.relationships.EventCategory, (eventID, categoryID))[0]
+            return jsonify(event_cat.to_dict())
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/categories/<int:categoryID>", methods=["DELETE"])
 @is_mine
@@ -215,12 +235,14 @@ def handler_delete_event_category_from_id_from_id(eventID, categoryID):
     :status 401: The user has not logged in
     :return: Empty response
     """
-    try:
-        event_cat = database.functions.get(database.model.relationships.EventCategory, (eventID, categoryID))[0]
-        database.functions.rem(event_cat)
-        return ""
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            event_cat = db_session.get(database.model.relationships.EventCategory, (eventID, categoryID))[0]
+            db_session.rem(event_cat)
+            return ""
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 # Facilities subcollection
 
@@ -236,12 +258,14 @@ def handler_get_event_facilities(eventID):
     :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
-    try:
-        event = database.functions.get(database.model.standard.Event, eventID)[0]
-        facilities = [f.to_dict() for f in event.facilities]
-        return jsonify(facilities)
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            event = db_session.get(database.model.standard.Event, eventID)[0]
+            facilities = [f.to_dict() for f in event.facilities]
+            return jsonify(facilities)
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/facilities", methods=["POST"])
 @is_mine
@@ -258,11 +282,13 @@ def handler_add_event_facility(eventID):
     :status 401: The user has not logged in
     :return: The JSON-encoded newly created facility
     """
-    try:
-        new_fac = database.functions.add(database.model.relationships.EventFacility.from_dict({**request.json, **{"eventID": eventID}}))
-        return jsonify(new_fac.to_dict())
-    except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            new_fac = db_session.add(database.model.relationships.EventFacility.from_dict({**request.json, **{"eventID": eventID}}))
+            return jsonify(new_fac.to_dict())
+        except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
+            return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/facilities/<int:facilityID>", methods=["GET"])
 def handler_get_event_facility_from_id_from_id(eventID, facilityID):
@@ -277,11 +303,13 @@ def handler_get_event_facility_from_id_from_id(eventID, facilityID):
     :status 401: The user has not logged in
     :return: The JSON-encoded facility
     """
-    try:
-        event_fac = database.functions.get(database.model.relationships.EventFacility, (eventID, facilityID))[0]
-        return jsonify(event_fac.to_dict())
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            event_fac = db_session.get(database.model.relationships.EventFacility, (eventID, facilityID))[0]
+            return jsonify(event_fac.to_dict())
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/facilities/<int:facilityID>", methods=["DELETE"])
 @is_mine
@@ -297,12 +325,14 @@ def handler_delete_event_facility_from_id_from_id(eventID, facilityID):
     :status 401: The user has not logged in
     :return: Empty response
     """
-    try:
-        event_fac = database.functions.get(database.model.relationships.EventFacility, (eventID, facilityID))[0]
-        database.functions.rem(event_fac)
-        return ""
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            event_fac = db_session.get(database.model.relationships.EventFacility, (eventID, facilityID))[0]
+            db_session.rem(event_fac)
+            return ""
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 # Participants subcollection
 
@@ -318,12 +348,14 @@ def handler_get_event_participants(eventID):
     :status 401: The user has not logged in
     :return: The JSON-encoded list
     """
-    try:
-        event = database.functions.get(database.model.standard.Event, eventID)[0]
-        users = [u.to_dict() for u in event.participants]
-        return jsonify(users)
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            event = db_session.get(database.model.standard.Event, eventID)[0]
+            users = [u.to_dict() for u in event.participants]
+            return jsonify(users)
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/participants", methods=["POST"])
 def handler_add_event_participant(eventID):
@@ -338,13 +370,15 @@ def handler_add_event_participant(eventID):
     :status 401: The user has not logged in
     :return: The JSON-encoded newly created participant
     """
-    try:
-        if session["user"] != request.json["userID"] and session["user"] != 0:
-            abort(401)
-        event_part = database.functions.add(database.model.relationships.EventParticipant.from_dict({**request.json, **{"eventID": eventID}}))
-        return jsonify(event_part.to_dict())
-    except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError, KeyError) as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            if session["user"] != request.json["userID"] and session["user"] != 0:
+                abort(401)
+            event_part = db_session.add(database.model.relationships.EventParticipant.from_dict({**request.json, **{"eventID": eventID}}))
+            return jsonify(event_part.to_dict())
+        except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError, KeyError) as e:
+            return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/participants/<int:userID>", methods=["GET"])
 def handler_get_event_participant_from_id_from_id(eventID, userID):
@@ -359,11 +393,13 @@ def handler_get_event_participant_from_id_from_id(eventID, userID):
     :status 401: The user has not logged in
     :return: The JSON-encoded participant
     """
-    try:
-        event_part = database.functions.get(database.model.relationships.EventParticipant, (eventID, userID))[0]
-        return jsonify(event_part.to_dict())
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            event_part = db_session.get(database.model.relationships.EventParticipant, (eventID, userID))[0]
+            return jsonify(event_part.to_dict())
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))
 
 @events_bp.route("/events/<int:eventID>/participants/<int:userID>", methods=["DELETE"])
 @is_me
@@ -379,9 +415,11 @@ def handler_delete_event_participant_from_id_from_id(eventID, userID):
     :status 401: The user has not logged in
     :return: Empty response
     """
-    try:
-        event_part = database.functions.get(database.model.relationships.EventParticipant, (eventID, userID))[0]
-        database.functions.rem(event_part)
-        return ""
-    except database.exceptions.DatabaseError as e:
-        return abort(400, str(e))
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            event_part = db_session.get(database.model.relationships.EventParticipant, (eventID, userID))[0]
+            db_session.rem(event_part)
+            return ""
+        except database.exceptions.DatabaseError as e:
+            return abort(400, str(e))

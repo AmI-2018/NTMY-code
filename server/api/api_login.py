@@ -18,11 +18,13 @@ def get_login_status():
     :status 401: The user has not logged in
     :return: The user's info or an error message
     """
-    try:
-        user = database.functions.get(database.model.standard.User, session["user"])[0]
-        return jsonify(user.to_dict())
-    except KeyError:
-        return abort(401)
+
+    with database.session.DatabaseSession() as db_session:
+        try:
+            user = db_session.get(database.model.standard.User, session["user"])[0]
+            return jsonify(user.to_dict())
+        except KeyError:
+            return abort(401)
 
 @login_bp.route("/login", methods=["POST"])
 def login_user():
@@ -37,19 +39,20 @@ def login_user():
     :return: The user's info or an error message
     """
 
-    try:
-        # Check the info is correct and start session
-        email = request.json["email"]
-        password = request.json["password"]
+    with database.session.DatabaseSession() as db_session:
+        try:
+            # Check the info is correct and start session
+            email = request.json["email"]
+            password = request.json["password"]
 
-        user = database.functions.filter(database.model.standard.User, "email='{}'".format(email))[0]
-        if user.check_password(password):
-            session["user"] = user.userID
-            user = database.functions.get(database.model.standard.User, session["user"])[0]
-            return jsonify(user.to_dict())
-        return abort(401)
-    except Exception:
-        return abort(401)
+            user = db_session.filter(database.model.standard.User, "email='{}'".format(email))[0]
+            if user.check_password(password):
+                session["user"] = user.userID
+                user = db_session.get(database.model.standard.User, session["user"])[0]
+                return jsonify(user.to_dict())
+            return abort(401)
+        except Exception:
+            return abort(401)
 
 @login_bp.route("/login", methods=["DELETE"])
 def logout_user():
