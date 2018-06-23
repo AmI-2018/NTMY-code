@@ -54,7 +54,7 @@ def handler_add_node():
     :return: The JSON-encoded newly created node
     """
     try:
-        new_node =  database.functions.add(database.model.map.Node.from_dict(request.json))
+        new_node = database.functions.add(database.model.map.Node.from_dict(request.json))
         return jsonify(new_node.to_dict())
     except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
         return abort(400, str(e))
@@ -151,7 +151,7 @@ def handler_add_edge():
     :return: The JSON-encoded newly created edge
     """
     try:
-        new_edge =  database.functions.add(database.model.map.Edge.from_dict(request.json))
+        new_edge = database.functions.add(database.model.map.Edge.from_dict(request.json))
         return jsonify(new_edge.to_dict())
     except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
         return abort(400, str(e))

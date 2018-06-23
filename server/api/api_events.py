@@ -11,7 +11,8 @@ events_bp = Blueprint("events_bp", __name__)
 
 @events_bp.after_request
 def update_schedule_after_request(resp):
-    allocation.sem_alloc.release()
+    if request.method != "GET":
+        allocation.sem_alloc.release()
     return resp
 
 # Basic usage
@@ -69,6 +70,7 @@ def handler_add_event():
     """
     try:
         new_event = database.functions.add(database.model.standard.Event.from_dict({**request.json, **{"creatorID": session["user"]}}))
+        database.functions.add(database.model.relationships.EventParticipant(eventID=new_event.eventID, userID=session["user"]))
         return jsonify(new_event.to_dict())
     except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError, ValueError) as e:
         return abort(400, str(e))
@@ -257,7 +259,7 @@ def handler_add_event_facility(eventID):
     :return: The JSON-encoded newly created facility
     """
     try:
-        new_fac =  database.functions.add(database.model.relationships.EventFacility.from_dict({**request.json, **{"eventID": eventID}}))
+        new_fac = database.functions.add(database.model.relationships.EventFacility.from_dict({**request.json, **{"eventID": eventID}}))
         return jsonify(new_fac.to_dict())
     except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
         return abort(400, str(e))

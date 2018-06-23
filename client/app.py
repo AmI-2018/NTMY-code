@@ -62,7 +62,7 @@ while True:
         if f["facility"]["name"] == "TV":
             channel = session.get(config["serveruri"] + "/media/channels/{}".format(f["options"])).json()
             p.fetch_channel(channel)
-        elif f["facility"]["name"] == "audio":
+        elif f["facility"]["name"] == "Audio":
             playlist = session.get(config["serveruri"] + "/media/playlists/{}".format(f["options"])).json()
             p.fetch_playlist(playlist)
 

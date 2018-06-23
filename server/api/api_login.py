@@ -51,8 +51,22 @@ def login_user():
     except Exception:
         return abort(401)
 
-@login_bp.route("/logout", methods=["GET"])
+@login_bp.route("/login", methods=["DELETE"])
 def logout_user():
+    """Logs the user out.
+
+    .. :quickref: Login; Logs the user out.
+    
+    :status 200: The user was correctly logged out
+    :return: A confirmation message
+    """
+
+    if "user" in session:
+        del session["user"]
+    return ""
+
+@login_bp.route("/logout", methods=["GET"])
+def logout_user2():
     """Logs the user out.
 
     .. :quickref: Login; Logs the user out.

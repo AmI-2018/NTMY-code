@@ -40,7 +40,7 @@ def handler_add_user():
     :return: The JSON-encoded newly created user
     """
     try:
-        new_user =  database.functions.add(database.model.standard.User.from_dict(request.json))
+        new_user = database.functions.add(database.model.standard.User.from_dict(request.json))
         return jsonify(new_user.to_dict())
     except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
         return abort(400, str(e))
@@ -124,7 +124,7 @@ def handler_get_user_photo_from_id(userID):
     """
     try:
         user = database.functions.get(database.model.standard.User, userID)[0]
-        return user.photo, {"Content-Type": "image/jpeg"}
+        return user.photo, {"Content-Type": "image/jpeg"} if user.photo is not None else abort(400)
     except database.exceptions.DatabaseError as e:
         return abort(400, str(e))
 
@@ -225,7 +225,7 @@ def handler_add_user_connection_from_id(userID):
     :return: The JSON-encoded newly created connection
     """
     try:
-        new_connection =  database.functions.add(database.model.relationships.UserConnection.from_dict({**request.json, **{"userID1": userID}}))
+        new_connection = database.functions.add(database.model.relationships.UserConnection.from_dict({**request.json, **{"userID1": userID}}))
         return jsonify(new_connection.to_dict())
     except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
         return abort(400, str(e))
@@ -329,7 +329,7 @@ def handler_add_user_interest_from_id(userID):
     :return: The JSON-encoded newly created interest
     """
     try:
-        new_int =  database.functions.add(database.model.relationships.UserInterest.from_dict({**request.json, **{"userID": userID}}))
+        new_int = database.functions.add(database.model.relationships.UserInterest.from_dict({**request.json, **{"userID": userID}}))
         return jsonify(new_int.to_dict())
     except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
         return abort(400, str(e))

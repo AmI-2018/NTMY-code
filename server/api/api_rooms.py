@@ -37,7 +37,7 @@ def handler_add_room():
     :return: The JSON-encoded newly created room
     """
     try:
-        new_room =  database.functions.add(database.model.standard.Room.from_dict(request.json))
+        new_room = database.functions.add(database.model.standard.Room.from_dict(request.json))
         return jsonify(new_room.to_dict())
     except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
         return abort(400, str(e))
@@ -139,7 +139,7 @@ def handler_add_room_facility(roomID):
     :return: The JSON-encoded newly created facility
     """
     try:
-        new_fac =  database.functions.add(database.model.relationships.RoomFacility.from_dict({**request.json, **{"roomID": roomID}}))
+        new_fac = database.functions.add(database.model.relationships.RoomFacility.from_dict({**request.json, **{"roomID": roomID}}))
         return jsonify(new_fac.to_dict())
     except (database.exceptions.InvalidDictError, database.exceptions.DatabaseError) as e:
         return abort(400, str(e))
