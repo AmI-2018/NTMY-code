@@ -1,71 +1,127 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="200dp"
-    android:layout_height="200dp"
-    android:layout_margin="6dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="16dp"
     android:orientation="vertical"
-    android:padding="8dp"
     app:cardCornerRadius="0dp"
-    app:cardElevation="0.7dp"
-    app:cardMaxElevation="1dp"
+    app:cardElevation="2dp"
     app:cardPreventCornerOverlap="true"
-    app:cardUseCompatPadding="true"
-    app:contentPadding="16dp">
+    app:cardUseCompatPadding="true">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="24dp">
 
-        <TextView
-            android:id="@+id/item_event_card_tv_title"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/item_event_card_ll_header"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical" >
 
-        <TextView
-            android:id="@+id/item_event_card_tv_categories"
-            android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/item_event_card_ll_color"
+                android:orientation="vertical"
+                android:layout_width="4dp"
+                android:layout_height="match_parent" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/item_event_card_tv_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"/>
+
+                <TextView
+                    android:id="@+id/item_event_card_tv_categories"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/item_event_card_tv_title"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
+            android:layout_marginTop="32dp"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/item_event_card_tv_date"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/item_event_card_tv_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="8dp"
+                android:drawableStart="@drawable/ic_event"
+                android:drawableTint="@color/colorAccent"
+                android:gravity="center_vertical"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+            <TextView
+                android:id="@+id/item_event_card_tv_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:drawablePadding="8dp"
+                android:drawableStart="@drawable/ic_access_time"
+                android:drawableTint="@color/colorAccent"
+                android:gravity="center_vertical"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1" />
+
+            <TextView
+                android:id="@+id/item_event_card_tv_room"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:drawablePadding="8dp"
+                android:drawableStart="@drawable/ic_location"
+                android:drawableTint="@color/colorAccent"
+                android:gravity="center_vertical"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1" />
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_above="@id/item_event_card_tv_time"
-            android:drawablePadding="8dp"
-            android:drawableStart="@drawable/ic_event"
-            android:drawableTint="@color/colorAccent"
-            android:gravity="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+            android:layout_marginTop="32dp">
 
-        <TextView
-            android:id="@+id/item_event_card_tv_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_above="@id/item_event_card_tv_room"
-            android:drawablePadding="8dp"
-            android:drawableStart="@drawable/ic_access_time"
-            android:drawableTint="@color/colorAccent"
-            android:gravity="center"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1" />
+            <Button
+                android:id="@+id/item_event_card_btn_show"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:padding="0dp"
+                android:text="@string/show_more"
+                tools:ignore="RelativeOverlap"
+                style="@style/Base.Widget.AppCompat.Button.Borderless.Colored" />
 
-        <TextView
-            android:id="@+id/item_event_card_tv_room"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_marginTop="8dp"
-            android:drawablePadding="8dp"
-            android:drawableStart="@drawable/ic_location"
-            android:drawableTint="@color/colorAccent"
-            android:gravity="center"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Body1" />
+            <ImageView
+                android:id="@+id/item_event_card_iv_participate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:contentDescription="@string/favourite"
+                android:tint="@color/colorAccent"
+                app:srcCompat="@drawable/ic_favorite_border" />
 
-    </RelativeLayout>
+        </RelativeLayout>
+
+    </LinearLayout>
 
 </android.support.v7.widget.CardView>

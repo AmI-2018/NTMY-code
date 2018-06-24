@@ -346,7 +346,7 @@ public class AddEventActivity extends AppCompatActivity {
      */
     private void updateLabelStart() {
         String myFormat = "MM/dd/yyyy HH:mm";
-        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.ITALY);
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
         mStart.setText(sdf.format(calendar.getTime()));
     }
 
@@ -355,7 +355,7 @@ public class AddEventActivity extends AppCompatActivity {
      */
     private void updateLabelEnd() {
         String myFormat = "MM/dd/yyyy HH:mm";
-        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.ITALY);
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
         mEnd.setText(sdf.format(calendar.getTime()));
     }
 
