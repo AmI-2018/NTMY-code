@@ -220,12 +220,64 @@ public class EventActivity extends AppCompatActivity {
                     for (int i = 0; i < response.length(); i++) {
                         //TODO Drawable if a set of facilities is predefined
                         //TODO Description of Options
-                        TextView textView = new TextView(getApplicationContext());
+                        final TextView textView = new TextView(getApplicationContext());
+                        Integer optionsId = -1;
+                        String text = "";
                         try {
-                            textView.setText(new Facility(response.getJSONObject(i).getJSONObject("facility")).getName());
+                            text = (new Facility(response.getJSONObject(i).getJSONObject("facility"))).getName();
+                            optionsId = Integer.parseInt(response.getJSONObject(i).get("options").toString());
+                            textView.setText(text);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+
+                        if (optionsId!=-1) {
+                            if (text.equals("TV")) {
+                                showProgress();
+                                RequestHelper.getJson(EventActivity.this, "media/channels/" + optionsId, new Response.Listener<JSONObject>() {
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+                                        String finalText = "";
+                                        try {
+                                            finalText = textView.getText() + " - " + response.getString("name");
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                        textView.setText(finalText);
+                                        hideProgress();
+                                        Log.d(TAG, "Detailed facility's options were successfully loaded.");
+                                    }
+                                }, new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        hideProgress();
+                                        Log.d(TAG, "Detailed facility's options were successfully loaded.");
+                                    }
+                                });
+                            } else if (text.equals("Audio")) {
+                                RequestHelper.getJson(EventActivity.this, "media/playlists/" + optionsId, new Response.Listener<JSONObject>() {
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+                                        String finalText = "";
+                                        try {
+                                            finalText = textView.getText() + " - " + response.getString("name");
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                        textView.setText(finalText);
+                                        hideProgress();
+                                        Log.d(TAG, "Detailed facility's options were successfully loaded.");
+                                    }
+                                }, new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        hideProgress();
+                                        Log.d(TAG, "Detailed facility's options were successfully loaded.");
+                                    }
+                                });
+                            }
+                        }
+
                         textView.setTextAppearance(R.style.TextAppearance_AppCompat_Body1);
                         LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                         llp.setMargins(0, (int) (8 * getResources().getDisplayMetrics().density), 0, 0);

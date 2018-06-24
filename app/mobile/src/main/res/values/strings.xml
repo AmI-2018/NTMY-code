@@ -28,4 +28,7 @@
     <string name="overlay">Overlay</string>
     <string name="show_more">Show More</string>
     <string name="not_assigned">Not assigned yet.</string>
+    <string name="name">Name</string>
+    <string name="datetime">Date and Time</string>
+    <string name="save">Save</string>
 </resources>

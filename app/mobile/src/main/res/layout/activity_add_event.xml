@@ -10,154 +10,223 @@
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingEnd="32dp"
-        android:paddingStart="32dp">
+        android:layout_height="match_parent">
 
-        <android.support.constraint.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingBottom="32dp"
-            android:paddingTop="32dp">
+            android:orientation="vertical">
 
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/add_event_til_name"
+            <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                android:layout_height="wrap_content">
 
-                <android.support.design.widget.TextInputEditText
-                    android:id="@+id/add_event_tiet_name"
-                    android:layout_width="match_parent"
+                <ImageView
+                    android:id="@+id/add_event_iv_name"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:hint="Name"
-                    android:inputType="text"
-                    android:maxLines="1" />
+                    android:layout_margin="16dp"
+                    android:contentDescription="@string/name"
+                    android:tint="@color/textColorSecondary"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_event" />
 
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/add_event_til_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:orientation="horizontal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/add_event_til_name">
-
-                <android.support.design.widget.TextInputEditText
-                    android:id="@+id/add_event_tiet_description"
+                <EditText
+                    android:id="@+id/add_event_et_name"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Description"
-                    android:inputType="textMultiLine" />
+                    android:layout_height="64dp"
+                    android:paddingStart="72dp"
+                    android:paddingEnd="0dp"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/name"
+                    android:inputType="textCapWords"
+                    android:maxLines="1"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            </android.support.design.widget.TextInputLayout>
+            </android.support.constraint.ConstraintLayout>
 
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/add_event_til_date_start"
+            <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:orientation="horizontal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/add_event_til_description">
+                android:layout_height="wrap_content">
 
-                <android.support.design.widget.TextInputEditText
-                    android:id="@+id/add_event_tiet_date_start"
+                <ImageView
+                    android:id="@+id/add_event_iv_description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:contentDescription="@string/description"
+                    android:tint="@color/textColorSecondary"
+                    app:layout_constraintBottom_toBottomOf="@+id/add_event_et_description"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_short_text" />
+
+                <EditText
+                    android:id="@+id/add_event_et_description"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:focusable="false"
-                    android:hint="Date start"
-                    android:inputType="datetime"
-                    android:maxLines="1" />
+                    android:layout_height="64dp"
+                    android:paddingStart="72dp"
+                    android:paddingEnd="0dp"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/description"
+                    android:inputType="textMultiLine"
+                    android:maxLines="1"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            </android.support.design.widget.TextInputLayout>
+            </android.support.constraint.ConstraintLayout>
 
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/add_event_til_date_end"
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:orientation="horizontal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/add_event_til_date_start">
+                android:layout_height="0.5dp"
+                android:background="@color/dividerColor"/>
 
-                <android.support.design.widget.TextInputEditText
-                    android:id="@+id/add_event_tiet_date_end"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:focusable="false"
-                    android:hint="Date finish"
-                    android:inputType="datetime"
-                    android:maxLines="1" />
-
-            </android.support.design.widget.TextInputLayout>
-
-            <LinearLayout
-                android:id="@+id/add_event_ll_categories"
+            <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:orientation="vertical"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/add_event_til_date_end">
+                android:layout_height="128dp">
+
+                <ImageView
+                    android:id="@+id/add_event_iv_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:contentDescription="@string/datetime"
+                    android:tint="@color/textColorSecondary"
+                    app:layout_constraintBottom_toTopOf="@+id/add_event_tv_date_end"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_access_time" />
 
                 <TextView
+                    android:id="@+id/add_event_tv_date_start"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Categories"
-                    android:textAllCaps="true"
-                    android:textColor="@color/colorAccent" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/add_event_ll_facilities"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:orientation="vertical"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/add_event_ll_categories">
+                    android:layout_height="64dp"
+                    android:paddingStart="72dp"
+                    android:paddingEnd="0dp"
+                    android:background="?android:selectableItemBackground"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textSize="18sp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    app:layout_constraintBottom_toTopOf="@id/add_event_tv_date_end"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
+                    android:id="@+id/add_event_tv_date_end"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:paddingStart="72dp"
+                    android:paddingEnd="0dp"
+                    android:background="?android:selectableItemBackground"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textSize="18sp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/add_event_tv_date_start"/>
+
+            </android.support.constraint.ConstraintLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/dividerColor"/>
+
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/add_event_iv_categories"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_margin="16dp"
+                    android:contentDescription="@string/description"
+                    android:tint="@color/textColorSecondary"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_format_list_bulleted" />
+
+                <LinearLayout
+                    android:id="@+id/add_event_ll_categories"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Facilities"
-                    android:textAllCaps="true"
-                    android:textColor="@color/colorAccent" />
+                    android:layout_marginStart="72dp"
+                    android:orientation="vertical">
 
-                <RadioGroup
-                    android:id="@+id/add_event_rg_facilities"
+                </LinearLayout>
+
+            </android.support.constraint.ConstraintLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/dividerColor"/>
+
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/add_event_iv_facilities"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_margin="16dp"
+                    android:contentDescription="@string/description"
+                    android:tint="@color/textColorSecondary"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_devices_other" />
+
+                <LinearLayout
+                    android:id="@+id/add_event_ll_facilities"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical" />
+                    android:layout_marginStart="72dp"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toTopOf="@id/add_event_sp_tv"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
-            </LinearLayout>
+                </LinearLayout>
 
-            <Button
-                android:id="@+id/add_event_btn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:text="Add Event"
-                android:theme="@style/PrimaryButton"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/add_event_ll_facilities" />
+                <Spinner
+                    android:id="@+id/add_event_sp_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:layout_marginStart="72dp"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="@id/add_event_sp_playlist"
+                    app:layout_constraintTop_toBottomOf="@id/add_event_ll_facilities"
+                    app:layout_constraintStart_toStartOf="parent"/>
 
-        </android.support.constraint.ConstraintLayout>
+                <Spinner
+                    android:id="@+id/add_event_sp_playlist"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:layout_marginStart="72dp"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/add_event_sp_tv"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+            </android.support.constraint.ConstraintLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/dividerColor"/>
+
+        </LinearLayout>
 
     </android.support.v4.widget.NestedScrollView>
 
