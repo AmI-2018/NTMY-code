@@ -7,6 +7,11 @@ from .model.base import Base
 from .exceptions import DatabaseError
 
 class DatabaseSession():
+    """Represents a database session.
+    
+    :raises DatabaseError: If the requested action is not valid.
+    """
+
     def __init__(self):
         self.session = SessionFactory()
     

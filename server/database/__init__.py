@@ -18,7 +18,7 @@ engine = create_engine(path, echo=echo)
 SessionFactory = scoped_session(sessionmaker(bind=engine))
 
 # Remove imports so they won't be exposed
-del create_engine, sessionmaker
+del create_engine, sessionmaker, scoped_session
 
 # Module imports
 from . import exceptions, model, session
