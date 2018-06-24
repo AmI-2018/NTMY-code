@@ -27,4 +27,5 @@
     <string name="no_users">You haven\'t met any users yet.</string>
     <string name="overlay">Overlay</string>
     <string name="show_more">Show More</string>
+    <string name="not_assigned">Not assigned yet.</string>
 </resources>

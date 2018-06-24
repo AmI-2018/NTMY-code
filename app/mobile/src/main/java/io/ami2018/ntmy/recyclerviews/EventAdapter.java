@@ -106,7 +106,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         if (event.getRoom() != null)
             holder.mRoom.setText(event.getRoom().getName());
         else
-            holder.mRoom.setText("Not Assigned");
+            holder.mRoom.setText(context.getString(R.string.not_assigned));
         holder.setEvent(event);
         RequestHelper.getJson(context, "events/" + event.getEventId() + "/participants/" + MainActivity.mUser.getUserId(), new Response.Listener<JSONObject>() {
             @Override
