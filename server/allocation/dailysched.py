@@ -1,21 +1,20 @@
 """This module provides the definition of the class used to describe a daily schedule."""
 
 from typing import List, Dict
-from random import choice
+from random import choice, uniform
 
 from database.model.standard import Room, Event
 from .exceptions import InvalidScheduleError
 
+# List of all the available colors for the events
 colors = [
     {"red": 1, "green": 0, "blue": 0}, # Red
     {"red": 0, "green": 1, "blue": 0}, # Green
     {"red": 0, "green": 0, "blue": 1}, # Blue
     {"red": 1, "green": 1, "blue": 0}, # Yellow
     {"red": 0, "green": 1, "blue": 1}, # Aqua
-    {"red": 1, "green": 0, "blue": 1}, # Fuchsia
-    {"red": 1, "green": 1, "blue": 1} # White
+    {"red": 1, "green": 0, "blue": 1}  # Fuchsia
 ]
-"""List of the available colors for the events"""
 
 ass_colors = {}
 
@@ -32,16 +31,29 @@ class DailySchedule:
     """
 
     def __init__(self, rooms: List[Room], events: List[Event], alloc: List[int]):
+        # Empty lists
         self.sched = {}
-
         for r in rooms:
             self.sched[r] = []
 
+        aval_colors = list(colors)
+
+        # Check available colors or get random
+        for event in events:
+            if event not in ass_colors:
+                try:
+                    ass_colors[event] = choice(aval_colors)
+                    aval_colors.remove(ass_colors[event])
+                except IndexError:
+                    ass_colors[event] = {
+                        "red": round(uniform(0, 1), 2),
+                        "green": round(uniform(0, 1), 2),
+                        "blue": round(uniform(0, 1), 2)
+                    }
+
+        # Populate lists
         for i in range(0, len(alloc)):
             if alloc[i] != 0:
-                # Use last color or select a new one
-                ass_colors[events[i]] = ass_colors[events[i]] if events[i] in ass_colors else choice(colors)
-                # Populate lists
                 self.sched[rooms[alloc[i]-1]].append({
                     "event": events[i],
                     "color": ass_colors[events[i]]
