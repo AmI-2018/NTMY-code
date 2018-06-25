@@ -62,6 +62,13 @@ public class MainFragment extends Fragment {
         loadEvents();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        mAdapter.clear();
+        loadEvents();
+    }
+
     /**
      * Void method that initializes all the objects.
      */
