@@ -38,8 +38,14 @@ p = Player()
 # Main loop
 
 while True:
+    # Check if there are scheduled events
+    schedule_req = session.get("{}/schedule/room/{}".format(config["serveruri"], config["roomID"]))
+    if schedule_req.status_code == 400:
+        print("No events for this room.")
+        break
+
     # Get the schedule
-    schedule = session.get("{}/schedule/room/{}".format(config["serveruri"], config["roomID"])).json()
+    schedule = schedule_req.json()
     print("Current schedule:")
     print(schedule)
 

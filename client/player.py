@@ -6,6 +6,8 @@ import fake_useragent
 import pafy
 import requests
 
+playlist_max_len = 15
+
 class Player():
     def __init__(self):
         """Instantiate the Player."""
@@ -70,8 +72,9 @@ class Player():
 
         print("Fetching playlist '{}'...".format(playlist["name"]))
         playlist = pafy.get_playlist(playlist["link"])
-        for song in playlist["items"]:
+        for i in range(min(len(playlist["items"]), playlist_max_len)):
             try:
+                song = playlist["items"][i]
                 print("Adding song '{}' (duration {})".format(song["pafy"].title, song["pafy"].duration))
                 hh, mm, ss = song["pafy"].duration.split(":")
                 duration = int(hh) * 3600 + int(mm) * 60 + int(ss)
