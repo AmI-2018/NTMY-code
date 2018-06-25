@@ -105,7 +105,7 @@ public class BluetoothSearchActivity extends AppCompatActivity {
 
     private void tryGetUserFullname(String deviceName) {
         // Obtain the userID2 from the device Name
-        final int userID2 = Character.getNumericValue(deviceName.charAt(4));
+        final int userID2 = Integer.parseInt(deviceName.replace("NTMY",""));
         // Create a JSON to post a connection event to the server
         json = new JSONObject();
         try {
