@@ -40,7 +40,9 @@ class DailySchedule:
 
         # Check available colors or get random
         for event in events:
-            if event not in ass_colors:
+            if event in ass_colors and ass_colors[event] in aval_colors:
+                aval_colors.remove(ass_colors[event])
+            else:
                 try:
                     ass_colors[event] = choice(aval_colors)
                     aval_colors.remove(ass_colors[event])
