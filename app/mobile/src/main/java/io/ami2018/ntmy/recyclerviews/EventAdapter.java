@@ -2,6 +2,7 @@ package io.ami2018.ntmy.recyclerviews;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,7 +18,10 @@ import com.android.volley.VolleyError;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import io.ami2018.ntmy.MainActivity;
 import io.ami2018.ntmy.R;
@@ -28,50 +32,72 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
     private static final String TAG = EventAdapter.class.getSimpleName();
 
-    private ArrayList<Event> list;
+    private SortedList<Event> list;
     private EventClickListener showListener;
     private Context context;
 
     public EventAdapter(Context context, EventClickListener showListener) {
-        this.list = new ArrayList<>();
+        this.list = new SortedList<Event>(Event.class, new SortedList.Callback<Event>() {
+            @Override
+            public int compare(Event e1, Event e2) {
+                String start = e1.getStart();
+                String start1 = e2.getStart();
+                Date date = new Date();
+                Date date1 = new Date();
+                try {
+                    SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.US);
+                    date = sdf.parse(start);
+                    date1 = sdf.parse(start1);
+                } catch (ParseException p) {
+                    p.printStackTrace();
+                }
+                return date.compareTo(date1);
+            }
+
+            @Override
+            public void onChanged(int position, int count) {
+                notifyItemRangeChanged(position, count);
+            }
+
+            @Override
+            public boolean areContentsTheSame(Event oldItem, Event newItem) {
+                return oldItem.getEventId().equals(newItem.getEventId());
+            }
+
+            @Override
+            public boolean areItemsTheSame(Event item1, Event item2) {
+                return item1.getEventId().equals(item2.getEventId());
+            }
+
+            @Override
+            public void onInserted(int position, int count) {
+                notifyItemRangeInserted(position, count);
+            }
+
+            @Override
+            public void onRemoved(int position, int count) {
+                notifyItemRangeRemoved(position, count);
+            }
+
+            @Override
+            public void onMoved(int fromPosition, int toPosition) {
+                notifyItemMoved(fromPosition, toPosition);
+            }
+        });
         this.showListener = showListener;
         this.context = context;
     }
 
     public void addElement(Event event) {
-        if (!this.contains(event.getEventId())) {
-            this.list.add(event);
-            /*this.list.sort(new Comparator<Event>() {
-                @Override
-                public int compare(Event event, Event t1) {
-                    String start = event.getStart();
-                    String start1 = t1.getStart();
-                    Date date = new Date();
-                    Date date1 = new Date();
-                    try {
-                        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.US);
-                        date = sdf.parse(start);
-                        date1 = sdf.parse(start1);
-                    } catch (ParseException p) {
-                        p.printStackTrace();
-                    }
-                    return date.compareTo(date1);
-                }
-            });*/
-            this.notifyDataSetChanged();
-        }
+        this.list.add(event);
     }
 
     public void clear() {
-        this.list.clear();
-        this.notifyDataSetChanged();
-    }
-
-    private boolean contains(Integer eventId) {
-        for (Event e : this.list) {
-            if (e.getEventId().intValue() == eventId.intValue()) return true;
+        list.beginBatchedUpdates();
+        while (list.size() > 0) {
+            list.removeItemAt(list.size() - 1);
         }
-        return false;
+        list.endBatchedUpdates();
     }
 
     @Override
@@ -89,7 +115,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
     @Override
     public void onBindViewHolder(@NonNull EventAdapter.EventViewHolder holder, int position) {
-        Event event = list.get(position);
+        Event event = list.get(holder.getAdapterPosition());
         Log.d(TAG, "Evento: " + event.getEventId());
         StringBuffer categories = new StringBuffer();
         String time = event.getStart().split(" ")[1] + " - " + event.getEnd().split(" ")[1];
