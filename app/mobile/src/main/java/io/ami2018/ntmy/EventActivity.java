@@ -219,18 +219,20 @@ public class EventActivity extends AppCompatActivity {
                 if (response.length() > 0) {
                     for (int i = 0; i < response.length(); i++) {
                         //TODO Drawable if a set of facilities is predefined
-                        //TODO Description of Options
                         final TextView textView = new TextView(getApplicationContext());
                         Integer optionsId = -1;
                         String text = "";
                         try {
                             text = (new Facility(response.getJSONObject(i).getJSONObject("facility"))).getName();
-                            optionsId = Integer.parseInt(response.getJSONObject(i).get("options").toString());
+                            String option = String.valueOf(response.getJSONObject(i).get("options"));
+                            if(!option.equals(""))
+                                optionsId = Integer.parseInt(option);
+                            else
+                                optionsId = -1;
                             textView.setText(text);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-
                         if (optionsId!=-1) {
                             if (text.equals("TV")) {
                                 showProgress();

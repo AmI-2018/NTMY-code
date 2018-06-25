@@ -3,6 +3,7 @@ package io.ami2018.ntmy.recyclerviews;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,12 +17,7 @@ import com.android.volley.VolleyError;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Locale;
 
 import io.ami2018.ntmy.MainActivity;
 import io.ami2018.ntmy.R;
@@ -29,6 +25,8 @@ import io.ami2018.ntmy.model.Event;
 import io.ami2018.ntmy.network.RequestHelper;
 
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHolder> {
+
+    private static final String TAG = EventAdapter.class.getSimpleName();
 
     private ArrayList<Event> list;
     private EventClickListener showListener;
@@ -43,7 +41,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     public void addElement(Event event) {
         if (!this.contains(event.getEventId())) {
             this.list.add(event);
-            this.list.sort(new Comparator<Event>() {
+            /*this.list.sort(new Comparator<Event>() {
                 @Override
                 public int compare(Event event, Event t1) {
                     String start = event.getStart();
@@ -59,7 +57,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
                     }
                     return date.compareTo(date1);
                 }
-            });
+            });*/
             this.notifyDataSetChanged();
         }
     }
@@ -90,8 +88,9 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final EventAdapter.EventViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull EventAdapter.EventViewHolder holder, int position) {
         Event event = list.get(position);
+        Log.d(TAG, "Evento: " + event.getEventId());
         StringBuffer categories = new StringBuffer();
         String time = event.getStart().split(" ")[1] + " - " + event.getEnd().split(" ")[1];
         for (int i = 0; i < event.getCategories().size(); i++) {
@@ -108,18 +107,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         else
             holder.mRoom.setText(context.getString(R.string.not_assigned));
         holder.setEvent(event);
-        RequestHelper.getJson(context, "events/" + event.getEventId() + "/participants/" + MainActivity.mUser.getUserId(), new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                holder.mParticipate.setImageResource(R.drawable.ic_favorite);
-                holder.userIsParticipating = true;
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                holder.userIsParticipating = false;
-            }
-        });
+        holder.loadParticipation();
     }
 
     protected static class EventViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -171,9 +159,24 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             }
         }
 
+        private void loadParticipation() {
+            RequestHelper.getJson(context, "events/" + mEvent.getEventId() + "/participants/" + MainActivity.mUser.getUserId(), new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    mParticipate.setImageResource(R.drawable.ic_favorite);
+                    userIsParticipating = true;
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    mParticipate.setImageResource(R.drawable.ic_favorite_border);
+                    userIsParticipating = false;
+                }
+            });
+        }
+
         private void toggleParticipation() {
             if (!userIsParticipating) {
-                userIsParticipating = true;
                 JSONObject jsonObject = new JSONObject();
                 try {
                     jsonObject.put("userID", MainActivity.mUser.getUserId());
@@ -183,6 +186,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
                 RequestHelper.postJson(context, "events/" + mEvent.getEventId() + "/participants", jsonObject, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
+                        userIsParticipating = true;
                         mParticipate.setImageResource(R.drawable.ic_favorite);
                     }
                 }, new Response.ErrorListener() {
@@ -192,10 +196,10 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
                     }
                 });
             } else {
-                userIsParticipating = false;
                 RequestHelper.delete(context, "events/" + mEvent.getEventId() + "/participants/" + MainActivity.mUser.getUserId(), new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        userIsParticipating = false;
                         mParticipate.setImageResource(R.drawable.ic_favorite_border);
                     }
                 }, new Response.ErrorListener() {
