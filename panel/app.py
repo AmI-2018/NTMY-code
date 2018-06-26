@@ -18,6 +18,7 @@ session.post(url, json=json)
 
 pl.graph.load_graph(session,config)
 
+print("the SMART ROAD SIGN " + config['panelId'] + " is ON!")
 # Main Loop
 while True:
     # Search for a nearby user
