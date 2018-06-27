@@ -1,3 +1,5 @@
+"""Decorators for the HTTP APIs"""
+
 from flask import abort, session
 from functools import wraps
 from typing import Callable

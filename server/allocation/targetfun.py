@@ -9,17 +9,19 @@ from .dailysched import DailySchedule
 ####################################
 
 class TargetFunction:
-    """Represents a target function to optimize.
-
-    :param name: The name of the target function
-    :type name: str
-    :param criterion: The function to compare values for the target function
-    :type criterion: Callable[[int, int], bool]
-    :param calculator: The function to compute the target function
-    :type calculator: Callable[[DailySchedule], int]
-    """
+    """Represents a target function to optimize."""
 
     def __init__(self, name: str, criterion: Callable[[int, int], bool], calculator: Callable[[DailySchedule], int]):
+        """Initializes the TargetFunction.
+        
+        :param name: The name of the target function
+        :type name: str
+        :param criterion: The function to compare values for the target function
+        :type criterion: Callable[[int, int], bool]
+        :param calculator: The function to compute the target function
+        :type calculator: Callable[[DailySchedule], int]
+        """
+        
         self.name = name
         self.criterion = criterion
         self.calculator = calculator
@@ -53,13 +55,14 @@ class TargetFunction:
 #######################################
 
 class TargetFunctionSet:
-    """Represents a set of target functions to be optimized.
-    
-    :param target_funcs: List of the target functions to evaluate
-    :type target_funcs: List[TargetFunction]
-    """
+    """Represents a set of target functions to be optimized."""
 
     def __init__(self, target_funcs: List[TargetFunction]):
+        """Initializes the TargetFuctionSet.
+
+        param target_funcs: List of the target functions to evaluate
+        :type target_funcs: List[TargetFunction]
+        """
         self.target_funcs = list(target_funcs)
     
     def better(self, sched1: DailySchedule, sched2: DailySchedule) -> bool:

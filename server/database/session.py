@@ -1,3 +1,5 @@
+"""This module provides the DatabaseSession class to interact with the database."""
+
 from typing import Type, List, Dict, Any
 
 from sqlalchemy.sql.expression import text

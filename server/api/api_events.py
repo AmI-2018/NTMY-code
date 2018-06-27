@@ -9,6 +9,8 @@ import database
 
 events_bp = Blueprint("events_bp", __name__)
 
+# Run the allocator after every modification
+
 @events_bp.after_request
 def update_schedule_after_request(resp):
     if request.method != "GET":

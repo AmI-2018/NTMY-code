@@ -5,6 +5,7 @@ from typing import Dict, Any
 from sqlalchemy import Column, Integer, String
 
 from .base import Base
+from ..exceptions import InvalidDictError
 
 #############################
 # Channel class declaration #
@@ -35,6 +36,25 @@ class Channel(Base):
             "name": self.name,
             "link": self.link
         }
+    
+    @staticmethod
+    def from_dict(channel_dict: Dict[str, Any]) -> "Channel":
+        """Returns a class created from the provided dictionary.
+        
+        :param category_dict: The dictionary to create the class from
+        :type category_dict: Dict[str, Any]
+        :raises InvalidDictError: If the provided dictionary is not correct
+        :return: The class created from the provided dictionary
+        :rtype: Channel
+        """
+        
+        try:
+            return Channel(
+                name=channel_dict["name"],
+                link=channel_dict["link"]
+            )
+        except KeyError as e:
+            raise InvalidDictError("The provided dictionary is missing the key {}".format(str(e)))
 
 ##############################
 # Playlist class declaration #
@@ -65,3 +85,22 @@ class Playlist(Base):
             "name": self.name,
             "link": self.link
         }
+    
+    @staticmethod
+    def from_dict(playlist_dict: Dict[str, Any]) -> "Playlist":
+        """Returns a class created from the provided dictionary.
+        
+        :param category_dict: The dictionary to create the class from
+        :type category_dict: Dict[str, Any]
+        :raises InvalidDictError: If the provided dictionary is not correct
+        :return: The class created from the provided dictionary
+        :rtype: Playlist
+        """
+        
+        try:
+            return Playlist(
+                name=playlist_dict["name"],
+                link=playlist_dict["link"]
+            )
+        except KeyError as e:
+            raise InvalidDictError("The provided dictionary is missing the key {}".format(str(e)))

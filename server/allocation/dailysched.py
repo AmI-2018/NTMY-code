@@ -19,18 +19,20 @@ colors = [
 ass_colors = {}
 
 class DailySchedule:
-    """Represents daily events' schedule for the residence.
-
-    :param rooms: List of the residence rooms
-    :type rooms: List[Room]
-    :param events: List of the residence events
-    :type events: List[Event]
-    :param alloc: List of integers where alloc[i] = j means that the i-th event will be hosted in the j-th room
-    :type alloc: List[int]
-    :raises InvalidScheduleError: The alloc vector is invalid (events overlap or the assigned room is not big enough or does not have the required facilities)
-    """
+    """Represents daily events' schedule for the residence."""
 
     def __init__(self, rooms: List[Room], events: List[Event], alloc: List[int]):
+        """Initializes the DailySchedule.
+        
+        :param rooms: List of the residence rooms
+        :type rooms: List[Room]
+        :param events: List of the residence events
+        :type events: List[Event]
+        :param alloc: List of integers where alloc[i] = j means that the i-th event will be hosted in the j-th room
+        :type alloc: List[int]
+        :raises InvalidScheduleError: The alloc vector is invalid (events overlap or the assigned room is not big enough or does not have the required facilities)
+        """
+
         # Empty lists
         self.sched = {}
         for r in rooms:
