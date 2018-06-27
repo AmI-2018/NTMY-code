@@ -3,7 +3,6 @@ package io.ami2018.ntmy;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -130,7 +129,7 @@ public class EventActivity extends AppCompatActivity {
         mFacilitiesContainer = findViewById(R.id.event_ll_facilities);
         mCreator = findViewById(R.id.event_civ_creator);
         if (color != -1 && colorActivated)
-            ((AppBarLayout) findViewById(R.id.event_abl)).setBackgroundColor(color);
+            findViewById(R.id.event_abl).setBackgroundColor(color);
 
         setSupportActionBar((Toolbar) findViewById(R.id.event_tb));
 
@@ -218,7 +217,6 @@ public class EventActivity extends AppCompatActivity {
             public void onResponse(JSONArray response) {
                 if (response.length() > 0) {
                     for (int i = 0; i < response.length(); i++) {
-                        //TODO Drawable if a set of facilities is predefined
                         final TextView textView = new TextView(getApplicationContext());
                         Integer optionsId = -1;
                         String text = "";
@@ -289,7 +287,7 @@ public class EventActivity extends AppCompatActivity {
 
                 } else {
                     TextView textView = new TextView(getApplicationContext());
-                    textView.setText("No Facilities");
+                    textView.setText(getResources().getString(R.string.no_facilities));
                     textView.setTextAppearance(R.style.TextAppearance_AppCompat_Body1);
                     LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                     llp.setMargins(0, (int) (8 * getResources().getDisplayMetrics().density), 0, 0);

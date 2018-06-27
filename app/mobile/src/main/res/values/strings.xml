@@ -31,4 +31,5 @@
     <string name="name">Name</string>
     <string name="datetime">Date and Time</string>
     <string name="save">Save</string>
+    <string name="no_facilities">This event has no facilities.</string>
 </resources>

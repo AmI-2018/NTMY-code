@@ -145,7 +145,6 @@ public class MainFragment extends Fragment {
                 // Reload content
                 loadEvents();
 
-                // TODO Our overlay covers refreshing, we should manage setRefresh(false) with atomic integer instead of using our overlay - priority 5
                 mSwipeRefreshLayout.setRefreshing(false);
             }
         });

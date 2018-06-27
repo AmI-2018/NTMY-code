@@ -141,11 +141,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void handleSignUp() {
-        // TODO Implement and Launch SignUpActivity - priority 5
     }
 
     private void handleForgotPassword() {
-        // TODO Implement and Launch ForgotPassword - priority 5
     }
 
     /**

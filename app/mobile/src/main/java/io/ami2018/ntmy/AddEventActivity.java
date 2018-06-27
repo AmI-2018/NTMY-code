@@ -41,8 +41,6 @@ import io.ami2018.ntmy.network.RequestHelper;
 
 public class AddEventActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
 
-    // TODO hide and progress on post
-
     private static final String TAG = AddEventActivity.class.getSimpleName();
     private static AtomicInteger progressCounter;
 
@@ -167,7 +165,6 @@ public class AddEventActivity extends AppCompatActivity implements CompoundButto
                                 calendar.set(Calendar.HOUR_OF_DAY, i);
                                 calendar.set(Calendar.MINUTE, i1);
                                 updateLabelStart();
-                                // TODO Known possible crash for updating end label
                                 calendar.set(Calendar.HOUR_OF_DAY, i+1);
                                 updateLabelEnd();
                             }
@@ -295,7 +292,7 @@ public class AddEventActivity extends AppCompatActivity implements CompoundButto
             public void onResponse(JSONArray response) {
                 // Creation of the adapter that will manage the channels list
                 channels = new String[response.length()];
-                tvAdapter = new ArrayAdapter<String>(AddEventActivity.this, R.layout.item_spinner, channels);
+                tvAdapter = new ArrayAdapter<>(AddEventActivity.this, R.layout.item_spinner, channels);
                 tvAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
                 mTvSpinner.setAdapter(tvAdapter);
                 for (int i = 0; i < response.length(); i++) {
@@ -333,7 +330,7 @@ public class AddEventActivity extends AppCompatActivity implements CompoundButto
             public void onResponse(JSONArray response) {
                 // Creation of the adapter that will manage the playlists
                 playlists = new String[response.length()];
-                playlistAdapter = new ArrayAdapter<String>(AddEventActivity.this, R.layout.item_spinner, playlists);
+                playlistAdapter = new ArrayAdapter<>(AddEventActivity.this, R.layout.item_spinner, playlists);
                 playlistAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
                 mPlaylistSpinner.setAdapter(playlistAdapter);
                 for (int i = 0; i < response.length(); i++) {
@@ -372,7 +369,7 @@ public class AddEventActivity extends AppCompatActivity implements CompoundButto
                 // ... a jsonObject that represents the relation between the event and the category is created...
                 JSONObject jsonObject = new JSONObject();
                 try {
-                    jsonObject.put("categoryID", (int) (mCategories.getChildAt(i).getId()) - 1000);
+                    jsonObject.put("categoryID", (mCategories.getChildAt(i).getId()) - 1000);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -404,7 +401,7 @@ public class AddEventActivity extends AppCompatActivity implements CompoundButto
                 // ... a jsonObject that represents the relation between the event and the facility is created...
                 JSONObject jsonObject = new JSONObject();
                 try {
-                    jsonObject.put("facilityID", (int) (mFacilities.getChildAt(i).getId()) - 2000);
+                    jsonObject.put("facilityID", (mFacilities.getChildAt(i).getId()) - 2000);
                     if(((CheckBox) mFacilities.getChildAt(i)).getText().equals("TV")) {
                         jsonObject.put("options", tvMap.get(mTvSpinner.getSelectedItem().toString()));
                     } else {

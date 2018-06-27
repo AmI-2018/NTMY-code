@@ -15,7 +15,7 @@ import org.json.JSONObject;
 
 public class RequestHelper {
 
-    private static final String url = "http://192.168.0.5:5000/";
+    private static final String url = "http://192.168.1.110:5000/";
 
     public static void get(Context context, String path, Response.Listener<String> responseListener, Response.ErrorListener errorListener) {
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url + path, responseListener, errorListener);
