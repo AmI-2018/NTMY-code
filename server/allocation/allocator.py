@@ -98,3 +98,6 @@ def allocate_rec(pos: int, sol: List[int], best: DailySchedule, rooms: List[Room
         sol[pos] = i
         best = allocate_rec(pos+1, sol, best, rooms, events)
     return best
+
+# Remove imports so they won't be exposed
+del List, Room, Event, TargetFunction, TargetFunctionSet

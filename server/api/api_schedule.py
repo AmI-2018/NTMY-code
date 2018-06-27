@@ -1,6 +1,7 @@
 """Schedule API"""
 
 from flask import jsonify, request, session, Blueprint, abort
+
 import allocation
 import database
 

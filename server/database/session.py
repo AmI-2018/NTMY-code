@@ -105,3 +105,6 @@ class DatabaseSession():
                 setattr(upd_object, key, value)
         self.session.commit()
         return upd_object
+
+# Remove imports so they won't be exposed
+del Type, List, Dict, Any, Base

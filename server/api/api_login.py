@@ -1,7 +1,6 @@
 """Login API"""
 
 from flask import jsonify, request, session, Blueprint, abort
-from functools import wraps
 from typing import Callable
 
 import database
@@ -55,21 +54,8 @@ def login_user():
             return abort(401)
 
 @login_bp.route("/login", methods=["DELETE"])
-def logout_user():
-    """Logs the user out.
-
-    .. :quickref: Login; Logs the user out.
-    
-    :status 200: The user was correctly logged out
-    :return: A confirmation message
-    """
-
-    if "user" in session:
-        del session["user"]
-    return ""
-
 @login_bp.route("/logout", methods=["GET"])
-def logout_user2():
+def logout_user():
     """Logs the user out.
 
     .. :quickref: Login; Logs the user out.

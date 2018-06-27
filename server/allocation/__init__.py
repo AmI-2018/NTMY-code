@@ -1,6 +1,5 @@
 """This module provides all the functions and classes to smartly allocate rooms for the events in the residence."""
 
-import pause
 from threading import Thread, Semaphore
 
 # Import and expose allocation modules
@@ -51,3 +50,6 @@ def allocation_thread_fun():
         print("Allocated events: {}".format(sched))
 
 allocation_thread = Thread(target=allocation_thread_fun, daemon=True)
+
+# Remove imports so they won't be exposed
+del Thread, Semaphore

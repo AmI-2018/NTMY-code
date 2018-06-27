@@ -104,3 +104,6 @@ class Playlist(Base):
             )
         except KeyError as e:
             raise InvalidDictError("The provided dictionary is missing the key {}".format(str(e)))
+
+# Remove imports so they won't be exposed
+del Dict, Any, Column, Integer, String, Base

@@ -94,3 +94,6 @@ class DailySchedule:
                     "color": e["color"]
                 })
         return sched_list
+
+# Remove imports so they won't be exposed
+del List, Dict, Room, Event

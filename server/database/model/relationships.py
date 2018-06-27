@@ -292,4 +292,4 @@ class UserInterest(Base):
             raise InvalidDictError("The provided dictionary is missing the key {}".format(str(e)))
 
 # Remove imports so they won't be exposed
-del Column, Integer, String, ForeignKey, backref, relationship, Base
+del Dict, Any, Column, Integer, String, ForeignKey, backref, relationship, Base

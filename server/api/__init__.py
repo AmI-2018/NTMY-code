@@ -19,6 +19,7 @@ from . import api_categories, api_events, api_facilities, api_login, api_map, ap
 @app.errorhandler(403)
 @app.errorhandler(404)
 def err_handler(error):
+    """Default error handler."""
     return jsonify({
         "error": error.code,
         "msg": error.description
@@ -35,6 +36,7 @@ def err_handler(error):
 @api_schedule.schedule_bp.before_request
 @api_users.users_bp.before_request
 def require_login():
+    """Require login to access the API."""
     try:
         if session["user"]:
             return None

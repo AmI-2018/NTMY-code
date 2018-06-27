@@ -364,4 +364,4 @@ class Event(Base):
         return True
 
 # Remove imports so they won't be exposed
-del Column, Integer, String, LargeBinary, DateTime, Base, Dict, Any
+del Dict, Any, Column, Integer, String, LargeBinary, DateTime, Base
